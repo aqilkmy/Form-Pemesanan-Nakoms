@@ -4,7 +4,8 @@ import { OrderFormValues } from "@/lib/schema"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
-import { PLATFORM_OPTIONS } from "@/lib/constants"
+import { SelectNative } from "@/components/ui/select-native"
+import { PLATFORM_OPTIONS, WAKTU_PUBLIKASI_OPTIONS } from "@/lib/constants"
 
 interface StepProps {
     form: UseFormReturn<OrderFormValues>
@@ -22,7 +23,7 @@ export function StepDetails({ form }: StepProps) {
                     <Label htmlFor="judul_desain">Judul Desain / Konten</Label>
                     <Input
                         id="judul_desain"
-                        placeholder="Contoh: Publikasi Grand Opening"
+                        placeholder="Contoh: Belajar Bersama Medkom #1"
                         {...register("judul_desain")}
                     />
                     {errors.judul_desain && <p className="text-sm text-destructive">{errors.judul_desain.message}</p>}
@@ -59,11 +60,15 @@ export function StepDetails({ form }: StepProps) {
 
                     <div className="grid gap-2">
                         <Label htmlFor="waktu_publikasi">Waktu Publikasi</Label>
-                        <Input
+                        <SelectNative
                             id="waktu_publikasi"
-                            type="time"
                             {...register("waktu_publikasi")}
-                        />
+                        >
+                            <option value="">Pilih waktu</option>
+                            {WAKTU_PUBLIKASI_OPTIONS.map((waktu) => (
+                                <option key={waktu} value={waktu}>{waktu}</option>
+                            ))}
+                        </SelectNative>
                         {errors.waktu_publikasi && <p className="text-sm text-destructive">{errors.waktu_publikasi.message}</p>}
                     </div>
                 </div>

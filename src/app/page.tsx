@@ -16,8 +16,8 @@ export default function Home() {
         <OrderForm />
       </div>
       <footer className="py-8 text-center text-sm text-muted-foreground border-t bg-white">
-        <p>&copy; {new Date().getFullYear()} Student Organization Media Center.</p>
-        <p className="mt-1">Built with Next.js & Supabase</p>
+        <p>&copy; {new Date().getFullYear()} BEM Unsoed 2026</p>
+        <p className="mt-1">BEM Unsoed 2026 | Riset dan Media</p>
       </footer>
     </main>
   )

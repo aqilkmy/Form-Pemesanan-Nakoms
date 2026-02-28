@@ -1,16 +1,15 @@
-
 "use client"
 
 import * as React from "react"
 import { supabase } from "@/lib/supabase"
-import { Order, OrderStatus } from "@/lib/types"
+import { Order } from "@/lib/types"
 import { STATUS_OPTIONS, KEMENTERIAN_OPTIONS, PLATFORM_OPTIONS } from "@/lib/constants"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Loader2, ExternalLink, Filter } from "lucide-react"
+import { Loader2, ExternalLink, Filter, ArrowUpDown } from "lucide-react"
 
 type SortOption = 'waktu_pemesanan' | 'deadline'
 
-export function AdminDashboard() {
+export function MonitoringDashboard() {
     const [orders, setOrders] = React.useState<Order[]>([])
     const [isLoading, setIsLoading] = React.useState(true)
     
@@ -27,13 +26,20 @@ export function AdminDashboard() {
         fetchOrders()
 
         const channel = supabase
-            .channel('orders_realtime')
+            .channel('orders_realtime_monitoring')
             .on(
                 'postgres_changes',
-                { event: 'INSERT', schema: 'public', table: 'orders' },
+                { event: '*', schema: 'public', table: 'orders' },
                 (payload) => {
-                    console.log('New order received!', payload)
-                    setOrders((prev) => [payload.new as Order, ...prev])
+                    if (payload.eventType === 'INSERT') {
+                        setOrders((prev) => [payload.new as Order, ...prev])
+                    } else if (payload.eventType === 'UPDATE') {
+                        setOrders((prev) =>
+                            prev.map((order) =>
+                                order.id === (payload.new as Order).id ? (payload.new as Order) : order
+                            )
+                        )
+                    }
                 }
             )
             .subscribe()
@@ -69,29 +75,14 @@ export function AdminDashboard() {
         }
     }
 
-    const updateStatus = async (orderId: string, newStatus: OrderStatus) => {
-        try {
-            const { error } = await supabase
-                .from('orders')
-                .update({ status: newStatus })
-                .eq('id', orderId)
-
-            if (error) throw error
-
-            setOrders((prev) =>
-                prev.map((order) =>
-                    order.id === orderId ? { ...order, status: newStatus } : order
-                )
-            )
-        } catch (error) {
-            console.error('Error updating status:', error)
-            alert('Gagal mengubah status')
-        }
-    }
-
     const getStatusColor = (status: string) => {
         const option = STATUS_OPTIONS.find(opt => opt.value === status)
         return option?.color || 'bg-gray-100 text-gray-800'
+    }
+
+    const getStatusLabel = (status: string) => {
+        const option = STATUS_OPTIONS.find(opt => opt.value === status)
+        return option?.label || status || 'New'
     }
 
     // Filter and sort logic
@@ -139,26 +130,6 @@ export function AdminDashboard() {
         setFilterDate("")
         setFilterPlatform("")
         setFilterStatus("")
-    }
-
-    const updateLinkDesain = async (orderId: string, link: string) => {
-        try {
-            const { error } = await supabase
-                .from('orders')
-                .update({ link_desain_selesai: link })
-                .eq('id', orderId)
-
-            if (error) throw error
-
-            setOrders((prev) =>
-                prev.map((order) =>
-                    order.id === orderId ? { ...order, link_desain_selesai: link } : order
-                )
-            )
-        } catch (error) {
-            console.error('Error updating link desain:', error)
-            alert('Gagal menyimpan link desain')
-        }
     }
 
     if (isLoading) {
@@ -265,7 +236,6 @@ export function AdminDashboard() {
                                     <th className="px-4 py-3">Pemesan</th>
                                     <th className="px-4 py-3">Judul & Platform</th>
                                     <th className="px-4 py-3">Deadline</th>
-                                    <th className="px-4 py-3">Aset</th>
                                     <th className="px-4 py-3">Status</th>
                                     <th className="px-4 py-3">Link Desain</th>
                                 </tr>
@@ -273,7 +243,7 @@ export function AdminDashboard() {
                             <tbody className="divide-y">
                                 {filteredAndSortedOrders.length === 0 ? (
                                     <tr>
-                                        <td colSpan={7} className="px-4 py-8 text-center text-muted-foreground">
+                                        <td colSpan={6} className="px-4 py-8 text-center text-muted-foreground">
                                             Tidak ada pesanan yang sesuai filter.
                                         </td>
                                     </tr>
@@ -286,7 +256,6 @@ export function AdminDashboard() {
                                             <td className="px-4 py-3">
                                                 <div className="font-semibold">{order.nama}</div>
                                                 <div className="text-xs text-muted-foreground">{order.kementerian}</div>
-                                                <div className="text-xs text-muted-foreground">{order.nomor_whatsapp}</div>
                                             </td>
                                             <td className="px-4 py-3 max-w-xs">
                                                 <div className="font-medium truncate" title={order.judul_desain}>{order.judul_desain}</div>
@@ -301,50 +270,23 @@ export function AdminDashboard() {
                                                 <div className="text-xs text-muted-foreground">{order.waktu_publikasi}</div>
                                             </td>
                                             <td className="px-4 py-3">
-                                                <div className="flex flex-col gap-1">
-                                                    <a href={order.link_thumbnail} target="_blank" rel="noreferrer" className="text-blue-600 hover:underline flex items-center text-xs">
-                                                        <ExternalLink className="w-3 h-3 mr-1" /> Thumb
-                                                    </a>
-                                                    <a href={order.link_file_konten} target="_blank" rel="noreferrer" className="text-blue-600 hover:underline flex items-center text-xs">
-                                                        <ExternalLink className="w-3 h-3 mr-1" /> Files
-                                                    </a>
-                                                    <a href={order.link_caption_docs} target="_blank" rel="noreferrer" className="text-blue-600 hover:underline flex items-center text-xs">
-                                                        <ExternalLink className="w-3 h-3 mr-1" /> Caption
-                                                    </a>
-                                                </div>
+                                                <span className={`px-2 py-1 rounded-full text-xs font-semibold ${getStatusColor(order.status)}`}>
+                                                    {getStatusLabel(order.status)}
+                                                </span>
                                             </td>
                                             <td className="px-4 py-3">
-                                                <select
-                                                    value={order.status || 'new'}
-                                                    onChange={(e) => updateStatus(order.id, e.target.value as OrderStatus)}
-                                                    className={`px-2 py-1 rounded-full text-xs font-semibold border-0 cursor-pointer ${getStatusColor(order.status)}`}
-                                                >
-                                                    {STATUS_OPTIONS.map((opt) => (
-                                                        <option key={opt.value} value={opt.value}>
-                                                            {opt.label}
-                                                        </option>
-                                                    ))}
-                                                </select>
-                                            </td>
-                                            <td className="px-4 py-3">
-                                                <div className="flex items-center gap-1">
-                                                    <input
-                                                        type="text"
-                                                        placeholder="Paste link..."
-                                                        defaultValue={order.link_desain_selesai || ''}
-                                                        onBlur={(e) => {
-                                                            if (e.target.value !== (order.link_desain_selesai || '')) {
-                                                                updateLinkDesain(order.id, e.target.value)
-                                                            }
-                                                        }}
-                                                        className="w-32 px-2 py-1 text-xs border rounded focus:outline-none focus:ring-1 focus:ring-primary"
-                                                    />
-                                                    {order.link_desain_selesai && (
-                                                        <a href={order.link_desain_selesai} target="_blank" rel="noreferrer" className="text-blue-600 hover:text-blue-800">
-                                                            <ExternalLink className="w-3 h-3" />
-                                                        </a>
-                                                    )}
-                                                </div>
+                                                {order.link_desain_selesai ? (
+                                                    <a 
+                                                        href={order.link_desain_selesai} 
+                                                        target="_blank" 
+                                                        rel="noreferrer" 
+                                                        className="text-blue-600 hover:underline flex items-center text-xs"
+                                                    >
+                                                        <ExternalLink className="w-3 h-3 mr-1" /> Lihat
+                                                    </a>
+                                                ) : (
+                                                    <span className="text-xs text-muted-foreground">-</span>
+                                                )}
                                             </td>
                                         </tr>
                                     ))

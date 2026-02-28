@@ -61,7 +61,7 @@ export function StepIdentity({ form }: StepProps) {
                     </div>
                     <div className="ml-3 text-sm">
                         <label htmlFor="sudah_baca_sop" className="font-medium text-foreground">
-                            Saya sudah membaca dan memahami SOP Pemesanan Konten
+                            Saya sudah membaca dan memahami <span className="font-bold text-blue-700 italic underline"><a href="google.com">SOP Pemesanan Konten</a></span>
                         </label>
                         <p className="text-muted-foreground mt-1">
                             Dengan mencentang ini, Anda setuju untuk mengikuti semua prosedur yang berlaku.

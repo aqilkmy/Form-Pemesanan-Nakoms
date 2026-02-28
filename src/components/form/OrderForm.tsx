@@ -116,9 +116,10 @@ export function OrderForm() {
             setIsSuccess(true)
             form.reset()
             topRef.current?.scrollIntoView({ behavior: "smooth" })
-        } catch (error) {
-            console.error('Error submitting order:', error)
-            alert('Terjadi kesalahan saat mengirim pesanan. Silakan coba lagi.')
+        } catch (error: any) {
+            const errorMsg = error?.message || error?.code || 'Unknown error'
+            console.error('Error submitting order:', errorMsg)
+            alert(`Terjadi kesalahan: ${errorMsg}`)
         } finally {
             setIsLoading(false)
         }

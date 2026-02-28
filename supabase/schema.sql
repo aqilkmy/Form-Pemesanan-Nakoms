@@ -15,7 +15,7 @@ create table orders (
   judul_desain text not null,
   platform_publikasi text[] not null, -- Array of strings for multi-select
   tanggal_publikasi date not null,
-  waktu_publikasi time not null,
+  waktu_publikasi text not null, -- Options: 09.00, 10.00, 12.00, 13.00, 15.00, 18.00, 19.00
   
   -- Aset
   link_thumbnail text not null,
@@ -28,7 +28,10 @@ create table orders (
   fitur_tambahan_web text,
   
   -- Internal Status
-  status text default 'pending' check (status in ('pending', 'processing', 'completed', 'rejected'))
+  status text default 'new' check (status in ('new', 'in progress', 'under review', 'ready', 'pause', 'cancel')),
+  
+  -- Link Desain Selesai (diisi admin)
+  link_desain_selesai text
 );
 
 -- Enable Row Level Security (RLS)
@@ -46,3 +49,7 @@ create policy "Enable insert for public" on orders
 -- We'll allow public read for now to make the simple dashboard work easily.
 create policy "Enable read access for all" on orders
   for select using (true);
+
+-- Policy: Allow update for status changes
+create policy "Enable update for all" on orders
+  for update using (true);
