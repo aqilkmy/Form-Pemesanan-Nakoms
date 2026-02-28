@@ -28,7 +28,7 @@ export function StepIdentity({ form }: StepProps) {
                 <div className="grid gap-2">
                     <Label htmlFor="kementerian">Asal Kementerian/Biro</Label>
                     <SelectNative id="kementerian" {...register("kementerian")}>
-                        <option value="">Pilih Kementerian...</option>
+                        <option value="">Pilih Kementerian/Biro</option>
                         {KEMENTERIAN_OPTIONS.map((k) => (
                             <option key={k} value={k}>{k}</option>
                         ))}

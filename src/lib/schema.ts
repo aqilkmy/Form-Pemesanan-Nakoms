@@ -19,10 +19,10 @@ export const orderFormSchema = z.object({
     tanggal_publikasi: z.string().min(1, "Tanggal wajib diisi"),
     waktu_publikasi: z.string().min(1, "Waktu wajib diisi"),
 
-    // Step 3: Aset
-    link_thumbnail: z.string().url("Link tidak valid").regex(googleDriveRegex, googleDriveError),
-    link_file_konten: z.string().url("Link tidak valid").regex(googleDriveRegex, googleDriveError),
-    link_caption_docs: z.string().url("Link tidak valid").regex(googleDriveRegex, googleDriveError),
+    // Step 3: Aset (bisa diisi "-" jika tidak ada)
+    link_thumbnail: z.string().min(1, "Wajib diisi (isi '-' jika tidak ada)"),
+    link_file_konten: z.string().min(1, "Wajib diisi (isi '-' jika tidak ada)"),
+    link_caption_docs: z.string().min(1, "Wajib diisi (isi '-' jika tidak ada)"),
 
     // Step 4: Opsional
     request_lagu: z.string().optional(),
