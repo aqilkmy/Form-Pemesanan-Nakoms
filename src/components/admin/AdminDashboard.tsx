@@ -114,14 +114,11 @@ export function AdminDashboard() {
         
         // Apply sorting
         if (sortBy === 'waktu_pemesanan') {
+            // ISO timestamps can be sorted as strings directly (newest first = descending)
             result.sort((a, b) => {
-                const dateA = new Date(a.created_at).getTime()
-                const dateB = new Date(b.created_at).getTime()
-                // Handle invalid dates - compare as strings if parsing fails
-                if (isNaN(dateA) || isNaN(dateB)) {
-                    return b.created_at.localeCompare(a.created_at)
-                }
-                return dateB - dateA // Descending (newest first)
+                if (a.created_at > b.created_at) return -1
+                if (a.created_at < b.created_at) return 1
+                return 0
             })
         } else if (sortBy === 'deadline') {
             result.sort((a, b) => {

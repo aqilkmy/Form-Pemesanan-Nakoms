@@ -105,15 +105,17 @@ export function MonitoringDashboard() {
         
         // Apply sorting
         if (sortBy === 'waktu_pemesanan') {
+            // ISO timestamps can be sorted as strings directly (newest first = descending)
             result.sort((a, b) => {
-                const dateA = new Date(a.created_at).getTime()
-                const dateB = new Date(b.created_at).getTime()
-                // Handle invalid dates - compare as strings if parsing fails
-                if (isNaN(dateA) || isNaN(dateB)) {
-                    return b.created_at.localeCompare(a.created_at)
-                }
-                return dateB - dateA // Descending (newest first)
+                if (a.created_at > b.created_at) return -1
+                if (a.created_at < b.created_at) return 1
+                return 0
             })
+            // Debug: log first and last items
+            if (result.length > 0) {
+                console.log('First (should be newest):', result[0].created_at, result[0].judul_desain)
+                console.log('Last (should be oldest):', result[result.length-1].created_at, result[result.length-1].judul_desain)
+            }
         } else if (sortBy === 'deadline') {
             result.sort((a, b) => {
                 const aIsNotReady = a.status !== 'ready' && a.status !== 'cancel'
