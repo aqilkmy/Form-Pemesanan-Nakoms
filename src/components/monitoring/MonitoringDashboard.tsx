@@ -105,7 +105,15 @@ export function MonitoringDashboard() {
         
         // Apply sorting
         if (sortBy === 'waktu_pemesanan') {
-            result.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
+            result.sort((a, b) => {
+                const dateA = new Date(a.created_at).getTime()
+                const dateB = new Date(b.created_at).getTime()
+                // Handle invalid dates - compare as strings if parsing fails
+                if (isNaN(dateA) || isNaN(dateB)) {
+                    return b.created_at.localeCompare(a.created_at)
+                }
+                return dateB - dateA // Descending (newest first)
+            })
         } else if (sortBy === 'deadline') {
             result.sort((a, b) => {
                 const aIsNotReady = a.status !== 'ready' && a.status !== 'cancel'
@@ -118,6 +126,9 @@ export function MonitoringDashboard() {
                 // Sort by deadline (closest first)
                 const aDate = new Date(a.tanggal_publikasi).getTime()
                 const bDate = new Date(b.tanggal_publikasi).getTime()
+                if (isNaN(aDate) || isNaN(bDate)) {
+                    return a.tanggal_publikasi.localeCompare(b.tanggal_publikasi)
+                }
                 return aDate - bDate
             })
         }
