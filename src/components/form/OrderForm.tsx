@@ -55,6 +55,7 @@ export function OrderForm() {
     const [isSuccess, setIsSuccess] = React.useState(false)
     const [isLoading, setIsLoading] = React.useState(false)
     const [isNavigating, setIsNavigating] = React.useState(false) // Prevent rapid clicks
+    const [submittedData, setSubmittedData] = React.useState<{ kementerian: string; tanggal_publikasi: string } | null>(null)
 
     const form = useForm<OrderFormValues>({
         resolver: zodResolver(orderFormSchema),
@@ -113,6 +114,10 @@ export function OrderForm() {
                 throw error
             }
 
+            setSubmittedData({
+                kementerian: data.kementerian,
+                tanggal_publikasi: data.tanggal_publikasi
+            })
             setIsSuccess(true)
             form.reset()
             topRef.current?.scrollIntoView({ behavior: "smooth" })
@@ -126,10 +131,14 @@ export function OrderForm() {
     }
 
     if (isSuccess) {
-        return <SuccessMessage onReset={() => {
-            setIsSuccess(false)
-            setCurrentStep(1)
-        }} />
+        return <SuccessMessage 
+            onReset={() => {
+                setIsSuccess(false)
+                setCurrentStep(1)
+                setSubmittedData(null)
+            }} 
+            submittedData={submittedData || undefined}
+        />
     }
 
     const CurrentStepComponent = STEPS[currentStep - 1].component

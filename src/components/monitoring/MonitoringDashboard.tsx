@@ -118,12 +118,12 @@ export function MonitoringDashboard() {
             }
         } else if (sortBy === 'deadline') {
             result.sort((a, b) => {
-                const aIsNotReady = a.status !== 'ready' && a.status !== 'cancel'
-                const bIsNotReady = b.status !== 'ready' && b.status !== 'cancel'
+                const aIsNotCancel = a.status !== 'cancel'
+                const bIsNotCancel = b.status !== 'cancel'
                 
-                // Prioritize non-ready items
-                if (aIsNotReady && !bIsNotReady) return -1
-                if (!aIsNotReady && bIsNotReady) return 1
+                // Prioritize non-cancel items (cancel goes to bottom)
+                if (aIsNotCancel && !bIsNotCancel) return -1
+                if (!aIsNotCancel && bIsNotCancel) return 1
                 
                 // Sort by deadline (closest first)
                 const aDate = new Date(a.tanggal_publikasi).getTime()

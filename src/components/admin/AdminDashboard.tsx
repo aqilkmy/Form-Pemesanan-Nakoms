@@ -122,12 +122,12 @@ export function AdminDashboard() {
             })
         } else if (sortBy === 'deadline') {
             result.sort((a, b) => {
-                const aIsNotReady = a.status !== 'ready' && a.status !== 'cancel'
-                const bIsNotReady = b.status !== 'ready' && b.status !== 'cancel'
+                const aIsNotCancel = a.status !== 'cancel'
+                const bIsNotCancel = b.status !== 'cancel'
                 
-                // Prioritize non-ready items
-                if (aIsNotReady && !bIsNotReady) return -1
-                if (!aIsNotReady && bIsNotReady) return 1
+                // Prioritize non-cancel items (cancel goes to bottom)
+                if (aIsNotCancel && !bIsNotCancel) return -1
+                if (!aIsNotCancel && bIsNotCancel) return 1
                 
                 // Sort by deadline (closest first)
                 const aDate = new Date(a.tanggal_publikasi).getTime()
@@ -166,6 +166,26 @@ export function AdminDashboard() {
         } catch (error) {
             console.error('Error updating link desain:', error)
             alert('Gagal menyimpan link desain')
+        }
+    }
+
+    const updateDeadline = async (orderId: string, newDate: string) => {
+        try {
+            const { error } = await supabase
+                .from('orders')
+                .update({ tanggal_publikasi: newDate })
+                .eq('id', orderId)
+
+            if (error) throw error
+
+            setOrders((prev) =>
+                prev.map((order) =>
+                    order.id === orderId ? { ...order, tanggal_publikasi: newDate } : order
+                )
+            )
+        } catch (error) {
+            console.error('Error updating deadline:', error)
+            alert('Gagal mengubah deadline')
         }
     }
 
@@ -305,8 +325,19 @@ export function AdminDashboard() {
                                                 </div>
                                             </td>
                                             <td className="px-4 py-3 whitespace-nowrap">
-                                                <div>{order.tanggal_publikasi}</div>
-                                                <div className="text-xs text-muted-foreground">{order.waktu_publikasi}</div>
+                                                <div>
+                                                    <input
+                                                        type="date"
+                                                        defaultValue={order.tanggal_publikasi}
+                                                        onBlur={(e) => {
+                                                            if (e.target.value !== order.tanggal_publikasi) {
+                                                                updateDeadline(order.id, e.target.value)
+                                                            }
+                                                        }}
+                                                        className="px-2 py-1 text-xs border rounded focus:outline-none focus:ring-1 focus:ring-primary cursor-pointer"
+                                                    />
+                                                </div>
+                                                <div className="text-xs text-muted-foreground mt-1">{order.waktu_publikasi}</div>
                                             </td>
                                             <td className="px-4 py-3">
                                                 <div className="flex flex-col gap-1">
