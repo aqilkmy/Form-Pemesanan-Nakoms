@@ -20,7 +20,7 @@ export const orderFormSchema = z.object({
     waktu_publikasi: z.string().min(1, "Waktu wajib diisi"),
 
     // Step 3: Aset (bisa diisi "-" jika tidak ada)
-    link_thumbnail: z.string().min(1, "Wajib diisi (isi '-' jika tidak ada)"),
+    link_thumbnail: z.string().optional(),
     link_file_konten: z.string().min(1, "Wajib diisi (isi '-' jika tidak ada)"),
     link_caption_docs: z.string().min(1, "Wajib diisi (isi '-' jika tidak ada)"),
 

@@ -30,7 +30,7 @@ export function StepDetails({ form }: StepProps) {
                 </div>
 
                 <div className="grid gap-2">
-                    <Label>Platform Publikasi (Pilih minimal satu)</Label>
+                    <Label>Platform Publikasi (Semua Mirroring ke WAC & IGS)</Label>
                     <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 p-4 border rounded-md bg-secondary/20">
                         {PLATFORM_OPTIONS.map((platform) => (
                             <label key={platform} className="flex items-center space-x-2 cursor-pointer">
@@ -72,6 +72,15 @@ export function StepDetails({ form }: StepProps) {
                         {errors.waktu_publikasi && <p className="text-sm text-destructive">{errors.waktu_publikasi.message}</p>}
                     </div>
                 </div>
+                    <div className="ml-3 text-sm">
+                        <label htmlFor="sudah_baca_sop" className="font-medium text-foreground">
+                            Lihat <span className="font-bold text-blue-700 italic underline"><a href="/jadwal" target="_blank">Jadwal Publikasi</a></span>
+                        </label>
+                        <p className="text-muted-foreground mt-1">
+                            Lihat Jadwal Publikasi Sebelum Memilih Jadwal, Pastikan Tidak Ada Jadwal Bentrok dengan Konten Lain.
+                        </p>
+                        {errors.sudah_baca_sop && <p className="text-sm text-destructive mt-1">{errors.sudah_baca_sop.message}</p>}
+                    </div>
             </div>
         </div>
     )

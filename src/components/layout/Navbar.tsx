@@ -13,6 +13,9 @@ export function Navbar() {
                         <Link href="/" className="hover:underline opacity-90 hover:opacity-100">
                             Home
                         </Link>
+                        <Link href="/jadwal" className="hover:underline opacity-90 hover:opacity-100">
+                            Jadwal
+                        </Link>
                         <Link href="/monitoring" className="hover:underline opacity-90 hover:opacity-100">
                             Monitoring
                         </Link>

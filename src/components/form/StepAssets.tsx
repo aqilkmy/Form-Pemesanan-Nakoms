@@ -27,16 +27,6 @@ export function StepAssets({ form }: StepProps) {
                 </div>
 
                 <div className="grid gap-2">
-                    <Label htmlFor="link_thumbnail">Link Thumbnail (G-Drive/Docs)</Label>
-                    <Input
-                        id="link_thumbnail"
-                        placeholder="https://drive.google.com/... atau isi '-' jika tidak ada"
-                        {...register("link_thumbnail")}
-                    />
-                    {errors.link_thumbnail && <p className="text-sm text-destructive">{errors.link_thumbnail.message}</p>}
-                </div>
-
-                <div className="grid gap-2">
                     <Label htmlFor="link_file_konten">Link File Konten (G-Drive/Docs)</Label>
                     <Input
                         id="link_file_konten"

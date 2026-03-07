@@ -34,7 +34,7 @@ const STEPS = [
         id: 3,
         title: "Aset",
         component: StepAssets,
-        fields: ["link_thumbnail", "link_file_konten", "link_caption_docs"] as const
+        fields: ["link_file_konten", "link_caption_docs"] as const
     },
     {
         id: 4,

@@ -66,10 +66,6 @@ export function StepReview({ form }: StepProps) {
                         <h3 className="font-semibold text-foreground">Aset & Link</h3>
                         <div className="flex flex-col gap-2 mt-1">
                             <div className="flex flex-col">
-                                <span className="text-muted-foreground text-xs">Thumbnail:</span>
-                                <a href={values.link_thumbnail} target="_blank" className="text-blue-600 hover:underline truncate">{values.link_thumbnail}</a>
-                            </div>
-                            <div className="flex flex-col">
                                 <span className="text-muted-foreground text-xs">File Konten:</span>
                                 <a href={values.link_file_konten} target="_blank" className="text-blue-600 hover:underline truncate">{values.link_file_konten}</a>
                             </div>

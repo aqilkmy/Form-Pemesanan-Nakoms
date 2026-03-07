@@ -4,7 +4,7 @@
 import * as React from "react"
 import { supabase } from "@/lib/supabase"
 import { Order, OrderStatus } from "@/lib/types"
-import { STATUS_OPTIONS, KEMENTERIAN_OPTIONS, PLATFORM_OPTIONS } from "@/lib/constants"
+import { STATUS_OPTIONS, KEMENTERIAN_OPTIONS, PLATFORM_OPTIONS, WAKTU_PUBLIKASI_OPTIONS } from "@/lib/constants"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Loader2, ExternalLink, Filter } from "lucide-react"
 
@@ -94,6 +94,42 @@ export function AdminDashboard() {
         return option?.color || 'bg-gray-100 text-gray-800'
     }
 
+    // Detect duplicate deadlines (same date + time)
+    const duplicateDeadlines = React.useMemo(() => {
+        const deadlineCount: Record<string, string[]> = {}
+        // Check all orders that are not cancelled
+        orders.forEach(order => {
+            if (order.status !== 'cancel') {
+                // Normalize key: trim whitespace and convert to lowercase
+                const normalizedDate = (order.tanggal_publikasi || '').trim()
+                const normalizedTime = (order.waktu_publikasi || '').trim().toLowerCase()
+                const key = `${normalizedDate}_${normalizedTime}`
+                if (!deadlineCount[key]) {
+                    deadlineCount[key] = []
+                }
+                deadlineCount[key].push(order.id)
+            }
+        })
+        // Return set of order IDs that have duplicates
+        const duplicateIds = new Set<string>()
+        Object.values(deadlineCount).forEach(ids => {
+            if (ids.length > 1) {
+                ids.forEach(id => duplicateIds.add(id))
+            }
+        })
+        console.log('Duplicate detection:', { deadlineCount, duplicateIds: Array.from(duplicateIds) })
+        return duplicateIds
+    }, [orders])
+
+    // Helper to check if deadline has passed
+    const isDeadlinePassed = (tanggal: string, waktu: string) => {
+        const now = new Date()
+        const [hour] = waktu.split('.').map(Number)
+        const deadlineDate = new Date(tanggal)
+        deadlineDate.setHours(hour || 0, 0, 0, 0)
+        return deadlineDate < now
+    }
+
     // Filter and sort logic
     const filteredAndSortedOrders = React.useMemo(() => {
         let result = [...orders]
@@ -125,9 +161,17 @@ export function AdminDashboard() {
                 const aIsNotCancel = a.status !== 'cancel'
                 const bIsNotCancel = b.status !== 'cancel'
                 
-                // Prioritize non-cancel items (cancel goes to bottom)
+                // Cancelled items go to bottom
                 if (aIsNotCancel && !bIsNotCancel) return -1
                 if (!aIsNotCancel && bIsNotCancel) return 1
+                
+                // Check if deadline has passed
+                const aIsPassed = isDeadlinePassed(a.tanggal_publikasi, a.waktu_publikasi)
+                const bIsPassed = isDeadlinePassed(b.tanggal_publikasi, b.waktu_publikasi)
+                
+                // Passed deadlines go to bottom (but above cancelled)
+                if (!aIsPassed && bIsPassed) return -1
+                if (aIsPassed && !bIsPassed) return 1
                 
                 // Sort by deadline (closest first)
                 const aDate = new Date(a.tanggal_publikasi).getTime()
@@ -186,6 +230,26 @@ export function AdminDashboard() {
         } catch (error) {
             console.error('Error updating deadline:', error)
             alert('Gagal mengubah deadline')
+        }
+    }
+
+    const updateWaktuPublikasi = async (orderId: string, newTime: string) => {
+        try {
+            const { error } = await supabase
+                .from('orders')
+                .update({ waktu_publikasi: newTime })
+                .eq('id', orderId)
+
+            if (error) throw error
+
+            setOrders((prev) =>
+                prev.map((order) =>
+                    order.id === orderId ? { ...order, waktu_publikasi: newTime } : order
+                )
+            )
+        } catch (error) {
+            console.error('Error updating waktu publikasi:', error)
+            alert('Gagal mengubah jam publikasi')
         }
     }
 
@@ -324,7 +388,7 @@ export function AdminDashboard() {
                                                     ))}
                                                 </div>
                                             </td>
-                                            <td className="px-4 py-3 whitespace-nowrap">
+                                            <td className={`px-4 py-3 whitespace-nowrap ${duplicateDeadlines.has(order.id) ? 'bg-red-100 border-l-4 border-l-red-500' : ''}`}>
                                                 <div>
                                                     <input
                                                         type="date"
@@ -334,16 +398,28 @@ export function AdminDashboard() {
                                                                 updateDeadline(order.id, e.target.value)
                                                             }
                                                         }}
-                                                        className="px-2 py-1 text-xs border rounded focus:outline-none focus:ring-1 focus:ring-primary cursor-pointer"
+                                                        className={`px-2 py-1 text-xs border rounded focus:outline-none focus:ring-1 focus:ring-primary cursor-pointer ${duplicateDeadlines.has(order.id) ? 'border-red-500 bg-red-50' : ''}`}
                                                     />
                                                 </div>
-                                                <div className="text-xs text-muted-foreground mt-1">{order.waktu_publikasi}</div>
+                                                <div className="mt-1">
+                                                    <select
+                                                        value={order.waktu_publikasi}
+                                                        onChange={(e) => updateWaktuPublikasi(order.id, e.target.value)}
+                                                        className={`px-2 py-1 text-xs border rounded focus:outline-none focus:ring-1 focus:ring-primary cursor-pointer ${duplicateDeadlines.has(order.id) ? 'border-red-500 bg-red-50' : ''}`}
+                                                    >
+                                                        {WAKTU_PUBLIKASI_OPTIONS.map((time) => (
+                                                            <option key={time} value={time}>{time}</option>
+                                                        ))}
+                                                    </select>
+                                                </div>
+                                                {duplicateDeadlines.has(order.id) && (
+                                                    <div className="text-xs text-red-600 font-bold mt-1 flex items-center gap-1">
+                                                        <span className="animate-pulse">⚠️</span> Jadwal bentrok
+                                                    </div>
+                                                )}
                                             </td>
                                             <td className="px-4 py-3">
                                                 <div className="flex flex-col gap-1">
-                                                    <a href={order.link_thumbnail} target="_blank" rel="noreferrer" className="text-blue-600 hover:underline flex items-center text-xs">
-                                                        <ExternalLink className="w-3 h-3 mr-1" /> Thumb
-                                                    </a>
                                                     <a href={order.link_file_konten} target="_blank" rel="noreferrer" className="text-blue-600 hover:underline flex items-center text-xs">
                                                         <ExternalLink className="w-3 h-3 mr-1" /> Files
                                                     </a>

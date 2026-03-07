@@ -23,6 +23,7 @@ export const KEMENTERIAN_OPTIONS = [
 export const PLATFORM_OPTIONS = [
     "Instagram Feed & X (Twitter)",
     "Instagram Story",
+    "Whatsapp Channel",
     "Instagram Reels & Tiktok",
     "YouTube",
     "Website",
@@ -30,11 +31,9 @@ export const PLATFORM_OPTIONS = [
 ]
 
 export const WAKTU_PUBLIKASI_OPTIONS = [
-    "09.00",
     "10.00",
     "12.00 (Reels & Igs)",
     "13.00",
-    "15.00",
     "18.00 (Reels & Igs)",
     "19.00"
 ]
