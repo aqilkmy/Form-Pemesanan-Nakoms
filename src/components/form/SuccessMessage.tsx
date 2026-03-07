@@ -35,7 +35,7 @@ export function SuccessMessage({ onReset, submittedData }: SuccessMessageProps) 
 
     return (
         <div className="text-center py-12 space-y-6 animate-in zoom-in duration-500">
-            <div className="flex justify-center">
+            <div className="flex justify-center"> 
                 <div className="h-24 w-24 bg-green-100 rounded-full flex items-center justify-center">
                     <CheckCircle2 className="h-12 w-12 text-green-600" />
                 </div>
