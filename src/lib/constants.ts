@@ -67,7 +67,7 @@ export const JENIS_BANTUAN_OPTIONS = [
 // PJ Desain Grafis berdasarkan kementerian pemesan (untuk menu Desain & Publikasi)
 export const PJ_DESAIN_GRAFIS: Record<string, { nama: string; nomor: string }> = {
     "Lingkar Presiden": { nama: "Fira", nomor: "6288706691442" },
-    "Biro Kesekretariatan": { nama: "Kes", nomor: "62895362396200" },
+    "Biro Kesekretariatan": { nama: "Rissa", nomor: "6281393665862" },
     "Biro Keuangan": { nama: "Rahma", nomor: "6281392626815" },
     "Biro Pengembangan Sumber Daya Anggota": { nama: "Isa", nomor: "6285727631992" },
     "Biro Pengendali & Penjamin Mutu": { nama: "Kynna", nomor: "6289526269980" },
@@ -76,13 +76,13 @@ export const PJ_DESAIN_GRAFIS: Record<string, { nama: string; nomor: string }> =
     "Kementerian Prestasi dan Inovasi": { nama: "Dina", nomor: "6285691140342" },
     "Kementerian Dalam Negeri": { nama: "Rosyid", nomor: "6285134057783" },
     "Kementerian Luar Negeri": { nama: "Rahma", nomor: "6281392626815" },
-    "Kementerian Pengabdian Masyarakat": { nama: "Rissa", nomor: "6281393665862" },
+    "Kementerian Pengabdian Masyarakat": { nama: "Kes", nomor: "62895362396200" },
     "Kementerian Advokasi dan Kesejahteraan Mahasiswa": { nama: "Livia", nomor: "6289504858150" },
     "Kementerian Aksi dan Propaganda": { nama: "Isa", nomor: "6285727631992" },
     "Kementerian Analisis Isu Strategis": { nama: "Dina", nomor: "6285691140342" },
     "Kementerian Pemberdayaan Perempuan": { nama: "Livia", nomor: "6289504858150" },
-    "Kementerian Media Kreatif dan Aplikatif": { nama: "Kes", nomor: "62895362396200" },
-    "Kementerian Media Komunikasi dan Informasi": { nama: "Rissa", nomor: "6281393665862" },
+    "Kementerian Media Kreatif dan Aplikatif": { nama: "Rissa", nomor: "6281393665862" },
+    "Kementerian Media Komunikasi dan Informasi": { nama: "Kes", nomor: "62895362396200" },
     "Kementerian Riset dan Data": { nama: "Rosyid", nomor: "6285134057783" },
 }
 
