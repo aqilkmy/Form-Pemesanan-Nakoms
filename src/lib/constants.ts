@@ -26,7 +26,6 @@ export const PLATFORM_OPTIONS = [
     "Whatsapp Channel",
     "Instagram Reels & Tiktok",
     "YouTube",
-    "Website",
     "Repost"
 ]
 
@@ -47,18 +46,25 @@ export const STATUS_OPTIONS = [
     { value: "cancel", label: "Cancel", color: "bg-red-100 text-red-800" }
 ] as const
 
-// PJ Publikasi berdasarkan hari publikasi (0 = Minggu, 1 = Senin, dst)
-export const PJ_PUBLIKASI: Record<number, { nama: string; nomor: string }> = {
-    0: { nama: "Jasmine", nomor: "6281326790367" }, // Minggu
-    1: { nama: "Nesya", nomor: "6282225061788" }, // Senin
-    2: { nama: "Nesya", nomor: "6282225061788" }, // Selasa
-    3: { nama: "Alwan", nomor: "6285150004241" }, // Rabu
-    4: { nama: "Alwan", nomor: "6285150004241" }, // Kamis
-    5: { nama: "Nana", nomor: "6285156164027" }, // Jumat
-    6: { nama: "Nana", nomor: "6285156164027" }, // Sabtu
-}
+// Jenis Menu/Layanan
+export type MenuType = "desain_publikasi" | "website" | "bantuan_teknis" | "survey"
 
-// PJ Desain Grafis berdasarkan kementerian pemesan
+export const MENU_OPTIONS: { id: MenuType; label: string; description: string; icon: string }[] = [
+    { id: "desain_publikasi", label: "Desain & Publikasi", description: "Pemesanan desain grafis dan publikasi konten", icon: "🎨" },
+    { id: "website", label: "Laman Website", description: "Pemesanan shortlink dan halaman website", icon: "🌐" },
+    { id: "bantuan_teknis", label: "Bantuan Teknis", description: "Podcast, video, live instagram, dll", icon: "🎬" },
+    { id: "survey", label: "Survey", description: "Publikasi survey/kuesioner", icon: "📊" },
+]
+
+// Jenis Bantuan Teknis
+export const JENIS_BANTUAN_OPTIONS = [
+    { id: "podcast", label: "Podcast", pj: "A" },
+    { id: "take_video", label: "Take Konten Video", pj: "A" },
+    { id: "live_instagram", label: "Live Instagram", pj: "B" },
+    { id: "lainnya", label: "Lainnya (isi sendiri)", pj: "A" },
+] as const
+
+// PJ Desain Grafis berdasarkan kementerian pemesan (untuk menu Desain & Publikasi)
 export const PJ_DESAIN_GRAFIS: Record<string, { nama: string; nomor: string }> = {
     "Lingkar Presiden": { nama: "Fira", nomor: "6288706691442" },
     "Biro Kesekretariatan": { nama: "Kes", nomor: "62895362396200" },
@@ -80,24 +86,20 @@ export const PJ_DESAIN_GRAFIS: Record<string, { nama: string; nomor: string }> =
     "Kementerian Riset dan Data": { nama: "Rosyid", nomor: "6285134057783" },
 }
 
-// PJ Website berdasarkan kementerian pemesan
-export const PJ_WEBSITE: Record<string, { nama: string; nomor: string }> = {
-    "Lingkar Presiden": { nama: "", nomor: "" },
-    "Biro Kesekretariatan": { nama: "", nomor: "" },
-    "Biro Keuangan": { nama: "", nomor: "" },
-    "Biro Pengembangan Sumber Daya Anggota": { nama: "", nomor: "" },
-    "Biro Pengendali & Penjamin Mutu": { nama: "", nomor: "" },
-    "Kementerian Pengembangan Sumber Daya Mahasiswa": { nama: "", nomor: "" },
-    "Kementerian Seni dan Olahraga": { nama: "", nomor: "" },
-    "Kementerian Prestasi dan Inovasi": { nama: "", nomor: "" },
-    "Kementerian Dalam Negeri": { nama: "", nomor: "" },
-    "Kementerian Luar Negeri": { nama: "", nomor: "" },
-    "Kementerian Pengabdian Masyarakat": { nama: "", nomor: "" },
-    "Kementerian Advokasi dan Kesejahteraan Mahasiswa": { nama: "", nomor: "" },
-    "Kementerian Aksi dan Propaganda": { nama: "", nomor: "" },
-    "Kementerian Analisis Isu Strategis": { nama: "", nomor: "" },
-    "Kementerian Pemberdayaan Perempuan": { nama: "", nomor: "" },
-    "Kementerian Media Kreatif dan Aplikatif": { nama: "", nomor: "" },
-    "Kementerian Media Komunikasi dan Informasi": { nama: "", nomor: "" },
-    "Kementerian Riset dan Data": { nama: "", nomor: "" },
+// PJ Website (untuk menu Laman Website) - TODO: isi dengan data yang sesuai
+export const PJ_WEBSITE: { nama: string; nomor: string } = {
+    nama: "Admin Website",  // Ganti dengan nama PJ website
+    nomor: "6281234567890"  // Ganti dengan nomor PJ website
+}
+
+// PJ Bantuan Teknis
+export const PJ_BANTUAN_TEKNIS: Record<"A" | "B", { nama: string; nomor: string }> = {
+    "A": { nama: "Feli", nomor: "6285640447440" },  // Podcast, Video, Lainnya
+    "B": { nama: "Wulan", nomor: "6287758922681" },  // Live Instagram
+}
+
+// PJ Survey
+export const PJ_SURVEY: { nama: string; nomor: string } = {
+    nama: "PJ Survey",  // Ganti dengan nama PJ survey
+    nomor: "6281234567893"  // Ganti dengan nomor PJ survey
 }

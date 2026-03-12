@@ -1,11 +1,12 @@
 
 import { CheckCircle2, MessageCircle } from "lucide-react"
 import { Button } from "@/components/ui/button"
-import { PJ_PUBLIKASI, PJ_DESAIN_GRAFIS, PJ_WEBSITE } from "@/lib/constants"
+import { PJ_DESAIN_GRAFIS, PJ_WEBSITE, PJ_BANTUAN_TEKNIS, PJ_SURVEY, MenuType, JENIS_BANTUAN_OPTIONS } from "@/lib/constants"
 
 interface SubmittedData {
+    menu_type: MenuType
     kementerian: string
-    tanggal_publikasi: string
+    jenis_bantuan?: "podcast" | "take_video" | "live_instagram" | "lainnya"
 }
 
 interface SuccessMessageProps {
@@ -13,25 +14,87 @@ interface SuccessMessageProps {
     submittedData?: SubmittedData
 }
 
-function getDayOfWeek(dateString: string): number {
-    const date = new Date(dateString)
-    return date.getDay() // 0 = Sunday, 1 = Monday, etc.
-}
-
 function getWhatsAppLink(nomor: string, message: string): string {
-    // Clean phone number and create WhatsApp link
     const cleanNumber = nomor.replace(/\D/g, '')
     const encodedMessage = encodeURIComponent(message)
     return `https://wa.me/${cleanNumber}?text=${encodedMessage}`
 }
 
-export function SuccessMessage({ onReset, submittedData }: SuccessMessageProps) {
-    const dayOfWeek = submittedData ? getDayOfWeek(submittedData.tanggal_publikasi) : 0
-    const pjPublikasi = PJ_PUBLIKASI[dayOfWeek]
-    const pjDesainGrafis = submittedData ? PJ_DESAIN_GRAFIS[submittedData.kementerian] : null
-    const pjWebsite = submittedData ? PJ_WEBSITE[submittedData.kementerian] : null
+function getPJForBantuanTeknis(jenisBantuan: string): "A" | "B" {
+    const option = JENIS_BANTUAN_OPTIONS.find(o => o.id === jenisBantuan)
+    return option?.pj || "A"
+}
 
-    const defaultMessage = "Permisi kak, saya [Nama] dari [Kementerian] izin konfirmasi pemesanan konten yang sudah saya submit melalui form. Terima kasih."
+export function SuccessMessage({ onReset, submittedData }: SuccessMessageProps) {
+    const getWhatsAppContacts = () => {
+        if (!submittedData) return []
+
+        const contacts: { label: string; nama: string; nomor: string }[] = []
+        const defaultMessage = `Permisi kak, saya [Nama] dari [Kementerian] izin konfirmasi pemesanan yang sudah saya submit melalui form. Terima kasih.`
+
+        switch (submittedData.menu_type) {
+            case "desain_publikasi": {
+                const pjDesain = PJ_DESAIN_GRAFIS[submittedData.kementerian]
+                if (pjDesain?.nomor) {
+                    contacts.push({
+                        label: "PJ Desain Grafis",
+                        nama: pjDesain.nama,
+                        nomor: pjDesain.nomor
+                    })
+                }
+                break
+            }
+            case "website": {
+                if (PJ_WEBSITE.nomor) {
+                    contacts.push({
+                        label: "PJ Website",
+                        nama: PJ_WEBSITE.nama,
+                        nomor: PJ_WEBSITE.nomor
+                    })
+                }
+                break
+            }
+            case "bantuan_teknis": {
+                const pjKey = submittedData.jenis_bantuan 
+                    ? getPJForBantuanTeknis(submittedData.jenis_bantuan) 
+                    : "A"
+                const pjTeknis = PJ_BANTUAN_TEKNIS[pjKey]
+                if (pjTeknis?.nomor) {
+                    contacts.push({
+                        label: "PJ Bantuan Teknis",
+                        nama: pjTeknis.nama,
+                        nomor: pjTeknis.nomor
+                    })
+                }
+                break
+            }
+            case "survey": {
+                if (PJ_SURVEY.nomor) {
+                    contacts.push({
+                        label: "PJ Survey",
+                        nama: PJ_SURVEY.nama,
+                        nomor: PJ_SURVEY.nomor
+                    })
+                }
+                break
+            }
+        }
+
+        return contacts
+    }
+
+    const contacts = getWhatsAppContacts()
+    const defaultMessage = `Permisi kak, saya [Nama] dari [Kementerian] izin konfirmasi pemesanan yang sudah saya submit melalui form. Terima kasih.`
+
+    const getMenuLabel = () => {
+        switch (submittedData?.menu_type) {
+            case "desain_publikasi": return "Desain & Publikasi"
+            case "website": return "Laman Website"
+            case "bantuan_teknis": return "Bantuan Teknis"
+            case "survey": return "Survey"
+            default: return ""
+        }
+    }
 
     return (
         <div className="text-center py-12 space-y-6 animate-in zoom-in duration-500">
@@ -42,51 +105,33 @@ export function SuccessMessage({ onReset, submittedData }: SuccessMessageProps) 
             </div>
             <div className="space-y-2">
                 <h2 className="text-2xl font-bold text-gray-900">Pesanan Berhasil Dikirim!</h2>
+                {submittedData && (
+                    <p className="text-sm text-primary font-medium">
+                        Jenis Layanan: {getMenuLabel()}
+                    </p>
+                )}
                 <p className="text-gray-500 max-w-md mx-auto">
-                    Terima kasih. Admin kami akan segera memeriksa pesanan Anda dan menghubungi via WhatsApp untuk konfirmasi lebih lanjut.
+                    Terima kasih. Silakan hubungi PJ terkait via WhatsApp untuk konfirmasi lebih lanjut.
                 </p>
             </div>
 
-            {submittedData && (
+            {contacts.length > 0 && (
                 <div className="space-y-3 max-w-md mx-auto">
                     <p className="text-sm text-gray-600 font-medium">Hubungi PJ via WhatsApp:</p>
                     <div className="grid gap-2">
-                        {pjPublikasi?.nomor && (
+                        {contacts.map((contact, index) => (
                             <a
-                                href={getWhatsAppLink(pjPublikasi.nomor, defaultMessage)}
+                                key={index}
+                                href={getWhatsAppLink(contact.nomor, defaultMessage)}
                                 target="_blank"
                                 rel="noopener noreferrer"
                             >
                                 <Button variant="outline" className="w-full justify-start gap-2 text-green-600 border-green-200 hover:bg-green-50">
                                     <MessageCircle className="w-4 h-4" />
-                                    <span>PJ Publikasi - {pjPublikasi.nama}</span>
+                                    <span>{contact.label} - {contact.nama}</span>
                                 </Button>
                             </a>
-                        )}
-                        {pjDesainGrafis?.nomor && (
-                            <a
-                                href={getWhatsAppLink(pjDesainGrafis.nomor, defaultMessage)}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                            >
-                                <Button variant="outline" className="w-full justify-start gap-2 text-green-600 border-green-200 hover:bg-green-50">
-                                    <MessageCircle className="w-4 h-4" />
-                                    <span>PJ Desain Grafis - {pjDesainGrafis.nama}</span>
-                                </Button>
-                            </a>
-                        )}
-                        {pjWebsite?.nomor && (
-                            <a
-                                href={getWhatsAppLink(pjWebsite.nomor, defaultMessage)}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                            >
-                                <Button variant="outline" className="w-full justify-start gap-2 text-green-600 border-green-200 hover:bg-green-50">
-                                    <MessageCircle className="w-4 h-4" />
-                                    <span>PJ Website - {pjWebsite.nama}</span>
-                                </Button>
-                            </a>
-                        )}
+                        ))}
                     </div>
                 </div>
             )}

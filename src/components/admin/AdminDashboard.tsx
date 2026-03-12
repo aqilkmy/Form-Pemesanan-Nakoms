@@ -1,26 +1,38 @@
-
 "use client"
 
 import * as React from "react"
 import { supabase } from "@/lib/supabase"
-import { Order, OrderStatus } from "@/lib/types"
-import { STATUS_OPTIONS, KEMENTERIAN_OPTIONS, PLATFORM_OPTIONS, WAKTU_PUBLIKASI_OPTIONS } from "@/lib/constants"
+import { Order, OrderStatus, DesainPublikasiOrder, WebsiteOrder, BantuanTeknisOrder, SurveyOrder } from "@/lib/types"
+import { STATUS_OPTIONS, KEMENTERIAN_OPTIONS, PLATFORM_OPTIONS, WAKTU_PUBLIKASI_OPTIONS, MENU_OPTIONS, MenuType, JENIS_BANTUAN_OPTIONS } from "@/lib/constants"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Loader2, ExternalLink, Filter } from "lucide-react"
+import { Loader2, ExternalLink, Filter, AlertTriangle } from "lucide-react"
 
 type SortOption = 'waktu_pemesanan' | 'deadline'
+
+// Type guard functions
+function isDesainPublikasi(order: Order): order is DesainPublikasiOrder {
+    return order.menu_type === "desain_publikasi"
+}
+function isWebsite(order: Order): order is WebsiteOrder {
+    return order.menu_type === "website"
+}
+function isBantuanTeknis(order: Order): order is BantuanTeknisOrder {
+    return order.menu_type === "bantuan_teknis"
+}
+function isSurvey(order: Order): order is SurveyOrder {
+    return order.menu_type === "survey"
+}
 
 export function AdminDashboard() {
     const [orders, setOrders] = React.useState<Order[]>([])
     const [isLoading, setIsLoading] = React.useState(true)
+    const [activeTab, setActiveTab] = React.useState<MenuType>("desain_publikasi")
     
     // Filter states
     const [filterKementerian, setFilterKementerian] = React.useState<string>("")
+    const [filterStatus, setFilterStatus] = React.useState<string>("")
     const [filterDate, setFilterDate] = React.useState<string>("")
     const [filterPlatform, setFilterPlatform] = React.useState<string>("")
-    const [filterStatus, setFilterStatus] = React.useState<string>("")
-    
-    // Sort state
     const [sortBy, setSortBy] = React.useState<SortOption>('waktu_pemesanan')
 
     React.useEffect(() => {
@@ -30,10 +42,17 @@ export function AdminDashboard() {
             .channel('orders_realtime')
             .on(
                 'postgres_changes',
-                { event: 'INSERT', schema: 'public', table: 'orders' },
+                { event: '*', schema: 'public', table: 'orders' },
                 (payload) => {
-                    console.log('New order received!', payload)
-                    setOrders((prev) => [payload.new as Order, ...prev])
+                    if (payload.eventType === 'INSERT') {
+                        setOrders((prev) => [payload.new as Order, ...prev])
+                    } else if (payload.eventType === 'UPDATE') {
+                        setOrders((prev) =>
+                            prev.map((order) =>
+                                order.id === (payload.new as Order).id ? (payload.new as Order) : order
+                            )
+                        )
+                    }
                 }
             )
             .subscribe()
@@ -69,6 +88,17 @@ export function AdminDashboard() {
         }
     }
 
+    const formatDate = (d: string) => {
+        if (!d) return '-'
+        try {
+            return new Date(d).toLocaleDateString('id-ID', {
+                day: 'numeric', month: 'short', year: 'numeric'
+            })
+        } catch (e) {
+            return d
+        }
+    }
+
     const updateStatus = async (orderId: string, newStatus: OrderStatus) => {
         try {
             const { error } = await supabase
@@ -89,68 +119,103 @@ export function AdminDashboard() {
         }
     }
 
+    const updateField = async (orderId: string, field: string, value: string) => {
+        try {
+            const { error } = await supabase
+                .from('orders')
+                .update({ [field]: value })
+                .eq('id', orderId)
+
+            if (error) throw error
+
+            setOrders((prev) =>
+                prev.map((order) =>
+                    order.id === orderId ? { ...order, [field]: value } : order
+                )
+            )
+        } catch (error) {
+            console.error(`Error updating ${field}:`, error)
+            alert(`Gagal menyimpan ${field}`)
+        }
+    }
+
     const getStatusColor = (status: string) => {
         const option = STATUS_OPTIONS.find(opt => opt.value === status)
         return option?.color || 'bg-gray-100 text-gray-800'
     }
 
-    // Detect duplicate deadlines (same date + time)
-    const duplicateDeadlines = React.useMemo(() => {
-        const deadlineCount: Record<string, string[]> = {}
-        // Check all orders that are not cancelled
-        orders.forEach(order => {
-            if (order.status !== 'cancel') {
-                // Normalize key: trim whitespace and convert to lowercase
-                const normalizedDate = (order.tanggal_publikasi || '').trim()
-                const normalizedTime = (order.waktu_publikasi || '').trim().toLowerCase()
-                const key = `${normalizedDate}_${normalizedTime}`
-                if (!deadlineCount[key]) {
-                    deadlineCount[key] = []
-                }
-                deadlineCount[key].push(order.id)
-            }
-        })
-        // Return set of order IDs that have duplicates
-        const duplicateIds = new Set<string>()
-        Object.values(deadlineCount).forEach(ids => {
-            if (ids.length > 1) {
-                ids.forEach(id => duplicateIds.add(id))
-            }
-        })
-        console.log('Duplicate detection:', { deadlineCount, duplicateIds: Array.from(duplicateIds) })
-        return duplicateIds
-    }, [orders])
-
-    // Helper to check if deadline has passed
-    const isDeadlinePassed = (tanggal: string, waktu: string) => {
-        const now = new Date()
-        const [hour] = waktu.split('.').map(Number)
-        const deadlineDate = new Date(tanggal)
-        deadlineDate.setHours(hour || 0, 0, 0, 0)
-        return deadlineDate < now
+    const getStatusLabel = (status: string) => {
+        const option = STATUS_OPTIONS.find(opt => opt.value === status)
+        return option?.label || status || 'New'
     }
 
-    // Filter and sort logic
-    const filteredAndSortedOrders = React.useMemo(() => {
-        let result = [...orders]
+    const getJenisBantuanLabel = (jenis: string) => {
+        const option = JENIS_BANTUAN_OPTIONS.find(o => o.id === jenis)
+        return option?.label || jenis
+    }
+
+    // Check for schedule collisions (same date + time) for Desain & Publikasi
+    const scheduleCollisions = React.useMemo(() => {
+        const desainOrders = orders.filter(isDesainPublikasi).filter(o => o.status !== 'cancel')
+        const collisionMap: { [key: string]: DesainPublikasiOrder[] } = {}
         
-        // Apply filters
+        desainOrders.forEach(order => {
+            const key = `${order.tanggal_publikasi}_${order.waktu_publikasi}`
+            if (!collisionMap[key]) {
+                collisionMap[key] = []
+            }
+            collisionMap[key].push(order)
+        })
+        
+        // Return only keys with more than 1 order
+        const collisions: { [key: string]: DesainPublikasiOrder[] } = {}
+        Object.keys(collisionMap).forEach(key => {
+            if (collisionMap[key].length > 1) {
+                collisions[key] = collisionMap[key]
+            }
+        })
+        
+        return collisions
+    }, [orders])
+
+    const hasCollision = (order: DesainPublikasiOrder) => {
+        const key = `${order.tanggal_publikasi}_${order.waktu_publikasi}`
+        return scheduleCollisions[key] && scheduleCollisions[key].length > 1
+    }
+
+    // Filter by menu type and other filters
+    const filteredOrders = React.useMemo(() => {
+        let result = orders.filter(o => o.menu_type === activeTab)
+        
         if (filterKementerian) {
             result = result.filter(o => o.kementerian === filterKementerian)
-        }
-        if (filterDate) {
-            result = result.filter(o => o.tanggal_publikasi === filterDate)
-        }
-        if (filterPlatform) {
-            result = result.filter(o => o.platform_publikasi.includes(filterPlatform))
         }
         if (filterStatus) {
             result = result.filter(o => o.status === filterStatus)
         }
         
+        // Date filter based on menu type
+        if (filterDate) {
+            result = result.filter(o => {
+                if (isDesainPublikasi(o)) return o.tanggal_publikasi === filterDate
+                if (isBantuanTeknis(o)) return o.tanggal_kegiatan === filterDate
+                if (isSurvey(o)) return o.deadline_survey === filterDate
+                return true
+            })
+        }
+        
+        // Platform filter (only for desain_publikasi)
+        if (filterPlatform && activeTab === 'desain_publikasi') {
+            result = result.filter(o => {
+                if (isDesainPublikasi(o)) {
+                    return o.platform_publikasi?.includes(filterPlatform)
+                }
+                return true
+            })
+        }
+        
         // Apply sorting
         if (sortBy === 'waktu_pemesanan') {
-            // ISO timestamps can be sorted as strings directly (newest first = descending)
             result.sort((a, b) => {
                 if (a.created_at > b.created_at) return -1
                 if (a.created_at < b.created_at) return 1
@@ -161,96 +226,46 @@ export function AdminDashboard() {
                 const aIsNotCancel = a.status !== 'cancel'
                 const bIsNotCancel = b.status !== 'cancel'
                 
-                // Cancelled items go to bottom
                 if (aIsNotCancel && !bIsNotCancel) return -1
                 if (!aIsNotCancel && bIsNotCancel) return 1
                 
-                // Check if deadline has passed
-                const aIsPassed = isDeadlinePassed(a.tanggal_publikasi, a.waktu_publikasi)
-                const bIsPassed = isDeadlinePassed(b.tanggal_publikasi, b.waktu_publikasi)
-                
-                // Passed deadlines go to bottom (but above cancelled)
-                if (!aIsPassed && bIsPassed) return -1
-                if (aIsPassed && !bIsPassed) return 1
-                
-                // Sort by deadline (closest first)
-                const aDate = new Date(a.tanggal_publikasi).getTime()
-                const bDate = new Date(b.tanggal_publikasi).getTime()
-                if (isNaN(aDate) || isNaN(bDate)) {
-                    return a.tanggal_publikasi.localeCompare(b.tanggal_publikasi)
+                // Get deadline dates based on menu type
+                const getDeadlineDate = (order: Order): string | null => {
+                    if (isDesainPublikasi(order)) return order.tanggal_publikasi
+                    if (isBantuanTeknis(order)) return order.tanggal_kegiatan
+                    if (isSurvey(order)) return order.deadline_survey
+                    return null
                 }
-                return aDate - bDate
+                
+                const aDate = getDeadlineDate(a)
+                const bDate = getDeadlineDate(b)
+                
+                if (!aDate && !bDate) return 0
+                if (!aDate) return 1
+                if (!bDate) return -1
+                
+                return new Date(aDate).getTime() - new Date(bDate).getTime()
             })
         }
         
         return result
-    }, [orders, filterKementerian, filterDate, filterPlatform, filterStatus, sortBy])
+    }, [orders, activeTab, filterKementerian, filterStatus, filterDate, filterPlatform, sortBy])
+
+    // Count orders per menu type
+    const menuCounts = React.useMemo(() => {
+        return {
+            desain_publikasi: orders.filter(o => o.menu_type === "desain_publikasi").length,
+            website: orders.filter(o => o.menu_type === "website").length,
+            bantuan_teknis: orders.filter(o => o.menu_type === "bantuan_teknis").length,
+            survey: orders.filter(o => o.menu_type === "survey").length,
+        }
+    }, [orders])
 
     const clearFilters = () => {
         setFilterKementerian("")
+        setFilterStatus("")
         setFilterDate("")
         setFilterPlatform("")
-        setFilterStatus("")
-    }
-
-    const updateLinkDesain = async (orderId: string, link: string) => {
-        try {
-            const { error } = await supabase
-                .from('orders')
-                .update({ link_desain_selesai: link })
-                .eq('id', orderId)
-
-            if (error) throw error
-
-            setOrders((prev) =>
-                prev.map((order) =>
-                    order.id === orderId ? { ...order, link_desain_selesai: link } : order
-                )
-            )
-        } catch (error) {
-            console.error('Error updating link desain:', error)
-            alert('Gagal menyimpan link desain')
-        }
-    }
-
-    const updateDeadline = async (orderId: string, newDate: string) => {
-        try {
-            const { error } = await supabase
-                .from('orders')
-                .update({ tanggal_publikasi: newDate })
-                .eq('id', orderId)
-
-            if (error) throw error
-
-            setOrders((prev) =>
-                prev.map((order) =>
-                    order.id === orderId ? { ...order, tanggal_publikasi: newDate } : order
-                )
-            )
-        } catch (error) {
-            console.error('Error updating deadline:', error)
-            alert('Gagal mengubah deadline')
-        }
-    }
-
-    const updateWaktuPublikasi = async (orderId: string, newTime: string) => {
-        try {
-            const { error } = await supabase
-                .from('orders')
-                .update({ waktu_publikasi: newTime })
-                .eq('id', orderId)
-
-            if (error) throw error
-
-            setOrders((prev) =>
-                prev.map((order) =>
-                    order.id === orderId ? { ...order, waktu_publikasi: newTime } : order
-                )
-            )
-        } catch (error) {
-            console.error('Error updating waktu publikasi:', error)
-            alert('Gagal mengubah jam publikasi')
-        }
     }
 
     if (isLoading) {
@@ -261,9 +276,370 @@ export function AdminDashboard() {
         )
     }
 
+    // Collision warning component
+    const CollisionWarning = () => {
+        const collisionCount = Object.keys(scheduleCollisions).length
+        if (collisionCount === 0 || activeTab !== 'desain_publikasi') return null
+        
+        return (
+            <Card className="border-yellow-400 bg-yellow-50">
+                <CardContent className="py-3">
+                    <div className="flex items-start gap-2">
+                        <AlertTriangle className="w-5 h-5 text-yellow-600 flex-shrink-0 mt-0.5" />
+                        <div>
+                            <p className="font-semibold text-yellow-800">Peringatan: Jadwal Upload Bersamaan</p>
+                            <p className="text-sm text-yellow-700 mt-1">
+                                Ada {collisionCount} jadwal dengan lebih dari 1 pesanan:
+                            </p>
+                            <ul className="text-sm text-yellow-700 mt-2 space-y-1">
+                                {Object.entries(scheduleCollisions).map(([key, orders]) => (
+                                    <li key={key} className="flex items-center gap-2">
+                                        <span className="font-medium">
+                                            {formatDate(key.split('_')[0])} - {key.split('_')[1]}:
+                                        </span>
+                                        <span>
+                                            {orders.map(o => o.judul_desain).join(', ')} ({orders.length} pesanan)
+                                        </span>
+                                    </li>
+                                ))}
+                            </ul>
+                        </div>
+                    </div>
+                </CardContent>
+            </Card>
+        )
+    }
+
+    // Render table based on active tab
+    const renderTable = () => {
+        switch (activeTab) {
+            case "desain_publikasi":
+                return (
+                    <table className="w-full text-sm text-left">
+                        <thead className="bg-gray-100 text-gray-600 uppercase">
+                            <tr>
+                                <th className="px-4 py-3">Waktu</th>
+                                <th className="px-4 py-3">Pemesan</th>
+                                <th className="px-4 py-3">Judul & Platform</th>
+                                <th className="px-4 py-3">Deadline</th>
+                                <th className="px-4 py-3">Aset</th>
+                                <th className="px-4 py-3">Status</th>
+                                <th className="px-4 py-3">Link Desain</th>
+                            </tr>
+                        </thead>
+                        <tbody className="divide-y">
+                            {filteredOrders.filter(isDesainPublikasi).map((order) => (
+                                <tr key={order.id} className={`hover:bg-gray-50 ${hasCollision(order) ? 'bg-yellow-50' : 'bg-white'}`}>
+                                    <td className="px-4 py-3 font-medium whitespace-nowrap">{helperDate(order.created_at)}</td>
+                                    <td className="px-4 py-3">
+                                        <div className="font-semibold">{order.nama}</div>
+                                        <div className="text-xs text-muted-foreground">{order.kementerian}</div>
+                                        <div className="text-xs text-muted-foreground">{order.nomor_whatsapp}</div>
+                                    </td>
+                                    <td className="px-4 py-3 max-w-xs">
+                                        <div className="font-medium truncate">{order.judul_desain}</div>
+                                        <div className="text-xs mt-1 flex flex-wrap gap-1">
+                                            {order.platform_publikasi?.map(p => (
+                                                <span key={p} className="bg-blue-100 text-blue-800 px-1.5 py-0.5 rounded text-[10px]">{p}</span>
+                                            ))}
+                                        </div>
+                                    </td>
+                                    <td className="px-4 py-3 whitespace-nowrap">
+                                        <div className="flex flex-col gap-1">
+                                            <input
+                                                type="date"
+                                                defaultValue={order.tanggal_publikasi}
+                                                onBlur={(e) => {
+                                                    if (e.target.value !== order.tanggal_publikasi) {
+                                                        updateField(order.id, 'tanggal_publikasi', e.target.value)
+                                                    }
+                                                }}
+                                                className="px-2 py-1 text-xs border rounded focus:outline-none focus:ring-1 focus:ring-primary"
+                                            />
+                                            <select
+                                                defaultValue={order.waktu_publikasi}
+                                                onChange={(e) => updateField(order.id, 'waktu_publikasi', e.target.value)}
+                                                className="px-2 py-1 text-xs border rounded focus:outline-none focus:ring-1 focus:ring-primary"
+                                            >
+                                                {WAKTU_PUBLIKASI_OPTIONS.map(w => (
+                                                    <option key={w} value={w}>{w}</option>
+                                                ))}
+                                            </select>
+                                        </div>
+                                        {hasCollision(order) && (
+                                            <div className="flex items-center gap-1 mt-1 text-yellow-600">
+                                                <AlertTriangle className="w-3 h-3" />
+                                                <span className="text-[10px]">Tabrakan!</span>
+                                            </div>
+                                        )}
+                                    </td>
+                                    <td className="px-4 py-3">
+                                        <div className="flex flex-col gap-1">
+                                            <a href={order.link_file_konten} target="_blank" rel="noreferrer" className="text-blue-600 hover:underline flex items-center text-xs">
+                                                <ExternalLink className="w-3 h-3 mr-1" /> Files
+                                            </a>
+                                            <a href={order.link_caption_docs} target="_blank" rel="noreferrer" className="text-blue-600 hover:underline flex items-center text-xs">
+                                                <ExternalLink className="w-3 h-3 mr-1" /> Caption
+                                            </a>
+                                        </div>
+                                    </td>
+                                    <td className="px-4 py-3">
+                                        <select
+                                            value={order.status || 'new'}
+                                            onChange={(e) => updateStatus(order.id, e.target.value as OrderStatus)}
+                                            className={`px-2 py-1 rounded-full text-xs font-semibold border-0 cursor-pointer ${getStatusColor(order.status)}`}
+                                        >
+                                            {STATUS_OPTIONS.map((opt) => (
+                                                <option key={opt.value} value={opt.value}>{opt.label}</option>
+                                            ))}
+                                        </select>
+                                    </td>
+                                    <td className="px-4 py-3">
+                                        <div className="flex items-center gap-1">
+                                            <input
+                                                type="text"
+                                                placeholder="Link desain..."
+                                                defaultValue={order.link_desain_selesai || ''}
+                                                onBlur={(e) => {
+                                                    if (e.target.value !== (order.link_desain_selesai || '')) {
+                                                        updateField(order.id, 'link_desain_selesai', e.target.value)
+                                                    }
+                                                }}
+                                                className="w-28 px-2 py-1 text-xs border rounded focus:outline-none focus:ring-1 focus:ring-primary"
+                                            />
+                                            {order.link_desain_selesai && (
+                                                <a href={order.link_desain_selesai} target="_blank" rel="noreferrer" className="text-blue-600 hover:text-blue-800">
+                                                    <ExternalLink className="w-3 h-3" />
+                                                </a>
+                                            )}
+                                        </div>
+                                    </td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
+                )
+            
+            case "website":
+                return (
+                    <table className="w-full text-sm text-left">
+                        <thead className="bg-gray-100 text-gray-600 uppercase">
+                            <tr>
+                                <th className="px-4 py-3">Waktu</th>
+                                <th className="px-4 py-3">Pemesan</th>
+                                <th className="px-4 py-3">Shortlink</th>
+                                <th className="px-4 py-3">Catatan</th>
+                                <th className="px-4 py-3">Status</th>
+                            </tr>
+                        </thead>
+                        <tbody className="divide-y">
+                            {filteredOrders.filter(isWebsite).map((order) => (
+                                <tr key={order.id} className="hover:bg-gray-50 bg-white">
+                                    <td className="px-4 py-3 font-medium whitespace-nowrap">{helperDate(order.created_at)}</td>
+                                    <td className="px-4 py-3">
+                                        <div className="font-semibold">{order.nama}</div>
+                                        <div className="text-xs text-muted-foreground">{order.kementerian}</div>
+                                        <div className="text-xs text-muted-foreground">{order.nomor_whatsapp}</div>
+                                    </td>
+                                    <td className="px-4 py-3">
+                                        <span className="font-medium text-blue-600">{order.custom_shortlink}</span>
+                                    </td>
+                                    <td className="px-4 py-3 max-w-xs">
+                                        <span className="text-sm truncate">{order.catatan_website || '-'}</span>
+                                    </td>
+                                    <td className="px-4 py-3">
+                                        <select
+                                            value={order.status || 'new'}
+                                            onChange={(e) => updateStatus(order.id, e.target.value as OrderStatus)}
+                                            className={`px-2 py-1 rounded-full text-xs font-semibold border-0 cursor-pointer ${getStatusColor(order.status)}`}
+                                        >
+                                            {STATUS_OPTIONS.map((opt) => (
+                                                <option key={opt.value} value={opt.value}>{opt.label}</option>
+                                            ))}
+                                        </select>
+                                    </td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
+                )
+            
+            case "bantuan_teknis":
+                return (
+                    <table className="w-full text-sm text-left">
+                        <thead className="bg-gray-100 text-gray-600 uppercase">
+                            <tr>
+                                <th className="px-4 py-3">Waktu</th>
+                                <th className="px-4 py-3">Pemesan</th>
+                                <th className="px-4 py-3">Kegiatan</th>
+                                <th className="px-4 py-3">Jadwal & Tempat</th>
+                                <th className="px-4 py-3">Jenis</th>
+                                <th className="px-4 py-3">Status</th>
+                            </tr>
+                        </thead>
+                        <tbody className="divide-y">
+                            {filteredOrders.filter(isBantuanTeknis).map((order) => (
+                                <tr key={order.id} className="hover:bg-gray-50 bg-white">
+                                    <td className="px-4 py-3 font-medium whitespace-nowrap">{helperDate(order.created_at)}</td>
+                                    <td className="px-4 py-3">
+                                        <div className="font-semibold">{order.nama}</div>
+                                        <div className="text-xs text-muted-foreground">{order.kementerian}</div>
+                                        <div className="text-xs text-muted-foreground">{order.nomor_whatsapp}</div>
+                                    </td>
+                                    <td className="px-4 py-3 max-w-xs">
+                                        <div className="font-medium truncate">{order.nama_kegiatan}</div>
+                                    </td>
+                                    <td className="px-4 py-3 whitespace-nowrap">
+                                        <div className="flex flex-col gap-1">
+                                            <input
+                                                type="date"
+                                                defaultValue={order.tanggal_kegiatan}
+                                                onBlur={(e) => {
+                                                    if (e.target.value !== order.tanggal_kegiatan) {
+                                                        updateField(order.id, 'tanggal_kegiatan', e.target.value)
+                                                    }
+                                                }}
+                                                className="px-2 py-1 text-xs border rounded focus:outline-none focus:ring-1 focus:ring-primary"
+                                            />
+                                            <input
+                                                type="time"
+                                                defaultValue={order.waktu_kegiatan}
+                                                onBlur={(e) => {
+                                                    if (e.target.value !== order.waktu_kegiatan) {
+                                                        updateField(order.id, 'waktu_kegiatan', e.target.value)
+                                                    }
+                                                }}
+                                                className="px-2 py-1 text-xs border rounded focus:outline-none focus:ring-1 focus:ring-primary"
+                                            />
+                                        </div>
+                                        <div className="text-xs text-muted-foreground mt-1">{order.tempat_kegiatan}</div>
+                                    </td>
+                                    <td className="px-4 py-3">
+                                        <span className="bg-purple-100 text-purple-800 px-1.5 py-0.5 rounded text-xs">
+                                            {getJenisBantuanLabel(order.jenis_bantuan)}
+                                        </span>
+                                        {order.jenis_bantuan === 'lainnya' && order.jenis_bantuan_lainnya && (
+                                            <div className="text-xs text-muted-foreground mt-1">{order.jenis_bantuan_lainnya}</div>
+                                        )}
+                                    </td>
+                                    <td className="px-4 py-3">
+                                        <select
+                                            value={order.status || 'new'}
+                                            onChange={(e) => updateStatus(order.id, e.target.value as OrderStatus)}
+                                            className={`px-2 py-1 rounded-full text-xs font-semibold border-0 cursor-pointer ${getStatusColor(order.status)}`}
+                                        >
+                                            {STATUS_OPTIONS.map((opt) => (
+                                                <option key={opt.value} value={opt.value}>{opt.label}</option>
+                                            ))}
+                                        </select>
+                                    </td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
+                )
+            
+            case "survey":
+                return (
+                    <table className="w-full text-sm text-left">
+                        <thead className="bg-gray-100 text-gray-600 uppercase">
+                            <tr>
+                                <th className="px-4 py-3">Waktu</th>
+                                <th className="px-4 py-3">Pemesan</th>
+                                <th className="px-4 py-3">Judul Survey</th>
+                                <th className="px-4 py-3">Target & Deadline</th>
+                                <th className="px-4 py-3">Hadiah</th>
+                                <th className="px-4 py-3">Brief</th>
+                                <th className="px-4 py-3">Status</th>
+                            </tr>
+                        </thead>
+                        <tbody className="divide-y">
+                            {filteredOrders.filter(isSurvey).map((order) => (
+                                <tr key={order.id} className="hover:bg-gray-50 bg-white">
+                                    <td className="px-4 py-3 font-medium whitespace-nowrap">{helperDate(order.created_at)}</td>
+                                    <td className="px-4 py-3">
+                                        <div className="font-semibold">{order.nama}</div>
+                                        <div className="text-xs text-muted-foreground">{order.kementerian}</div>
+                                        <div className="text-xs text-muted-foreground">{order.nomor_whatsapp}</div>
+                                    </td>
+                                    <td className="px-4 py-3 max-w-xs">
+                                        <div className="font-medium truncate">{order.judul_survey}</div>
+                                        <div className="text-xs text-muted-foreground truncate">{order.deskripsi_survey}</div>
+                                    </td>
+                                    <td className="px-4 py-3">
+                                        <div className="text-xs mb-1">{order.target_responden}</div>
+                                        <div className="flex items-center gap-1">
+                                            <span className="text-xs text-muted-foreground">Deadline:</span>
+                                            <input
+                                                type="date"
+                                                defaultValue={order.deadline_survey}
+                                                onBlur={(e) => {
+                                                    if (e.target.value !== order.deadline_survey) {
+                                                        updateField(order.id, 'deadline_survey', e.target.value)
+                                                    }
+                                                }}
+                                                className="px-2 py-0.5 text-xs border rounded focus:outline-none focus:ring-1 focus:ring-primary"
+                                            />
+                                        </div>
+                                    </td>
+                                    <td className="px-4 py-3">
+                                        <span className={`px-1.5 py-0.5 rounded text-xs ${order.hadiah_survey === 'ada' ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-600'}`}>
+                                            {order.hadiah_survey === 'ada' ? 'Ada' : 'Tidak'}
+                                        </span>
+                                    </td>
+                                    <td className="px-4 py-3">
+                                        <a href={order.link_gdrive_brief} target="_blank" rel="noreferrer" className="text-blue-600 hover:underline flex items-center text-xs">
+                                            <ExternalLink className="w-3 h-3 mr-1" /> Lihat
+                                        </a>
+                                    </td>
+                                    <td className="px-4 py-3">
+                                        <select
+                                            value={order.status || 'new'}
+                                            onChange={(e) => updateStatus(order.id, e.target.value as OrderStatus)}
+                                            className={`px-2 py-1 rounded-full text-xs font-semibold border-0 cursor-pointer ${getStatusColor(order.status)}`}
+                                        >
+                                            {STATUS_OPTIONS.map((opt) => (
+                                                <option key={opt.value} value={opt.value}>{opt.label}</option>
+                                            ))}
+                                        </select>
+                                    </td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
+                )
+        }
+    }
+
     return (
         <div className="space-y-6">
-            {/* Filter & Sort Section */}
+            {/* Menu Tabs */}
+            <div className=" my-auto flex flex-wrap gap-2 border-b pb-4">
+                {MENU_OPTIONS.map((menu) => (
+                    <button
+                        key={menu.id}
+                        onClick={() => setActiveTab(menu.id)}
+                        className={`px-4 py-2 rounded-lg text-sm font-medium transition-all flex items-center gap-2 ${
+                            activeTab === menu.id
+                                ? 'bg-primary text-white shadow-md'
+                                : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                        }`}
+                    >
+                        <span>{menu.icon}</span>
+                        <span>{menu.label}</span>
+                        <span className={`px-2 py-0.5 rounded-full text-xs ${
+                            activeTab === menu.id ? 'bg-white/20' : 'bg-gray-200'
+                        }`}>
+                            {menuCounts[menu.id]}
+                        </span>
+                    </button>
+                ))}
+            </div>
+
+            {/* Collision Warning */}
+            <CollisionWarning />
+
+            {/* Filter Section */}
             <Card>
                 <CardHeader className="pb-3">
                     <div className="flex items-center gap-2">
@@ -295,19 +671,21 @@ export function AdminDashboard() {
                                 className="w-full px-2 py-1.5 text-xs border rounded focus:outline-none focus:ring-1 focus:ring-primary"
                             />
                         </div>
-                        <div>
-                            <label className="text-xs text-muted-foreground mb-1 block">Platform</label>
-                            <select
-                                value={filterPlatform}
-                                onChange={(e) => setFilterPlatform(e.target.value)}
-                                className="w-full px-2 py-1.5 text-xs border rounded focus:outline-none focus:ring-1 focus:ring-primary"
-                            >
-                                <option value="">Semua</option>
-                                {PLATFORM_OPTIONS.map(p => (
-                                    <option key={p} value={p}>{p}</option>
-                                ))}
-                            </select>
-                        </div>
+                        {activeTab === 'desain_publikasi' && (
+                            <div>
+                                <label className="text-xs text-muted-foreground mb-1 block">Platform</label>
+                                <select
+                                    value={filterPlatform}
+                                    onChange={(e) => setFilterPlatform(e.target.value)}
+                                    className="w-full px-2 py-1.5 text-xs border rounded focus:outline-none focus:ring-1 focus:ring-primary"
+                                >
+                                    <option value="">Semua</option>
+                                    {PLATFORM_OPTIONS.map(p => (
+                                        <option key={p} value={p}>{p}</option>
+                                    ))}
+                                </select>
+                            </div>
+                        )}
                         <div>
                             <label className="text-xs text-muted-foreground mb-1 block">Status</label>
                             <select
@@ -344,128 +722,20 @@ export function AdminDashboard() {
                 </CardContent>
             </Card>
 
+            {/* Table */}
             <Card>
                 <CardHeader>
-                    <CardTitle>Pesanan Masuk ({filteredAndSortedOrders.length} dari {orders.length})</CardTitle>
+                    <CardTitle>
+                        {MENU_OPTIONS.find(m => m.id === activeTab)?.icon} {MENU_OPTIONS.find(m => m.id === activeTab)?.label} ({filteredOrders.length})
+                    </CardTitle>
                 </CardHeader>
                 <CardContent>
                     <div className="overflow-x-auto">
-                        <table className="w-full text-sm text-left">
-                            <thead className="bg-gray-100 text-gray-600 uppercase">
-                                <tr>
-                                    <th className="px-4 py-3">Waktu</th>
-                                    <th className="px-4 py-3">Pemesan</th>
-                                    <th className="px-4 py-3">Judul & Platform</th>
-                                    <th className="px-4 py-3">Deadline</th>
-                                    <th className="px-4 py-3">Aset</th>
-                                    <th className="px-4 py-3">Status</th>
-                                    <th className="px-4 py-3">Link Desain</th>
-                                </tr>
-                            </thead>
-                            <tbody className="divide-y">
-                                {filteredAndSortedOrders.length === 0 ? (
-                                    <tr>
-                                        <td colSpan={7} className="px-4 py-8 text-center text-muted-foreground">
-                                            Tidak ada pesanan yang sesuai filter.
-                                        </td>
-                                    </tr>
-                                ) : (
-                                    filteredAndSortedOrders.map((order) => (
-                                        <tr key={order.id} className="hover:bg-gray-50 bg-white">
-                                            <td className="px-4 py-3 font-medium whitespace-nowrap">
-                                                {helperDate(order.created_at)}
-                                            </td>
-                                            <td className="px-4 py-3">
-                                                <div className="font-semibold">{order.nama}</div>
-                                                <div className="text-xs text-muted-foreground">{order.kementerian}</div>
-                                                <div className="text-xs text-muted-foreground">{order.nomor_whatsapp}</div>
-                                            </td>
-                                            <td className="px-4 py-3 max-w-xs">
-                                                <div className="font-medium truncate" title={order.judul_desain}>{order.judul_desain}</div>
-                                                <div className="text-xs text-muted-foreground mt-1 flex flex-wrap gap-1">
-                                                    {order.platform_publikasi.map(p => (
-                                                        <span key={p} className="bg-blue-100 text-blue-800 px-1.5 py-0.5 rounded text-[10px]">{p}</span>
-                                                    ))}
-                                                </div>
-                                            </td>
-                                            <td className={`px-4 py-3 whitespace-nowrap ${duplicateDeadlines.has(order.id) ? 'bg-red-100 border-l-4 border-l-red-500' : ''}`}>
-                                                <div>
-                                                    <input
-                                                        type="date"
-                                                        defaultValue={order.tanggal_publikasi}
-                                                        onBlur={(e) => {
-                                                            if (e.target.value !== order.tanggal_publikasi) {
-                                                                updateDeadline(order.id, e.target.value)
-                                                            }
-                                                        }}
-                                                        className={`px-2 py-1 text-xs border rounded focus:outline-none focus:ring-1 focus:ring-primary cursor-pointer ${duplicateDeadlines.has(order.id) ? 'border-red-500 bg-red-50' : ''}`}
-                                                    />
-                                                </div>
-                                                <div className="mt-1">
-                                                    <select
-                                                        value={order.waktu_publikasi}
-                                                        onChange={(e) => updateWaktuPublikasi(order.id, e.target.value)}
-                                                        className={`px-2 py-1 text-xs border rounded focus:outline-none focus:ring-1 focus:ring-primary cursor-pointer ${duplicateDeadlines.has(order.id) ? 'border-red-500 bg-red-50' : ''}`}
-                                                    >
-                                                        {WAKTU_PUBLIKASI_OPTIONS.map((time) => (
-                                                            <option key={time} value={time}>{time}</option>
-                                                        ))}
-                                                    </select>
-                                                </div>
-                                                {duplicateDeadlines.has(order.id) && (
-                                                    <div className="text-xs text-red-600 font-bold mt-1 flex items-center gap-1">
-                                                        <span className="animate-pulse">⚠️</span> Jadwal bentrok
-                                                    </div>
-                                                )}
-                                            </td>
-                                            <td className="px-4 py-3">
-                                                <div className="flex flex-col gap-1">
-                                                    <a href={order.link_file_konten} target="_blank" rel="noreferrer" className="text-blue-600 hover:underline flex items-center text-xs">
-                                                        <ExternalLink className="w-3 h-3 mr-1" /> Files
-                                                    </a>
-                                                    <a href={order.link_caption_docs} target="_blank" rel="noreferrer" className="text-blue-600 hover:underline flex items-center text-xs">
-                                                        <ExternalLink className="w-3 h-3 mr-1" /> Caption
-                                                    </a>
-                                                </div>
-                                            </td>
-                                            <td className="px-4 py-3">
-                                                <select
-                                                    value={order.status || 'new'}
-                                                    onChange={(e) => updateStatus(order.id, e.target.value as OrderStatus)}
-                                                    className={`px-2 py-1 rounded-full text-xs font-semibold border-0 cursor-pointer ${getStatusColor(order.status)}`}
-                                                >
-                                                    {STATUS_OPTIONS.map((opt) => (
-                                                        <option key={opt.value} value={opt.value}>
-                                                            {opt.label}
-                                                        </option>
-                                                    ))}
-                                                </select>
-                                            </td>
-                                            <td className="px-4 py-3">
-                                                <div className="flex items-center gap-1">
-                                                    <input
-                                                        type="text"
-                                                        placeholder="Paste link..."
-                                                        defaultValue={order.link_desain_selesai || ''}
-                                                        onBlur={(e) => {
-                                                            if (e.target.value !== (order.link_desain_selesai || '')) {
-                                                                updateLinkDesain(order.id, e.target.value)
-                                                            }
-                                                        }}
-                                                        className="w-32 px-2 py-1 text-xs border rounded focus:outline-none focus:ring-1 focus:ring-primary"
-                                                    />
-                                                    {order.link_desain_selesai && (
-                                                        <a href={order.link_desain_selesai} target="_blank" rel="noreferrer" className="text-blue-600 hover:text-blue-800">
-                                                            <ExternalLink className="w-3 h-3" />
-                                                        </a>
-                                                    )}
-                                                </div>
-                                            </td>
-                                        </tr>
-                                    ))
-                                )}
-                            </tbody>
-                        </table>
+                        {filteredOrders.length === 0 ? (
+                            <div className="text-center py-8 text-muted-foreground">
+                                Tidak ada pesanan {MENU_OPTIONS.find(m => m.id === activeTab)?.label.toLowerCase()}.
+                            </div>
+                        ) : renderTable()}
                     </div>
                 </CardContent>
             </Card>

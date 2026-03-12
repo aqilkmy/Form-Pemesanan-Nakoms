@@ -1,37 +1,49 @@
--- Create a table for orders
+-- Create a table for orders (supports multiple menu types)
 create table orders (
   id uuid default gen_random_uuid() primary key,
   created_at timestamptz default now(),
   
-  -- Identitas
+  -- Menu Type (discriminator)
+  menu_type text not null check (menu_type in ('desain_publikasi', 'website', 'bantuan_teknis', 'survey')),
+  
+  -- Identitas (shared across all menus)
   nama text not null,
   kementerian text not null,
   nomor_whatsapp text not null,
-  
-  -- Status Baca
   sudah_baca_sop boolean default false,
   
-  -- Detail Konten
-  judul_desain text not null,
-  platform_publikasi text[] not null, -- Array of strings for multi-select
-  tanggal_publikasi date not null,
-  waktu_publikasi text not null, -- Options: 09.00, 10.00, 12.00, 13.00, 15.00, 18.00, 19.00
-  
-  -- Aset
-  link_thumbnail text not null,
-  link_file_konten text not null,
-  link_caption_docs text not null,
-  
-  -- Opsional
+  -- Desain & Publikasi fields
+  judul_desain text,
+  platform_publikasi text[], -- Array of strings for multi-select
+  tanggal_publikasi date,
+  waktu_publikasi text,
+  link_file_konten text,
+  link_caption_docs text,
   request_lagu text,
+  link_desain_selesai text,
+  
+  -- Website fields
   custom_shortlink text,
-  fitur_tambahan_web text,
+  catatan_website text,
+  
+  -- Bantuan Teknis fields  
+  nama_kegiatan text,
+  tanggal_kegiatan date,
+  waktu_kegiatan text,
+  tempat_kegiatan text,
+  jenis_bantuan text check (jenis_bantuan in ('podcast', 'take_video', 'live_instagram', 'lainnya') or jenis_bantuan is null),
+  jenis_bantuan_lainnya text,
+  
+  -- Survey fields
+  judul_survey text,
+  deskripsi_survey text,
+  target_responden text,
+  deadline_survey date,
+  link_gdrive_brief text,
+  hadiah_survey text check (hadiah_survey in ('ada', 'tidak') or hadiah_survey is null),
   
   -- Internal Status
-  status text default 'new' check (status in ('new', 'in progress', 'under review', 'ready', 'pause', 'cancel')),
-  
-  -- Link Desain Selesai (diisi admin)
-  link_desain_selesai text
+  status text default 'new' check (status in ('new', 'in progress', 'under review', 'ready', 'pause', 'cancel'))
 );
 
 -- Enable Row Level Security (RLS)
@@ -41,15 +53,15 @@ alter table orders enable row level security;
 create policy "Enable insert for public" on orders
   for insert with check (true);
 
--- Policy: Allow read access to everyone (or restrict to admin)
--- For this simple app without auth, we might allow public read for the dashboard if we don't implement login,
--- BUT user request mentioned "Admin Dashboard".
--- Ideally, admin should be authenticated. 
--- For MVP/Demo as requested without auth details, we can allow public read or assume anon key has access.
--- We'll allow public read for now to make the simple dashboard work easily.
+-- Policy: Allow read access to everyone
 create policy "Enable read access for all" on orders
   for select using (true);
 
 -- Policy: Allow update for status changes
 create policy "Enable update for all" on orders
   for update using (true);
+
+-- Create index on menu_type for faster queries  
+create index idx_orders_menu_type on orders(menu_type);
+create index idx_orders_status on orders(status);
+create index idx_orders_created_at on orders(created_at desc);

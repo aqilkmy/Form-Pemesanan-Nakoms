@@ -1,6 +1,6 @@
 
-import { UseFormReturn } from "react-hook-form"
-import { OrderFormValues } from "@/lib/schema"
+import { UseFormReturn, FieldValues } from "react-hook-form"
+import { IdentityFormValues } from "@/lib/schema"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { SelectNative } from "@/components/ui/select-native"
@@ -8,7 +8,7 @@ import { KEMENTERIAN_OPTIONS } from "@/lib/constants"
 import { cn } from "@/lib/utils"
 
 interface StepProps {
-    form: UseFormReturn<OrderFormValues>
+    form: UseFormReturn<IdentityFormValues>
 }
 
 export function StepIdentity({ form }: StepProps) {
