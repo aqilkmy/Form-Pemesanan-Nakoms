@@ -33,7 +33,7 @@ export function FormDesainPublikasi({ form, step }: FormDesainProps) {
                     </div>
 
                     <div className="grid gap-2">
-                        <Label>Platform Publikasi (Semua Mirroring ke WAC & IGS)</Label>
+                        <Label>Platform Publikasi (Semua Mirroring ke WAC, X/Twitter dan IGS)</Label>
                         <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 p-4 border rounded-md bg-secondary/20">
                             {PLATFORM_OPTIONS.map((platform) => (
                                 <label key={platform} className="flex items-center space-x-2 cursor-pointer">
@@ -100,6 +100,9 @@ export function FormDesainPublikasi({ form, step }: FormDesainProps) {
                             <p className="font-semibold mb-1">Penting:</p>
                             <p>Pastikan link Google Drive yang Anda lampirkan <strong>sudah dibuka aksesnya (Anyone with the link can view)</strong>.</p>
                             <p className="mt-1">Isi <strong>"-"</strong> jika tidak ada file yang perlu dilampirkan.</p>
+                            <p className="mt-2">
+                                Lihat contoh brief: <a href="https://docs.google.com/document/d/1NNIIlvfk_oeajPTPW-H_z0fplF3OAN4_8H0aIzZwHpA/edit?usp=sharing" target="_blank" rel="noopener noreferrer" className="font-bold underline hover:text-blue-900">Contoh Google Docs Brief</a>
+                            </p>
                         </div>
                     </div>
 

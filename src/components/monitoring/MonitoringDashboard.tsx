@@ -511,7 +511,7 @@ export function MonitoringDashboard() {
     return (
         <div className="space-y-6">
             {/* Menu Tabs */}
-            <div className="flex flex-wrap gap-2 border-b pb-4">
+            <div className="flex flex-wrap justify-center gap-2 border-b pb-4 my-auto">
                 {MENU_OPTIONS.map((menu) => (
                     <button
                         key={menu.id}

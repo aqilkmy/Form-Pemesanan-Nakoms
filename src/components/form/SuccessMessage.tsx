@@ -6,6 +6,7 @@ import { PJ_DESAIN_GRAFIS, PJ_WEBSITE, PJ_BANTUAN_TEKNIS, PJ_SURVEY, PJ_PLATFORM
 interface SubmittedData {
     menu_type: MenuType
     kementerian: string
+    nama: string
     jenis_bantuan?: "podcast" | "take_video" | "live_instagram" | "lainnya"
     platform_publikasi?: string[]
 }
@@ -27,23 +28,23 @@ function getPJForBantuanTeknis(jenisBantuan: string): "A" | "B" {
 }
 
 export function SuccessMessage({ onReset, submittedData }: SuccessMessageProps) {
-    const getTemplateMessage = (menuType: MenuType, kementerian: string, pjNama: string): string => {
+    const getTemplateMessage = (menuType: MenuType, namaPemesan: string, kementerian: string, pjNama: string): string => {
         switch (menuType) {
             case "desain_publikasi":
-                return `Halo Kak ${pjNama}, saya dari ${kementerian} izin konfirmasi pemesanan *Desain & Publikasi* yang sudah saya submit melalui form RISET & MEDIA. Mohon ditindaklanjuti ya kak. Terima kasih!`
+                return `Halo Kak ${pjNama}, saya ${namaPemesan} dari ${kementerian} izin konfirmasi pemesanan *Desain & Publikasi* yang sudah saya submit melalui form RISET & MEDIA. Mohon ditindaklanjuti ya kak. Terima kasih!`
             case "website":
-                return `Halo Kak ${pjNama}, saya dari ${kementerian} izin konfirmasi pemesanan *Laman Website* yang sudah saya submit melalui form RISET & MEDIA. Mohon ditindaklanjuti ya kak. Terima kasih!`
+                return `Halo Kak ${pjNama}, saya ${namaPemesan} dari ${kementerian} izin konfirmasi pemesanan *Laman Website* yang sudah saya submit melalui form RISET & MEDIA. Mohon ditindaklanjuti ya kak. Terima kasih!`
             case "bantuan_teknis":
-                return `Halo Kak ${pjNama}, saya dari ${kementerian} izin konfirmasi pemesanan *Bantuan Teknis* yang sudah saya submit melalui form RISET & MEDIA. Mohon ditindaklanjuti ya kak. Terima kasih!`
+                return `Halo Kak ${pjNama}, saya ${namaPemesan} dari ${kementerian} izin konfirmasi pemesanan *Bantuan Teknis* yang sudah saya submit melalui form RISET & MEDIA. Mohon ditindaklanjuti ya kak. Terima kasih!`
             case "survey":
-                return `Halo Kak ${pjNama}, saya dari ${kementerian} izin konfirmasi pemesanan *Publikasi Survey* yang sudah saya submit melalui form RISET & MEDIA. Mohon ditindaklanjuti ya kak. Terima kasih!`
+                return `Halo Kak ${pjNama}, saya ${namaPemesan} dari ${kementerian} izin konfirmasi pemesanan *Publikasi Survey* yang sudah saya submit melalui form RISET & MEDIA. Mohon ditindaklanjuti ya kak. Terima kasih!`
             default:
-                return `Halo Kak ${pjNama}, saya dari ${kementerian} izin konfirmasi pemesanan yang sudah saya submit melalui form RISET & MEDIA. Terima kasih!`
+                return `Halo Kak ${pjNama}, saya ${namaPemesan} dari ${kementerian} izin konfirmasi pemesanan yang sudah saya submit melalui form RISET & MEDIA. Terima kasih!`
         }
     }
 
-    const getPlatformMessage = (kementerian: string, pjNama: string, platformLabel: string): string => {
-        return `Halo Kak ${pjNama}, saya dari ${kementerian} izin konfirmasi pemesanan *Desain & Publikasi* untuk platform *${platformLabel}* yang sudah saya submit melalui form RISET & MEDIA. Mohon ditindaklanjuti ya kak. Terima kasih!`
+    const getPlatformMessage = (namaPemesan: string, kementerian: string, pjNama: string, platformLabel: string): string => {
+        return `Halo Kak ${pjNama}, saya ${namaPemesan} dari ${kementerian} izin konfirmasi pemesanan *Desain & Publikasi* untuk platform *${platformLabel}* yang sudah saya submit melalui form RISET & MEDIA. Mohon ditindaklanjuti ya kak. Terima kasih!`
     }
 
     const getWhatsAppContacts = () => {
@@ -59,7 +60,7 @@ export function SuccessMessage({ onReset, submittedData }: SuccessMessageProps) 
                         label: "PJ Desain Grafis",
                         nama: pjDesain.nama,
                         nomor: pjDesain.nomor,
-                        message: getTemplateMessage("desain_publikasi", submittedData.kementerian, pjDesain.nama)
+                        message: getTemplateMessage("desain_publikasi", submittedData.nama, submittedData.kementerian, pjDesain.nama)
                     })
                 }
 
@@ -81,7 +82,7 @@ export function SuccessMessage({ onReset, submittedData }: SuccessMessageProps) 
                                 label: `PJ ${matchedPlatforms.join(" & ")}`,
                                 nama: pjData.nama,
                                 nomor: pjData.nomor,
-                                message: getPlatformMessage(submittedData.kementerian, pjData.nama, matchedPlatforms.join(" & "))
+                                message: getPlatformMessage(submittedData.nama, submittedData.kementerian, pjData.nama, matchedPlatforms.join(" & "))
                             })
                         }
                     })
@@ -95,7 +96,7 @@ export function SuccessMessage({ onReset, submittedData }: SuccessMessageProps) 
                         label: "PJ Website",
                         nama: pjWebsite.nama,
                         nomor: pjWebsite.nomor,
-                        message: getTemplateMessage("website", submittedData.kementerian, pjWebsite.nama)
+                        message: getTemplateMessage("website", submittedData.nama, submittedData.kementerian, pjWebsite.nama)
                     })
                 }
                 break
@@ -110,7 +111,7 @@ export function SuccessMessage({ onReset, submittedData }: SuccessMessageProps) 
                         label: "PJ Bantuan Teknis",
                         nama: pjTeknis.nama,
                         nomor: pjTeknis.nomor,
-                        message: getTemplateMessage("bantuan_teknis", submittedData.kementerian, pjTeknis.nama)
+                        message: getTemplateMessage("bantuan_teknis", submittedData.nama, submittedData.kementerian, pjTeknis.nama)
                     })
                 }
                 break
@@ -121,7 +122,7 @@ export function SuccessMessage({ onReset, submittedData }: SuccessMessageProps) 
                         label: "PJ Survey",
                         nama: PJ_SURVEY.nama,
                         nomor: PJ_SURVEY.nomor,
-                        message: getTemplateMessage("survey", submittedData.kementerian, PJ_SURVEY.nama)
+                        message: getTemplateMessage("survey", submittedData.nama, submittedData.kementerian, PJ_SURVEY.nama)
                     })
                 }
                 break

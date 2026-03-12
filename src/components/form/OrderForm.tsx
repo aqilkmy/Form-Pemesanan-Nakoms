@@ -36,6 +36,7 @@ type FlowStep = "identity" | "menu" | "detail" | "aset" | "review"
 interface SubmittedData {
     menu_type: MenuType
     kementerian: string
+    nama: string
     jenis_bantuan?: "podcast" | "take_video" | "live_instagram" | "lainnya"
     platform_publikasi?: string[]
 }
@@ -265,6 +266,7 @@ export function OrderForm() {
             setSubmittedData({
                 menu_type: selectedMenu,
                 kementerian: data.kementerian,
+                nama: data.nama,
                 jenis_bantuan: jenisBantuan,
                 platform_publikasi: selectedMenu === "desain_publikasi" ? (data as any).platform_publikasi : undefined
             })

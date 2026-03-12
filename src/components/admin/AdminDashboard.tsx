@@ -701,7 +701,7 @@ export function AdminDashboard() {
     return (
         <div className="space-y-6">
             {/* Menu Tabs */}
-            <div className=" my-auto flex flex-wrap gap-2 border-b pb-4">
+            <div className="my-auto flex flex-wrap justify-center gap-2 border-b pb-4">
                 {MENU_OPTIONS.map((menu) => (
                     <button
                         key={menu.id}

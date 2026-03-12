@@ -36,7 +36,7 @@ export const WAKTU_PUBLIKASI_OPTIONS = [
     "10.00 (Feeds)",
     "12.00 (Reels & Igs)",
     "13.00 (Feeds)",
-    "17.00 (Spotify & YouTube",
+    "17.00 (Spotify & YouTube)",
     "18.00 (Reels & Igs)",
     "19.00 (Feeds)"
 ]
