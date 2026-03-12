@@ -10,7 +10,7 @@ import { Loader2 } from "lucide-react"
 
 // Simple admin credentials - in production use proper auth
 const ADMIN_USERNAME = "admin"
-const ADMIN_PASSWORD = "nakoms2026"
+const ADMIN_PASSWORD = "rizzmed2026"
 
 export function AdminLogin() {
     const router = useRouter()
