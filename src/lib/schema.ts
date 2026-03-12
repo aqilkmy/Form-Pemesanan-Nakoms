@@ -21,14 +21,16 @@ export const desainPublikasiSchema = identitySchema.extend({
     link_file_konten: z.string().min(1, "Wajib diisi (isi '-' jika tidak ada)"),
     link_caption_docs: z.string().min(1, "Wajib diisi (isi '-' jika tidak ada)"),
     request_lagu: z.string().optional(),
-    custom_shortlink: z.string().optional(),
 })
 
 // Menu 2: Laman Website
 export const websiteSchema = identitySchema.extend({
     menu_type: z.literal("website"),
-    custom_shortlink: z.string().min(1, "Shortlink wajib diisi"),
-    catatan_website: z.string().optional(),
+    tujuan_pemesanan: z.string().min(3, "Tujuan pemesanan wajib diisi"),
+    link_original: z.string().optional(),
+    custom_shortlink: z.string().optional(),
+    link_pengajuan_fitur: z.string().optional(),
+    link_pendaftaran_event: z.string().optional(),
 })
 
 // Menu 3: Bantuan Teknis

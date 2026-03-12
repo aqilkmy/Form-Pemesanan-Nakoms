@@ -131,15 +131,6 @@ export function FormDesainPublikasi({ form, step }: FormDesainProps) {
                             {...register("request_lagu")}
                         />
                     </div>
-
-                    <div className="grid gap-2">
-                        <Label htmlFor="custom_shortlink">Request Custom Shortlink (Opsional)</Label>
-                        <Input
-                            id="custom_shortlink"
-                            placeholder="Contoh: s.id/namakegiatan"
-                            {...register("custom_shortlink")}
-                        />
-                    </div>
                 </div>
             </div>
         )
@@ -204,22 +195,12 @@ export function FormDesainPublikasi({ form, step }: FormDesainProps) {
                         </div>
                     </div>
 
-                    {(values.request_lagu || values.custom_shortlink) && (
+                    {values.request_lagu && (
                         <div className="border-t border-border pt-3">
                             <h3 className="font-semibold text-foreground">Tambahan</h3>
                             <div className="grid grid-cols-3 gap-1 mt-1">
-                                {values.request_lagu && (
-                                    <>
-                                        <span className="text-muted-foreground">Lagu:</span>
-                                        <span className="col-span-2">{values.request_lagu}</span>
-                                    </>
-                                )}
-                                {values.custom_shortlink && (
-                                    <>
-                                        <span className="text-muted-foreground">Shortlink:</span>
-                                        <span className="col-span-2">{values.custom_shortlink}</span>
-                                    </>
-                                )}
+                                <span className="text-muted-foreground">Lagu:</span>
+                                <span className="col-span-2">{values.request_lagu}</span>
                             </div>
                         </div>
                     )}

@@ -26,15 +26,18 @@ export interface DesainPublikasiOrder extends BaseOrder {
     link_file_konten: string
     link_caption_docs: string
     request_lagu?: string
-    custom_shortlink?: string
     link_desain_selesai?: string
+    status_publikasi?: Record<string, boolean>
 }
 
 // Website order
 export interface WebsiteOrder extends BaseOrder {
     menu_type: "website"
-    custom_shortlink: string
-    catatan_website?: string
+    tujuan_pemesanan: string
+    link_original?: string
+    custom_shortlink?: string
+    link_pengajuan_fitur?: string
+    link_pendaftaran_event?: string
 }
 
 // Bantuan Teknis order

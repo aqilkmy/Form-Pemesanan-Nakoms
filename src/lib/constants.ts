@@ -24,7 +24,8 @@ export const PLATFORM_OPTIONS = [
     "Instagram Feed & X (Twitter)",
     "Instagram Story",
     "Whatsapp Channel",
-    "Instagram Reels & Tiktok",
+    "Instagram Reels",
+    "TikTok",
     "YouTube",
     "Repost"
 ]

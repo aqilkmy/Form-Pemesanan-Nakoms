@@ -323,7 +323,9 @@ export function AdminDashboard() {
                                 <th className="px-4 py-3">Judul & Platform</th>
                                 <th className="px-4 py-3">Deadline</th>
                                 <th className="px-4 py-3">Aset</th>
+                                <th className="px-4 py-3">Request Lagu</th>
                                 <th className="px-4 py-3">Status</th>
+                                <th className="px-4 py-3">Status Publikasi</th>
                                 <th className="px-4 py-3">Link Desain</th>
                             </tr>
                         </thead>
@@ -384,6 +386,11 @@ export function AdminDashboard() {
                                         </div>
                                     </td>
                                     <td className="px-4 py-3">
+                                        <span className="text-xs text-gray-700">
+                                            {order.request_lagu || '-'}
+                                        </span>
+                                    </td>
+                                    <td className="px-4 py-3">
                                         <select
                                             value={order.status || 'new'}
                                             onChange={(e) => updateStatus(order.id, e.target.value as OrderStatus)}
@@ -393,6 +400,45 @@ export function AdminDashboard() {
                                                 <option key={opt.value} value={opt.value}>{opt.label}</option>
                                             ))}
                                         </select>
+                                    </td>
+                                    <td className="px-4 py-3">
+                                        <div className="flex flex-col gap-1">
+                                            {order.platform_publikasi?.map(platform => {
+                                                const isChecked = order.status_publikasi?.[platform] || false
+                                                return (
+                                                    <label key={platform} className="flex items-center gap-1.5 cursor-pointer">
+                                                        <input
+                                                            type="checkbox"
+                                                            checked={isChecked}
+                                                            onChange={async (e) => {
+                                                                const newStatusPublikasi = {
+                                                                    ...(order.status_publikasi || {}),
+                                                                    [platform]: e.target.checked
+                                                                }
+                                                                try {
+                                                                    const { error } = await supabase
+                                                                        .from('orders')
+                                                                        .update({ status_publikasi: newStatusPublikasi })
+                                                                        .eq('id', order.id)
+                                                                    if (error) throw error
+                                                                    setOrders((prev) =>
+                                                                        prev.map((o) =>
+                                                                            o.id === order.id ? { ...o, status_publikasi: newStatusPublikasi } as Order : o
+                                                                        )
+                                                                    )
+                                                                } catch (error) {
+                                                                    console.error('Error updating status_publikasi:', error)
+                                                                }
+                                                            }}
+                                                            className="w-3.5 h-3.5 rounded border-gray-300 text-green-600 focus:ring-green-500"
+                                                        />
+                                                        <span className={`text-[10px] ${isChecked ? 'text-green-700 line-through' : 'text-gray-600'}`}>
+                                                            {platform}
+                                                        </span>
+                                                    </label>
+                                                )
+                                            })}
+                                        </div>
                                     </td>
                                     <td className="px-4 py-3">
                                         <div className="flex items-center gap-1">
@@ -427,8 +473,9 @@ export function AdminDashboard() {
                             <tr>
                                 <th className="px-4 py-3">Waktu</th>
                                 <th className="px-4 py-3">Pemesan</th>
-                                <th className="px-4 py-3">Shortlink</th>
-                                <th className="px-4 py-3">Catatan</th>
+                                <th className="px-4 py-3">Tujuan</th>
+                                <th className="px-4 py-3">Link & Shortlink</th>
+                                <th className="px-4 py-3">Lampiran</th>
                                 <th className="px-4 py-3">Status</th>
                             </tr>
                         </thead>
@@ -441,11 +488,36 @@ export function AdminDashboard() {
                                         <div className="text-xs text-muted-foreground">{order.kementerian}</div>
                                         <div className="text-xs text-muted-foreground">{order.nomor_whatsapp}</div>
                                     </td>
-                                    <td className="px-4 py-3">
-                                        <span className="font-medium text-blue-600">{order.custom_shortlink}</span>
-                                    </td>
                                     <td className="px-4 py-3 max-w-xs">
-                                        <span className="text-sm truncate">{order.catatan_website || '-'}</span>
+                                        <span className="font-medium">{order.tujuan_pemesanan || '-'}</span>
+                                    </td>
+                                    <td className="px-4 py-3">
+                                        <div className="flex flex-col gap-1 text-xs">
+                                            {order.link_original && (
+                                                <a href={order.link_original} target="_blank" rel="noreferrer" className="text-blue-600 hover:underline flex items-center">
+                                                    <ExternalLink className="w-3 h-3 mr-1" /> Original
+                                                </a>
+                                            )}
+                                            {order.custom_shortlink && (
+                                                <span className="text-gray-700">→ {order.custom_shortlink}</span>
+                                            )}
+                                            {!order.link_original && !order.custom_shortlink && '-'}
+                                        </div>
+                                    </td>
+                                    <td className="px-4 py-3">
+                                        <div className="flex flex-col gap-1">
+                                            {order.link_pengajuan_fitur && (
+                                                <a href={order.link_pengajuan_fitur} target="_blank" rel="noreferrer" className="text-blue-600 hover:underline flex items-center text-xs">
+                                                    <ExternalLink className="w-3 h-3 mr-1" /> Fitur
+                                                </a>
+                                            )}
+                                            {order.link_pendaftaran_event && (
+                                                <a href={order.link_pendaftaran_event} target="_blank" rel="noreferrer" className="text-blue-600 hover:underline flex items-center text-xs">
+                                                    <ExternalLink className="w-3 h-3 mr-1" /> Event
+                                                </a>
+                                            )}
+                                            {!order.link_pengajuan_fitur && !order.link_pendaftaran_event && '-'}
+                                        </div>
                                     </td>
                                     <td className="px-4 py-3">
                                         <select

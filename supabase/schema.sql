@@ -21,10 +21,14 @@ create table orders (
   link_caption_docs text,
   request_lagu text,
   link_desain_selesai text,
+  status_publikasi jsonb default '{}'::jsonb, -- Checklist status per platform
   
   -- Website fields
+  tujuan_pemesanan text,
+  link_original text,
   custom_shortlink text,
-  catatan_website text,
+  link_pengajuan_fitur text,
+  link_pendaftaran_event text,
   
   -- Bantuan Teknis fields  
   nama_kegiatan text,
