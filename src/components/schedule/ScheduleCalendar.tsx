@@ -6,7 +6,7 @@ import dayGridPlugin from "@fullcalendar/daygrid"
 import interactionPlugin from "@fullcalendar/interaction"
 import { EventClickArg } from "@fullcalendar/core"
 import { supabase } from "@/lib/supabase"
-import { Order } from "@/lib/types"
+import { Order, DesainPublikasiOrder, BantuanTeknisOrder, SurveyOrder } from "@/lib/types"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Loader2, Calendar, X } from "lucide-react"
 import { STATUS_OPTIONS } from "@/lib/constants"
@@ -63,7 +63,6 @@ export function ScheduleCalendar() {
                 .from('orders')
                 .select('*')
                 .neq('status', 'cancel')
-                .order('tanggal_publikasi', { ascending: true })
 
             if (error) throw error
             if (data) setOrders(data as Order[])
@@ -71,6 +70,34 @@ export function ScheduleCalendar() {
             console.error('Error fetching orders:', error)
         } finally {
             setIsLoading(false)
+        }
+    }
+
+    const getEventTitle = (order: Order): string => {
+        switch (order.menu_type) {
+            case 'desain_publikasi':
+                return `${order.waktu_publikasi} - ${order.judul_desain}`
+            case 'bantuan_teknis':
+                return `${order.waktu_kegiatan} - ${order.nama_kegiatan}`
+            case 'survey':
+                return `Survey: ${order.judul_survey}`
+            case 'website':
+                return `Website: ${order.custom_shortlink || order.nama}`
+        }
+    }
+
+    const getEventDate = (order: Order): string | null => {
+        switch (order.menu_type) {
+            case 'desain_publikasi':
+                return order.tanggal_publikasi
+            case 'bantuan_teknis':
+                return order.tanggal_kegiatan
+            case 'survey':
+                return order.deadline_survey
+            case 'website':
+                return null // Website orders don't have a date
+            default:
+                return null
         }
     }
 
@@ -91,19 +118,21 @@ export function ScheduleCalendar() {
         }
     }
 
-    const events: CalendarEvent[] = orders.map(order => {
-        const colors = getStatusColor(order.status)
-        return {
-            id: order.id,
-            title: `${order.waktu_publikasi} - ${order.judul_desain}`,
-            start: order.tanggal_publikasi,
-            extendedProps: {
-                order: order
-            },
-            backgroundColor: colors.bg,
-            borderColor: colors.border
-        }
-    })
+    const events: CalendarEvent[] = orders
+        .filter(order => getEventDate(order) !== null)
+        .map(order => {
+            const colors = getStatusColor(order.status)
+            return {
+                id: order.id,
+                title: getEventTitle(order),
+                start: getEventDate(order)!,
+                extendedProps: {
+                    order: order
+                },
+                backgroundColor: colors.bg,
+                borderColor: colors.border
+            }
+        })
 
     const handleEventClick = (info: EventClickArg) => {
         const order = info.event.extendedProps.order as Order
@@ -131,52 +160,109 @@ export function ScheduleCalendar() {
         )
     }
 
-    const DetailContent = () => (
-        <div className="space-y-3">
-            <div>
-                <div className="text-xs text-muted-foreground">Judul</div>
-                <div className="font-semibold">{selectedOrder?.judul_desain}</div>
-            </div>
-            <div>
-                <div className="text-xs text-muted-foreground">Pemesan</div>
-                <div className="font-medium">{selectedOrder?.nama}</div>
-                <div className="text-xs text-muted-foreground">{selectedOrder?.kementerian}</div>
-            </div>
-            <div>
-                <div className="text-xs text-muted-foreground">Jadwal Publikasi</div>
-                <div className="font-medium">
-                    {selectedOrder?.tanggal_publikasi} • {selectedOrder?.waktu_publikasi}
+    const getOrderTitle = (order: Order): string => {
+        switch (order.menu_type) {
+            case 'desain_publikasi':
+                return order.judul_desain
+            case 'bantuan_teknis':
+                return order.nama_kegiatan
+            case 'survey':
+                return order.judul_survey
+            case 'website':
+                return order.custom_shortlink || 'Website Request'
+        }
+    }
+
+    const getOrderSchedule = (order: Order): string => {
+        switch (order.menu_type) {
+            case 'desain_publikasi':
+                return `${order.tanggal_publikasi} • ${order.waktu_publikasi}`
+            case 'bantuan_teknis':
+                return `${order.tanggal_kegiatan} • ${order.waktu_kegiatan}`
+            case 'survey':
+                return `Deadline: ${order.deadline_survey}`
+            case 'website':
+                return '-'
+        }
+    }
+
+    const getMenuTypeLabel = (menuType: string): string => {
+        switch (menuType) {
+            case 'desain_publikasi':
+                return 'Desain & Publikasi'
+            case 'bantuan_teknis':
+                return 'Bantuan Teknis'
+            case 'survey':
+                return 'Survey'
+            case 'website':
+                return 'Website'
+            default:
+                return menuType
+        }
+    }
+
+    const DetailContent = () => {
+        if (!selectedOrder) return null
+
+        return (
+            <div className="space-y-3">
+                <div>
+                    <div className="text-xs text-muted-foreground">Tipe Layanan</div>
+                    <span className="bg-purple-100 text-purple-800 px-2 py-0.5 rounded text-xs font-medium">
+                        {getMenuTypeLabel(selectedOrder.menu_type)}
+                    </span>
+                </div>
+                <div>
+                    <div className="text-xs text-muted-foreground">Judul</div>
+                    <div className="font-semibold">{getOrderTitle(selectedOrder)}</div>
+                </div>
+                <div>
+                    <div className="text-xs text-muted-foreground">Pemesan</div>
+                    <div className="font-medium">{selectedOrder.nama}</div>
+                    <div className="text-xs text-muted-foreground">{selectedOrder.kementerian}</div>
+                </div>
+                <div>
+                    <div className="text-xs text-muted-foreground">Jadwal</div>
+                    <div className="font-medium">{getOrderSchedule(selectedOrder)}</div>
+                </div>
+                {selectedOrder.menu_type === 'desain_publikasi' && (
+                    <div>
+                        <div className="text-xs text-muted-foreground">Platform</div>
+                        <div className="flex flex-wrap gap-1 mt-1">
+                            {selectedOrder.platform_publikasi.map((p: string) => (
+                                <span key={p} className="bg-blue-100 text-blue-800 px-2 py-0.5 rounded text-xs">
+                                    {p}
+                                </span>
+                            ))}
+                        </div>
+                    </div>
+                )}
+                {selectedOrder.menu_type === 'bantuan_teknis' && (
+                    <div>
+                        <div className="text-xs text-muted-foreground">Tempat</div>
+                        <div className="font-medium">{selectedOrder.tempat_kegiatan}</div>
+                    </div>
+                )}
+                <div>
+                    <div className="text-xs text-muted-foreground">Status</div>
+                    <span className={`inline-block px-2 py-0.5 rounded-full text-xs font-semibold mt-1 ${getStatusBadgeColor(selectedOrder.status)}`}>
+                        {getStatusLabel(selectedOrder.status)}
+                    </span>
+                </div>
+                <div>
+                    <div className="text-xs text-muted-foreground">WhatsApp</div>
+                    <a 
+                        href={`https://wa.me/${selectedOrder.nomor_whatsapp}`}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="text-blue-600 hover:underline text-sm"
+                    >
+                        {selectedOrder.nomor_whatsapp}
+                    </a>
                 </div>
             </div>
-            <div>
-                <div className="text-xs text-muted-foreground">Platform</div>
-                <div className="flex flex-wrap gap-1 mt-1">
-                    {selectedOrder?.platform_publikasi.map(p => (
-                        <span key={p} className="bg-blue-100 text-blue-800 px-2 py-0.5 rounded text-xs">
-                            {p}
-                        </span>
-                    ))}
-                </div>
-            </div>
-            <div>
-                <div className="text-xs text-muted-foreground">Status</div>
-                <span className={`inline-block px-2 py-0.5 rounded-full text-xs font-semibold mt-1 ${getStatusBadgeColor(selectedOrder?.status || '')}`}>
-                    {getStatusLabel(selectedOrder?.status || '')}
-                </span>
-            </div>
-            <div>
-                <div className="text-xs text-muted-foreground">WhatsApp</div>
-                <a 
-                    href={`https://wa.me/${selectedOrder?.nomor_whatsapp}`}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="text-blue-600 hover:underline text-sm"
-                >
-                    {selectedOrder?.nomor_whatsapp}
-                </a>
-            </div>
-        </div>
-    )
+        )
+    }
 
     return (
         <>
