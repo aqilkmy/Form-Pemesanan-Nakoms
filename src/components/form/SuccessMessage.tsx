@@ -176,7 +176,7 @@ export function SuccessMessage({ onReset, submittedData }: SuccessMessageProps) 
                             >
                                 <Button 
                                     type="button"
-                                    className="w-3/4 justify-center gap-2 bg-green-600 hover:bg-green-700 text-white py-6 text-base"
+                                    className="w-5/6 justify-center gap-2 bg-green-600 hover:bg-green-700 text-white py-6 text-base"
                                 >
                                     <MessageCircle className="w-5 h-5" />
                                     <span>Chat {contact.nama} - {contact.label}</span>

@@ -21,12 +21,14 @@ export const KEMENTERIAN_OPTIONS = [
 ]
 
 export const PLATFORM_OPTIONS = [
-    "Instagram Feed & X (Twitter)",
+    "Instagram Feed",
+    "X (Twitter)",
     "Instagram Story",
     "Whatsapp Channel",
     "Instagram Reels",
     "TikTok",
     "YouTube",
+    "Spotify",
     "Repost"
 ]
 
@@ -117,8 +119,8 @@ export const PJ_BANTUAN_TEKNIS: Record<"A" | "B", { nama: string; nomor: string 
 
 // PJ Survey
 export const PJ_SURVEY: { nama: string; nomor: string } = {
-    nama: "PJ Survey",  // Ganti dengan nama PJ survey
-    nomor: "6281234567893"  // Ganti dengan nomor PJ survey
+    nama: "Erga",  // Ganti dengan nama PJ survey
+    nomor: "6285878335352"  // Ganti dengan nomor PJ survey
 }
 
 // PJ Platform Khusus (untuk Desain & Publikasi)
