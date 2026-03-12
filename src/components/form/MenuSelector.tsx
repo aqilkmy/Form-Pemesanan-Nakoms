@@ -2,6 +2,22 @@
 
 import { MENU_OPTIONS, MenuType } from "@/lib/constants"
 import { cn } from "@/lib/utils"
+import { Palette, Globe, Video, ClipboardList } from "lucide-react"
+
+const MenuIcon = ({ icon, className }: { icon: string; className?: string }) => {
+    switch (icon) {
+        case "palette":
+            return <Palette className={className} />
+        case "globe":
+            return <Globe className={className} />
+        case "video":
+            return <Video className={className} />
+        case "clipboard-list":
+            return <ClipboardList className={className} />
+        default:
+            return null
+    }
+}
 
 interface MenuSelectorProps {
     selectedMenu: MenuType | null
@@ -32,7 +48,7 @@ export function MenuSelector({ selectedMenu, onSelectMenu }: MenuSelectorProps) 
                                 : "border-gray-200 bg-white"
                         )}
                     >
-                        <span className="text-4xl mb-3">{menu.icon}</span>
+                        <MenuIcon icon={menu.icon} className="w-10 h-10 mb-3 text-primary" />
                         <h3 className="font-semibold text-foreground mb-1">{menu.label}</h3>
                         <p className="text-sm text-muted-foreground">{menu.description}</p>
                     </button>

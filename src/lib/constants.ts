@@ -50,11 +50,11 @@ export const STATUS_OPTIONS = [
 // Jenis Menu/Layanan
 export type MenuType = "desain_publikasi" | "website" | "bantuan_teknis" | "survey"
 
-export const MENU_OPTIONS: { id: MenuType; label: string; description: string; icon: string }[] = [
-    { id: "desain_publikasi", label: "Desain & Publikasi", description: "Pemesanan desain grafis dan publikasi konten", icon: "🎨" },
-    { id: "website", label: "Laman Website", description: "Pemesanan shortlink dan halaman website", icon: "🌐" },
-    { id: "bantuan_teknis", label: "Bantuan Teknis", description: "Podcast, video, live instagram, dll", icon: "🎬" },
-    { id: "survey", label: "Survey", description: "Publikasi survey/kuesioner", icon: "📊" },
+export const MENU_OPTIONS: { id: MenuType; label: string; description: string; icon: "palette" | "globe" | "video" | "clipboard-list" }[] = [
+    { id: "desain_publikasi", label: "Desain & Publikasi", description: "Pemesanan desain grafis dan publikasi konten", icon: "palette" },
+    { id: "website", label: "Laman Website", description: "Pemesanan shortlink dan halaman website", icon: "globe" },
+    { id: "bantuan_teknis", label: "Bantuan Teknis", description: "Podcast, video, live instagram, dll", icon: "video" },
+    { id: "survey", label: "Survey", description: "Publikasi survey/kuesioner", icon: "clipboard-list" },
 ]
 
 // Jenis Bantuan Teknis
