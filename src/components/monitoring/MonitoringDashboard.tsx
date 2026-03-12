@@ -5,7 +5,22 @@ import { supabase } from "@/lib/supabase"
 import { Order, DesainPublikasiOrder, WebsiteOrder, BantuanTeknisOrder, SurveyOrder } from "@/lib/types"
 import { STATUS_OPTIONS, KEMENTERIAN_OPTIONS, PLATFORM_OPTIONS, MENU_OPTIONS, MenuType, JENIS_BANTUAN_OPTIONS } from "@/lib/constants"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Loader2, ExternalLink, Filter, AlertTriangle } from "lucide-react"
+import { Loader2, ExternalLink, Filter, AlertTriangle, Palette, Globe, Video, ClipboardList } from "lucide-react"
+
+const MenuIcon = ({ icon, className }: { icon: string; className?: string }) => {
+    switch (icon) {
+        case "palette":
+            return <Palette className={className} />
+        case "globe":
+            return <Globe className={className} />
+        case "video":
+            return <Video className={className} />
+        case "clipboard-list":
+            return <ClipboardList className={className} />
+        default:
+            return null
+    }
+}
 
 type SortOption = 'waktu_pemesanan' | 'deadline'
 
@@ -337,8 +352,9 @@ export function MonitoringDashboard() {
                             <tr>
                                 <th className="px-4 py-3">Waktu</th>
                                 <th className="px-4 py-3">Pemesan</th>
-                                <th className="px-4 py-3">Shortlink</th>
-                                <th className="px-4 py-3">Catatan</th>
+                                <th className="px-4 py-3">Tujuan</th>
+                                <th className="px-4 py-3">Link & Shortlink</th>
+                                <th className="px-4 py-3">Lampiran</th>
                                 <th className="px-4 py-3">Status</th>
                             </tr>
                         </thead>
@@ -350,11 +366,36 @@ export function MonitoringDashboard() {
                                         <div className="font-semibold">{order.nama}</div>
                                         <div className="text-xs text-muted-foreground">{order.kementerian}</div>
                                     </td>
-                                    <td className="px-4 py-3">
-                                        <span className="font-medium text-blue-600">{order.custom_shortlink}</span>
-                                    </td>
                                     <td className="px-4 py-3 max-w-xs">
-                                        <span className="text-sm truncate">{order.catatan_website || '-'}</span>
+                                        <span className="font-medium">{order.tujuan_pemesanan || '-'}</span>
+                                    </td>
+                                    <td className="px-4 py-3">
+                                        <div className="flex flex-col gap-1 text-xs">
+                                            {order.link_original && (
+                                                <a href={order.link_original} target="_blank" rel="noreferrer" className="text-blue-600 hover:underline flex items-center">
+                                                    <ExternalLink className="w-3 h-3 mr-1" /> Original
+                                                </a>
+                                            )}
+                                            {order.custom_shortlink && (
+                                                <span className="text-gray-700">→ {order.custom_shortlink}</span>
+                                            )}
+                                            {!order.link_original && !order.custom_shortlink && '-'}
+                                        </div>
+                                    </td>
+                                    <td className="px-4 py-3">
+                                        <div className="flex flex-col gap-1">
+                                            {order.link_pengajuan_fitur && (
+                                                <a href={order.link_pengajuan_fitur} target="_blank" rel="noreferrer" className="text-blue-600 hover:underline flex items-center text-xs">
+                                                    <ExternalLink className="w-3 h-3 mr-1" /> Fitur
+                                                </a>
+                                            )}
+                                            {order.link_pendaftaran_event && (
+                                                <a href={order.link_pendaftaran_event} target="_blank" rel="noreferrer" className="text-blue-600 hover:underline flex items-center text-xs">
+                                                    <ExternalLink className="w-3 h-3 mr-1" /> Event
+                                                </a>
+                                            )}
+                                            {!order.link_pengajuan_fitur && !order.link_pendaftaran_event && '-'}
+                                        </div>
                                     </td>
                                     <td className="px-4 py-3">
                                         <span className={`px-2 py-1 rounded-full text-xs font-semibold ${getStatusColor(order.status)}`}>
@@ -481,7 +522,7 @@ export function MonitoringDashboard() {
                                 : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
                         }`}
                     >
-                        <span>{menu.icon}</span>
+                        <MenuIcon icon={menu.icon} className="w-4 h-4" />
                         <span>{menu.label}</span>
                         <span className={`px-2 py-0.5 rounded-full text-xs ${
                             activeTab === menu.id ? 'bg-white/20' : 'bg-gray-200'
@@ -581,8 +622,9 @@ export function MonitoringDashboard() {
             {/* Table */}
             <Card>
                 <CardHeader>
-                    <CardTitle>
-                        {MENU_OPTIONS.find(m => m.id === activeTab)?.icon} {MENU_OPTIONS.find(m => m.id === activeTab)?.label} ({filteredOrders.length})
+                    <CardTitle className="flex items-center gap-2">
+                        <MenuIcon icon={MENU_OPTIONS.find(m => m.id === activeTab)?.icon || ''} className="w-5 h-5" />
+                        {MENU_OPTIONS.find(m => m.id === activeTab)?.label} ({filteredOrders.length})
                     </CardTitle>
                 </CardHeader>
                 <CardContent>

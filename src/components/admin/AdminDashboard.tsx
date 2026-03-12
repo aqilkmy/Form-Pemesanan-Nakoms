@@ -5,7 +5,22 @@ import { supabase } from "@/lib/supabase"
 import { Order, OrderStatus, DesainPublikasiOrder, WebsiteOrder, BantuanTeknisOrder, SurveyOrder } from "@/lib/types"
 import { STATUS_OPTIONS, KEMENTERIAN_OPTIONS, PLATFORM_OPTIONS, WAKTU_PUBLIKASI_OPTIONS, MENU_OPTIONS, MenuType, JENIS_BANTUAN_OPTIONS } from "@/lib/constants"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Loader2, ExternalLink, Filter, AlertTriangle } from "lucide-react"
+import { Loader2, ExternalLink, Filter, AlertTriangle, Palette, Globe, Video, ClipboardList } from "lucide-react"
+
+const MenuIcon = ({ icon, className }: { icon: string; className?: string }) => {
+    switch (icon) {
+        case "palette":
+            return <Palette className={className} />
+        case "globe":
+            return <Globe className={className} />
+        case "video":
+            return <Video className={className} />
+        case "clipboard-list":
+            return <ClipboardList className={className} />
+        default:
+            return null
+    }
+}
 
 type SortOption = 'waktu_pemesanan' | 'deadline'
 
@@ -697,7 +712,7 @@ export function AdminDashboard() {
                                 : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
                         }`}
                     >
-                        <span>{menu.icon}</span>
+                        <MenuIcon icon={menu.icon} className="w-4 h-4" />
                         <span>{menu.label}</span>
                         <span className={`px-2 py-0.5 rounded-full text-xs ${
                             activeTab === menu.id ? 'bg-white/20' : 'bg-gray-200'
@@ -797,8 +812,9 @@ export function AdminDashboard() {
             {/* Table */}
             <Card>
                 <CardHeader>
-                    <CardTitle>
-                        {MENU_OPTIONS.find(m => m.id === activeTab)?.icon} {MENU_OPTIONS.find(m => m.id === activeTab)?.label} ({filteredOrders.length})
+                    <CardTitle className="flex items-center gap-2">
+                        <MenuIcon icon={MENU_OPTIONS.find(m => m.id === activeTab)?.icon || ''} className="w-5 h-5" />
+                        {MENU_OPTIONS.find(m => m.id === activeTab)?.label} ({filteredOrders.length})
                     </CardTitle>
                 </CardHeader>
                 <CardContent>
