@@ -30,20 +30,20 @@ export function SuccessMessage({ onReset, submittedData }: SuccessMessageProps) 
     const getTemplateMessage = (menuType: MenuType, kementerian: string, pjNama: string): string => {
         switch (menuType) {
             case "desain_publikasi":
-                return `Halo Kak ${pjNama}, saya dari ${kementerian} izin konfirmasi pemesanan *Desain & Publikasi* yang sudah saya submit melalui form RISET & MEDIA. Mohon ditindaklanjuti ya kak. Terima kasih 🙏`
+                return `Halo Kak ${pjNama}, saya dari ${kementerian} izin konfirmasi pemesanan *Desain & Publikasi* yang sudah saya submit melalui form RISET & MEDIA. Mohon ditindaklanjuti ya kak. Terima kasih!`
             case "website":
-                return `Halo Kak ${pjNama}, saya dari ${kementerian} izin konfirmasi pemesanan *Laman Website* yang sudah saya submit melalui form RISET & MEDIA. Mohon ditindaklanjuti ya kak. Terima kasih 🙏`
+                return `Halo Kak ${pjNama}, saya dari ${kementerian} izin konfirmasi pemesanan *Laman Website* yang sudah saya submit melalui form RISET & MEDIA. Mohon ditindaklanjuti ya kak. Terima kasih!`
             case "bantuan_teknis":
-                return `Halo Kak ${pjNama}, saya dari ${kementerian} izin konfirmasi pemesanan *Bantuan Teknis* yang sudah saya submit melalui form RISET & MEDIA. Mohon ditindaklanjuti ya kak. Terima kasih 🙏`
+                return `Halo Kak ${pjNama}, saya dari ${kementerian} izin konfirmasi pemesanan *Bantuan Teknis* yang sudah saya submit melalui form RISET & MEDIA. Mohon ditindaklanjuti ya kak. Terima kasih!`
             case "survey":
-                return `Halo Kak ${pjNama}, saya dari ${kementerian} izin konfirmasi pemesanan *Publikasi Survey* yang sudah saya submit melalui form RISET & MEDIA. Mohon ditindaklanjuti ya kak. Terima kasih 🙏`
+                return `Halo Kak ${pjNama}, saya dari ${kementerian} izin konfirmasi pemesanan *Publikasi Survey* yang sudah saya submit melalui form RISET & MEDIA. Mohon ditindaklanjuti ya kak. Terima kasih!`
             default:
-                return `Halo Kak ${pjNama}, saya dari ${kementerian} izin konfirmasi pemesanan yang sudah saya submit melalui form RISET & MEDIA. Terima kasih 🙏`
+                return `Halo Kak ${pjNama}, saya dari ${kementerian} izin konfirmasi pemesanan yang sudah saya submit melalui form RISET & MEDIA. Terima kasih!`
         }
     }
 
     const getPlatformMessage = (kementerian: string, pjNama: string, platformLabel: string): string => {
-        return `Halo Kak ${pjNama}, saya dari ${kementerian} izin konfirmasi pemesanan *Desain & Publikasi* untuk platform *${platformLabel}* yang sudah saya submit melalui form RISET & MEDIA. Mohon ditindaklanjuti ya kak. Terima kasih 🙏`
+        return `Halo Kak ${pjNama}, saya dari ${kementerian} izin konfirmasi pemesanan *Desain & Publikasi* untuk platform *${platformLabel}* yang sudah saya submit melalui form RISET & MEDIA. Mohon ditindaklanjuti ya kak. Terima kasih!`
     }
 
     const getWhatsAppContacts = () => {
@@ -151,14 +151,14 @@ export function SuccessMessage({ onReset, submittedData }: SuccessMessageProps) 
                 </div>
             </div>
             <div className="space-y-2">
-                <h2 className="text-2xl font-bold text-gray-900">Pesanan Berhasil Dikirim!</h2>
+                <h2 className="text-2xl font-bold text-foreground">Pesanan Berhasil Dikirim!</h2>
                 {submittedData && (
                     <p className="text-sm text-primary font-medium">
                         Jenis Layanan: {getMenuLabel()}
                     </p>
                 )}
                 <p className="text-gray-500 max-w-md mx-auto">
-                    Terima kasih. Silakan hubungi PJ terkait via WhatsApp untuk konfirmasi lebih lanjut.
+                    Terima kasih. Silakan hubungi PJ terkait via WhatsApp untuk konfirmasi lebih lanjut, dan doakan admin sehat selalu :)
                 </p>
             </div>
 

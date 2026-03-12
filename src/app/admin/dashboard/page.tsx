@@ -47,7 +47,7 @@ export default function AdminDashboardPage() {
             <Navbar />
             <div className="flex-1 container py-8">
                 <div className="flex items-center justify-between mb-6">
-                    <h1 className="text-2xl font-bold tracking-tight mx-auto text-gray-900">Admin Dashboard</h1>
+                    <h1 className="text-2xl font-bold tracking-tight mx-auto text-foreground">Admin Dashboard</h1>
                     {/* <div className="flex items-center gap-4">
                         <button
                             onClick={handleLogout}

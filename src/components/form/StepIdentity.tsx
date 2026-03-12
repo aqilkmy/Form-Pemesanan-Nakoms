@@ -50,7 +50,7 @@ export function StepIdentity({ form }: StepProps) {
 
             <div className="space-y-4 pt-4 border-t">
                 <h2 className="text-xl font-semibold text-primary">Konfirmasi SOP</h2>
-                <div className="flex items-start bg-secondary p-4 rounded-lg">
+                <div className="flex items-start gradient-secondary p-4 rounded-lg">
                     <div className="flex items-center h-5">
                         <input
                             id="sudah_baca_sop"
@@ -60,10 +60,10 @@ export function StepIdentity({ form }: StepProps) {
                         />
                     </div>
                     <div className="ml-3 text-sm">
-                        <label htmlFor="sudah_baca_sop" className="font-medium text-foreground">
-                            Saya sudah membaca dan memahami <span className="font-bold text-blue-700 italic underline"><a href="https://drive.google.com/drive/folders/1LfBlUZEg-fnwreUZxDfg8txBNbfNmEeP" target="blank">SOP Pemesanan Konten</a></span>
+                        <label htmlFor="sudah_baca_sop" className="font-medium text-white">
+                            Saya sudah membaca dan memahami <span className="font-bold text-blue-900 italic underline"><a href="https://drive.google.com/drive/folders/1LfBlUZEg-fnwreUZxDfg8txBNbfNmEeP" target="blank">SOP Pemesanan Konten</a></span>
                         </label>
-                        <p className="text-muted-foreground mt-1">
+                        <p className="text-white mt-1">
                             Dengan mencentang ini, Anda setuju untuk mengikuti semua prosedur yang berlaku.
                         </p>
                         {errors.sudah_baca_sop && <p className="text-sm text-destructive mt-1">{errors.sudah_baca_sop.message}</p>}

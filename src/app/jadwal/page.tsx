@@ -11,7 +11,7 @@ export default function JadwalPage() {
             <Navbar />
             <div className="flex-1 container py-8">
                 <div className="flex items-center justify-between mb-6">
-                    <h1 className="text-2xl font-bold tracking-tight mx-auto text-gray-900">Jadwal Publikasi</h1>
+                    <h1 className="text-2xl font-bold tracking-tight mx-auto text-foreground">Jadwal Publikasi</h1>
                 </div>
                 <ScheduleCalendar />
             </div>

@@ -11,7 +11,7 @@ export default function MonitoringPage() {
             <Navbar />
             <div className="flex-1 container py-8">
                 <div className="flex items-center justify-between mb-6">
-                    <h1 className="text-2xl font-bold tracking-tight mx-auto text-gray-900">Monitoring Pesanan</h1>
+                    <h1 className="text-2xl font-bold tracking-tight mx-auto text-foreground">Monitoring Pesanan</h1>
                 </div>
                 <MonitoringDashboard />
             </div>

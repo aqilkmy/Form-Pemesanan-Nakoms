@@ -28,9 +28,9 @@ export function MenuSelector({ selectedMenu, onSelectMenu }: MenuSelectorProps) 
     return (
         <div className="space-y-6 animate-in fade-in slide-in-from-right-4 duration-500">
             <div className="space-y-4">
-                <h2 className="text-xl font-semibold text-primary">Pilih Layanan</h2>
+                <h2 className="text-xl font-semibold text-primary">Pilih Order</h2>
                 <p className="text-muted-foreground text-sm">
-                    Silakan pilih jenis layanan yang Anda butuhkan
+                    Pilih jenis order sesuai kebutuhan kamu.
                 </p>
             </div>
 
