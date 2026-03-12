@@ -1,12 +1,13 @@
 
 import { CheckCircle2, MessageCircle } from "lucide-react"
 import { Button } from "@/components/ui/button"
-import { PJ_DESAIN_GRAFIS, PJ_WEBSITE, PJ_BANTUAN_TEKNIS, PJ_SURVEY, MenuType, JENIS_BANTUAN_OPTIONS } from "@/lib/constants"
+import { PJ_DESAIN_GRAFIS, PJ_WEBSITE, PJ_BANTUAN_TEKNIS, PJ_SURVEY, PJ_PLATFORM_KHUSUS, MenuType, JENIS_BANTUAN_OPTIONS } from "@/lib/constants"
 
 interface SubmittedData {
     menu_type: MenuType
     kementerian: string
     jenis_bantuan?: "podcast" | "take_video" | "live_instagram" | "lainnya"
+    platform_publikasi?: string[]
 }
 
 interface SuccessMessageProps {
@@ -26,11 +27,29 @@ function getPJForBantuanTeknis(jenisBantuan: string): "A" | "B" {
 }
 
 export function SuccessMessage({ onReset, submittedData }: SuccessMessageProps) {
+    const getTemplateMessage = (menuType: MenuType, kementerian: string, pjNama: string): string => {
+        switch (menuType) {
+            case "desain_publikasi":
+                return `Halo Kak ${pjNama}, saya dari ${kementerian} izin konfirmasi pemesanan *Desain & Publikasi* yang sudah saya submit melalui form RISET & MEDIA. Mohon ditindaklanjuti ya kak. Terima kasih 🙏`
+            case "website":
+                return `Halo Kak ${pjNama}, saya dari ${kementerian} izin konfirmasi pemesanan *Laman Website* yang sudah saya submit melalui form RISET & MEDIA. Mohon ditindaklanjuti ya kak. Terima kasih 🙏`
+            case "bantuan_teknis":
+                return `Halo Kak ${pjNama}, saya dari ${kementerian} izin konfirmasi pemesanan *Bantuan Teknis* yang sudah saya submit melalui form RISET & MEDIA. Mohon ditindaklanjuti ya kak. Terima kasih 🙏`
+            case "survey":
+                return `Halo Kak ${pjNama}, saya dari ${kementerian} izin konfirmasi pemesanan *Publikasi Survey* yang sudah saya submit melalui form RISET & MEDIA. Mohon ditindaklanjuti ya kak. Terima kasih 🙏`
+            default:
+                return `Halo Kak ${pjNama}, saya dari ${kementerian} izin konfirmasi pemesanan yang sudah saya submit melalui form RISET & MEDIA. Terima kasih 🙏`
+        }
+    }
+
+    const getPlatformMessage = (kementerian: string, pjNama: string, platformLabel: string): string => {
+        return `Halo Kak ${pjNama}, saya dari ${kementerian} izin konfirmasi pemesanan *Desain & Publikasi* untuk platform *${platformLabel}* yang sudah saya submit melalui form RISET & MEDIA. Mohon ditindaklanjuti ya kak. Terima kasih 🙏`
+    }
+
     const getWhatsAppContacts = () => {
         if (!submittedData) return []
 
-        const contacts: { label: string; nama: string; nomor: string }[] = []
-        const defaultMessage = `Permisi kak, saya [Nama] dari [Kementerian] izin konfirmasi pemesanan yang sudah saya submit melalui form. Terima kasih.`
+        const contacts: { label: string; nama: string; nomor: string; message: string }[] = []
 
         switch (submittedData.menu_type) {
             case "desain_publikasi": {
@@ -39,17 +58,44 @@ export function SuccessMessage({ onReset, submittedData }: SuccessMessageProps) 
                     contacts.push({
                         label: "PJ Desain Grafis",
                         nama: pjDesain.nama,
-                        nomor: pjDesain.nomor
+                        nomor: pjDesain.nomor,
+                        message: getTemplateMessage("desain_publikasi", submittedData.kementerian, pjDesain.nama)
+                    })
+                }
+
+                // Check for special platform PJs
+                if (submittedData.platform_publikasi && submittedData.platform_publikasi.length > 0) {
+                    const addedPJs = new Set<string>() // Prevent duplicates
+
+                    Object.entries(PJ_PLATFORM_KHUSUS).forEach(([key, pjData]) => {
+                        const hasMatchingPlatform = pjData.platforms.some(platform => 
+                            submittedData.platform_publikasi?.includes(platform)
+                        )
+                        
+                        if (hasMatchingPlatform && !addedPJs.has(key)) {
+                            addedPJs.add(key)
+                            const matchedPlatforms = pjData.platforms.filter(p => 
+                                submittedData.platform_publikasi?.includes(p)
+                            )
+                            contacts.push({
+                                label: `PJ ${matchedPlatforms.join(" & ")}`,
+                                nama: pjData.nama,
+                                nomor: pjData.nomor,
+                                message: getPlatformMessage(submittedData.kementerian, pjData.nama, matchedPlatforms.join(" & "))
+                            })
+                        }
                     })
                 }
                 break
             }
             case "website": {
-                if (PJ_WEBSITE.nomor) {
+                const pjWebsite = PJ_WEBSITE[submittedData.kementerian]
+                if (pjWebsite?.nomor) {
                     contacts.push({
                         label: "PJ Website",
-                        nama: PJ_WEBSITE.nama,
-                        nomor: PJ_WEBSITE.nomor
+                        nama: pjWebsite.nama,
+                        nomor: pjWebsite.nomor,
+                        message: getTemplateMessage("website", submittedData.kementerian, pjWebsite.nama)
                     })
                 }
                 break
@@ -63,17 +109,19 @@ export function SuccessMessage({ onReset, submittedData }: SuccessMessageProps) 
                     contacts.push({
                         label: "PJ Bantuan Teknis",
                         nama: pjTeknis.nama,
-                        nomor: pjTeknis.nomor
+                        nomor: pjTeknis.nomor,
+                        message: getTemplateMessage("bantuan_teknis", submittedData.kementerian, pjTeknis.nama)
                     })
                 }
                 break
             }
             case "survey": {
-                if (PJ_SURVEY.nomor) {
+                if (PJ_SURVEY?.nomor) {
                     contacts.push({
                         label: "PJ Survey",
                         nama: PJ_SURVEY.nama,
-                        nomor: PJ_SURVEY.nomor
+                        nomor: PJ_SURVEY.nomor,
+                        message: getTemplateMessage("survey", submittedData.kementerian, PJ_SURVEY.nama)
                     })
                 }
                 break
@@ -84,7 +132,6 @@ export function SuccessMessage({ onReset, submittedData }: SuccessMessageProps) 
     }
 
     const contacts = getWhatsAppContacts()
-    const defaultMessage = `Permisi kak, saya [Nama] dari [Kementerian] izin konfirmasi pemesanan yang sudah saya submit melalui form. Terima kasih.`
 
     const getMenuLabel = () => {
         switch (submittedData?.menu_type) {
@@ -115,24 +162,34 @@ export function SuccessMessage({ onReset, submittedData }: SuccessMessageProps) 
                 </p>
             </div>
 
-            {contacts.length > 0 && (
+            {contacts.length > 0 ? (
                 <div className="space-y-3 max-w-md mx-auto">
                     <p className="text-sm text-gray-600 font-medium">Hubungi PJ via WhatsApp:</p>
-                    <div className="grid gap-2">
+                    <div className="grid gap-3">
                         {contacts.map((contact, index) => (
                             <a
                                 key={index}
-                                href={getWhatsAppLink(contact.nomor, defaultMessage)}
+                                href={getWhatsAppLink(contact.nomor, contact.message)}
                                 target="_blank"
                                 rel="noopener noreferrer"
+                                className="block"
                             >
-                                <Button variant="outline" className="w-full justify-start gap-2 text-green-600 border-green-200 hover:bg-green-50">
-                                    <MessageCircle className="w-4 h-4" />
-                                    <span>{contact.label} - {contact.nama}</span>
+                                <Button 
+                                    type="button"
+                                    className="w-3/4 justify-center gap-2 bg-green-600 hover:bg-green-700 text-white py-6 text-base"
+                                >
+                                    <MessageCircle className="w-5 h-5" />
+                                    <span>Chat {contact.nama} - {contact.label}</span>
                                 </Button>
                             </a>
                         ))}
                     </div>
+                </div>
+            ) : submittedData && (
+                <div className="space-y-3 max-w-md mx-auto">
+                    <p className="text-sm text-yellow-600 font-medium">
+                        PJ untuk kementerian Anda belum tersedia. Silakan hubungi admin.
+                    </p>
                 </div>
             )}
 

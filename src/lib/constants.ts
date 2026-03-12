@@ -87,10 +87,26 @@ export const PJ_DESAIN_GRAFIS: Record<string, { nama: string; nomor: string }> =
     "Kementerian Riset dan Data": { nama: "Rosyid", nomor: "6285134057783" },
 }
 
-// PJ Website (untuk menu Laman Website) - TODO: isi dengan data yang sesuai
-export const PJ_WEBSITE: { nama: string; nomor: string } = {
-    nama: "Admin Website",  // Ganti dengan nama PJ website
-    nomor: "6281234567890"  // Ganti dengan nomor PJ website
+// PJ Website berdasarkan kementerian pemesan
+export const PJ_WEBSITE: Record<string, { nama: string; nomor: string }> = {
+    "Lingkar Presiden": { nama: "Aufa", nomor: "6285947647645" },
+    "Biro Kesekretariatan": { nama: "Aufa", nomor: "6285947647645" },
+    "Biro Keuangan": { nama: "Aufa", nomor: "6285947647645" },
+    "Biro Pengembangan Sumber Daya Anggota": { nama: "Najmi", nomor: "62816400771" },
+    "Biro Pengendali & Penjamin Mutu": { nama: "Najmi", nomor: "62816400771" },
+    "Kementerian Pengembangan Sumber Daya Mahasiswa": { nama: "Albert", nomor: "6281226895057" },
+    "Kementerian Seni dan Olahraga": { nama: "Albert", nomor: "6281226895057" },
+    "Kementerian Prestasi dan Inovasi": { nama: "Albert", nomor: "6281226895057" },
+    "Kementerian Dalam Negeri": { nama: "Najmi", nomor: "62816400771" },
+    "Kementerian Luar Negeri": { nama: "Najmi", nomor: "62816400771" },
+    "Kementerian Pengabdian Masyarakat": { nama: "Najmi", nomor: "62816400771" },
+    "Kementerian Advokasi dan Kesejahteraan Mahasiswa": { nama: "Bintang", nomor: "6285710205061" },
+    "Kementerian Aksi dan Propaganda": { nama: "Bintang", nomor: "6285710205061" },
+    "Kementerian Analisis Isu Strategis": { nama: "Bintang", nomor: "6285710205061" },
+    "Kementerian Pemberdayaan Perempuan": { nama: "Bintang", nomor: "6285710205061" },
+    "Kementerian Media Kreatif dan Aplikatif": { nama: "Bintang", nomor: "6285710205061" },
+    "Kementerian Media Komunikasi dan Informasi": { nama: "Bintang", nomor: "6285710205061" },
+    "Kementerian Riset dan Data": { nama: "Bintang", nomor: "6285710205061" },
 }
 
 // PJ Bantuan Teknis
@@ -103,4 +119,11 @@ export const PJ_BANTUAN_TEKNIS: Record<"A" | "B", { nama: string; nomor: string 
 export const PJ_SURVEY: { nama: string; nomor: string } = {
     nama: "PJ Survey",  // Ganti dengan nama PJ survey
     nomor: "6281234567893"  // Ganti dengan nomor PJ survey
+}
+
+// PJ Platform Khusus (untuk Desain & Publikasi)
+export const PJ_PLATFORM_KHUSUS: Record<string, { nama: string; nomor: string; platforms: string[] }> = {
+    "reels_tiktok": { nama: "Zahran", nomor: "6285880125168", platforms: ["Instagram Reels", "TikTok"] },
+    "spotify": { nama: "Nashwa", nomor: "6287722540756", platforms: ["Spotify"] },
+    "youtube": { nama: "Shava", nomor: "6285727194418", platforms: ["YouTube"] },
 }
