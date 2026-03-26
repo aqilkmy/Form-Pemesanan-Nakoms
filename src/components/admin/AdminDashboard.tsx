@@ -223,21 +223,30 @@ export function AdminDashboard() {
     }
 
     try {
-      const { error } = await supabase
+      const { data, error, status } = await supabase
         .from("orders")
         .delete()
-        .eq("id", orderId);
+        .eq("id", orderId)
+        .select();
 
       if (error) throw error;
 
+      if (!data || data.length === 0) {
+        console.error("No rows deleted. Status:", status);
+        alert(
+          "Gagal menghapus: Data tidak ditemukan atau izin ditolak (RLS). Pastikan SQL Policy DELETE sudah diaktifkan di Supabase Dashboard.",
+        );
+        return;
+      }
+
       setOrders((prev) => prev.filter((order) => order.id !== orderId));
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error deleting order:", error);
-      alert("Gagal menghapus pesanan");
+      alert(`Error: ${error.message || "Terjadi kesalahan saat menghapus"}`);
     }
   };
 
-  const getStatusColor = (status: string) => {
+    const getStatusColor = (status: string) => {
     const option = STATUS_OPTIONS.find((opt) => opt.value === status);
     return option?.color || "bg-gray-100 text-gray-800";
   };
