@@ -689,7 +689,7 @@ export function MonitoringDashboard() {
         className="w-full"
       >
         <div className="flex justify-center mb-6">
-          <TabsList className="grid grid-cols-2 md:grid-cols-4 h-auto   rounded-lg   ">
+          <TabsList className="grid grid-cols-2 mb-5 md:grid-cols-4 h-auto md:mb-0  rounded-lg   ">
             {MENU_OPTIONS.map((menu) => (
               <TabsTrigger
                 key={menu.id}

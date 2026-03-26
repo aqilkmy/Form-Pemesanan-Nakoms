@@ -1054,7 +1054,7 @@ export function AdminDashboard() {
         className="w-full"
       >
         <div className="flex justify-center mb-6">
-          <TabsList className="grid grid-cols-2 md:grid-cols-4 h-auto p-1 bg-muted">
+          <TabsList className="grid grid-cols-2 mb-5 md:mb-0  md:grid-cols-4 h-auto p-1 bg-muted">
             {MENU_OPTIONS.map((menu) => (
               <TabsTrigger
                 key={menu.id}
