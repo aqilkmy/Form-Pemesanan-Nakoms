@@ -1,4 +1,3 @@
-
 "use client";
 
 import * as React from "react";
@@ -51,6 +50,7 @@ import {
   Globe,
   Video,
   ClipboardList,
+  Trash2,
 } from "lucide-react";
 import { format } from "date-fns";
 
@@ -214,6 +214,26 @@ export function AdminDashboard() {
     } catch (error) {
       console.error(`Error updating ${field}:`, error);
       alert(`Gagal menyimpan ${field}`);
+    }
+  };
+
+  const deleteOrder = async (orderId: string) => {
+    if (!window.confirm("Apakah Anda yakin ingin menghapus pesanan ini?")) {
+      return;
+    }
+
+    try {
+      const { error } = await supabase
+        .from("orders")
+        .delete()
+        .eq("id", orderId);
+
+      if (error) throw error;
+
+      setOrders((prev) => prev.filter((order) => order.id !== orderId));
+    } catch (error) {
+      console.error("Error deleting order:", error);
+      alert("Gagal menghapus pesanan");
     }
   };
 
@@ -424,6 +444,7 @@ export function AdminDashboard() {
                 <TableHead>Status</TableHead>
                 <TableHead>Status Publikasi</TableHead>
                 <TableHead>Link Desain</TableHead>
+                <TableHead>Aksi</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -530,10 +551,13 @@ export function AdminDashboard() {
                       </a>
                     </div>
                   </TableCell>
-                  <TableCell>
-                    <span className="text-[10px] text-gray-700">
+                  <TableCell className="max-w-[150px]">
+                    <div
+                      className="text-[10px] text-gray-700 truncate"
+                      title={order.request_lagu || ""}
+                    >
                       {order.request_lagu || "-"}
-                    </span>
+                    </div>
                   </TableCell>
                   <TableCell>
                     <Select
@@ -644,6 +668,16 @@ export function AdminDashboard() {
                       )}
                     </div>
                   </TableCell>
+                  <TableCell>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="h-7 w-7 text-red-500 hover:text-red-700 hover:bg-red-50"
+                      onClick={() => deleteOrder(order.id)}
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </Button>
+                  </TableCell>
                 </TableRow>
               ))}
             </TableBody>
@@ -661,6 +695,7 @@ export function AdminDashboard() {
                 <TableHead>Link & Shortlink</TableHead>
                 <TableHead>Lampiran</TableHead>
                 <TableHead>Status</TableHead>
+                <TableHead>Aksi</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -751,6 +786,16 @@ export function AdminDashboard() {
                       </SelectContent>
                     </Select>
                   </TableCell>
+                  <TableCell>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="h-7 w-7 text-red-500 hover:text-red-700 hover:bg-red-50"
+                      onClick={() => deleteOrder(order.id)}
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </Button>
+                  </TableCell>
                 </TableRow>
               ))}
             </TableBody>
@@ -768,6 +813,7 @@ export function AdminDashboard() {
                 <TableHead>Jadwal & Tempat</TableHead>
                 <TableHead>Jenis</TableHead>
                 <TableHead>Status</TableHead>
+                <TableHead>Aksi</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -863,6 +909,16 @@ export function AdminDashboard() {
                       </SelectContent>
                     </Select>
                   </TableCell>
+                  <TableCell>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="h-7 w-7 text-red-500 hover:text-red-700 hover:bg-red-50"
+                      onClick={() => deleteOrder(order.id)}
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </Button>
+                  </TableCell>
                 </TableRow>
               ))}
             </TableBody>
@@ -881,6 +937,7 @@ export function AdminDashboard() {
                 <TableHead>Hadiah</TableHead>
                 <TableHead>Brief</TableHead>
                 <TableHead>Status</TableHead>
+                <TableHead>Aksi</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -969,6 +1026,16 @@ export function AdminDashboard() {
                         ))}
                       </SelectContent>
                     </Select>
+                  </TableCell>
+                  <TableCell>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="h-7 w-7 text-red-500 hover:text-red-700 hover:bg-red-50"
+                      onClick={() => deleteOrder(order.id)}
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </Button>
                   </TableCell>
                 </TableRow>
               ))}
@@ -1140,4 +1207,3 @@ export function AdminDashboard() {
     </div>
   );
 }
-

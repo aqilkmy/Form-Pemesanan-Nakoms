@@ -716,7 +716,7 @@ export function MonitoringDashboard() {
         <Card className="mb-6">
           <CardHeader className="pb-3">
             <div className="flex items-center gap-2">
-              <Filter className="w-4 h-4 " />
+              <Filter className="w-4 h-4 text-primary " />
               <CardTitle className="text-base font-semibold">
                 Filter & Sortir
               </CardTitle>
