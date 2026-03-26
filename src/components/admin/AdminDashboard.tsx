@@ -1,3 +1,4 @@
+
 "use client";
 
 import * as React from "react";
@@ -31,7 +32,6 @@ import {
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
-<<<<<<< Updated upstream
 import { Label } from "@/components/ui/label";
 import { DatePicker03 } from "@/components/shadcn-studio/date-picker/date-picker-03";
 import {
@@ -42,8 +42,6 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-=======
->>>>>>> Stashed changes
 import {
   Loader2,
   ExternalLink,
@@ -54,11 +52,7 @@ import {
   Video,
   ClipboardList,
 } from "lucide-react";
-<<<<<<< Updated upstream
 import { format } from "date-fns";
-=======
-import { Label } from "../ui/label";
->>>>>>> Stashed changes
 
 const MenuIcon = ({
   icon,
@@ -104,19 +98,12 @@ export function AdminDashboard() {
     React.useState<MenuType>("desain_publikasi");
 
   // Filter states
-<<<<<<< Updated upstream
   const [filterKementerian, setFilterKementerian] =
     React.useState<string>("all-kementerian");
   const [filterStatus, setFilterStatus] = React.useState<string>("all-status");
   const [filterDate, setFilterDate] = React.useState<string>("");
   const [filterPlatform, setFilterPlatform] =
     React.useState<string>("all-platform");
-=======
-  const [filterKementerian, setFilterKementerian] = React.useState<string>("");
-  const [filterStatus, setFilterStatus] = React.useState<string>("");
-  const [filterDate, setFilterDate] = React.useState<string>("");
-  const [filterPlatform, setFilterPlatform] = React.useState<string>("");
->>>>>>> Stashed changes
   const [sortBy, setSortBy] = React.useState<SortOption>("waktu_pemesanan");
 
   React.useEffect(() => {
@@ -389,11 +376,7 @@ export function AdminDashboard() {
     if (collisionCount === 0 || activeTab !== "desain_publikasi") return null;
 
     return (
-<<<<<<< Updated upstream
       <Card className="border-yellow-400 bg-yellow-50 mb-6">
-=======
-      <Card className="border-yellow-400 bg-yellow-50">
->>>>>>> Stashed changes
         <CardContent className="py-3">
           <div className="flex items-start gap-2">
             <AlertTriangle className="w-5 h-5 text-yellow-600 flex-shrink-0 mt-0.5" />
@@ -429,7 +412,6 @@ export function AdminDashboard() {
     switch (activeTab) {
       case "desain_publikasi":
         return (
-<<<<<<< Updated upstream
           <Table>
             <TableHeader>
               <TableRow>
@@ -475,55 +457,11 @@ export function AdminDashboard() {
                         <span
                           key={p}
                           className="bg-blue-100 text-blue-800 px-1.5 py-0.5 rounded text-[9px]"
-=======
-          <table className="w-full text-sm text-left">
-            <thead className="bg-gray-100 text-gray-600 uppercase">
-              <tr>
-                <th className="px-4 py-3">Waktu</th>
-                <th className="px-4 py-3">Pemesan</th>
-                <th className="px-4 py-3">Judul & Platform</th>
-                <th className="px-4 py-3">Deadline</th>
-                <th className="px-4 py-3">Aset</th>
-                <th className="px-4 py-3">Request Lagu</th>
-                <th className="px-4 py-3">Status</th>
-                <th className="px-4 py-3">Status Publikasi</th>
-                <th className="px-4 py-3">Link Desain</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y">
-              {filteredOrders.filter(isDesainPublikasi).map((order) => (
-                <tr
-                  key={order.id}
-                  className={`hover:bg-gray-50 ${hasCollision(order) ? "bg-yellow-50" : "bg-white"}`}
-                >
-                  <td className="px-4 py-3 font-medium whitespace-nowrap">
-                    {helperDate(order.created_at)}
-                  </td>
-                  <td className="px-4 py-3">
-                    <div className="font-semibold">{order.nama}</div>
-                    <div className="text-xs text-muted-foreground">
-                      {order.kementerian}
-                    </div>
-                    <div className="text-xs text-muted-foreground">
-                      {order.nomor_whatsapp}
-                    </div>
-                  </td>
-                  <td className="px-4 py-3 max-w-xs">
-                    <div className="font-medium truncate">
-                      {order.judul_desain}
-                    </div>
-                    <div className="text-xs mt-1 flex flex-wrap gap-1">
-                      {order.platform_publikasi?.map((p) => (
-                        <span
-                          key={p}
-                          className="bg-blue-100 text-blue-800 px-1.5 py-0.5 rounded text-[10px]"
->>>>>>> Stashed changes
                         >
                           {p}
                         </span>
                       ))}
                     </div>
-<<<<<<< Updated upstream
                   </TableCell>
                   <TableCell className="whitespace-nowrap">
                     <div className="flex flex-col gap-1">
@@ -542,20 +480,6 @@ export function AdminDashboard() {
                               order.id,
                               "tanggal_publikasi",
                               formatted,
-=======
-                  </td>
-                  <td className="px-4 py-3 whitespace-nowrap">
-                    <div className="flex flex-col gap-1">
-                      <Input
-                        type="date"
-                        defaultValue={order.tanggal_publikasi}
-                        onBlur={(e) => {
-                          if (e.target.value !== order.tanggal_publikasi) {
-                            updateField(
-                              order.id,
-                              "tanggal_publikasi",
-                              e.target.value,
->>>>>>> Stashed changes
                             );
                           }
                         }}
@@ -582,29 +506,17 @@ export function AdminDashboard() {
                     {hasCollision(order) && (
                       <div className="flex items-center gap-1 mt-1 text-yellow-600">
                         <AlertTriangle className="w-3 h-3" />
-<<<<<<< Updated upstream
                         <span className="text-[9px]">Tabrakan!</span>
                       </div>
                     )}
                   </TableCell>
                   <TableCell>
-=======
-                        <span className="text-[10px]">Tabrakan!</span>
-                      </div>
-                    )}
-                  </td>
-                  <td className="px-4 py-3">
->>>>>>> Stashed changes
                     <div className="flex flex-col gap-1">
                       <a
                         href={order.link_file_konten}
                         target="_blank"
                         rel="noreferrer"
-<<<<<<< Updated upstream
                         className="text-blue-600 hover:underline flex items-center text-[10px]"
-=======
-                        className="text-blue-600 hover:underline flex items-center text-xs"
->>>>>>> Stashed changes
                       >
                         <ExternalLink className="w-3 h-3 mr-1" /> Files
                       </a>
@@ -612,16 +524,11 @@ export function AdminDashboard() {
                         href={order.link_caption_docs}
                         target="_blank"
                         rel="noreferrer"
-<<<<<<< Updated upstream
                         className="text-blue-600 hover:underline flex items-center text-[10px]"
-=======
-                        className="text-blue-600 hover:underline flex items-center text-xs"
->>>>>>> Stashed changes
                       >
                         <ExternalLink className="w-3 h-3 mr-1" /> Caption
                       </a>
                     </div>
-<<<<<<< Updated upstream
                   </TableCell>
                   <TableCell>
                     <span className="text-[10px] text-gray-700">
@@ -629,15 +536,6 @@ export function AdminDashboard() {
                     </span>
                   </TableCell>
                   <TableCell>
-=======
-                  </td>
-                  <td className="px-4 py-3">
-                    <span className="text-xs text-gray-700">
-                      {order.request_lagu || "-"}
-                    </span>
-                  </td>
-                  <td className="px-4 py-3">
->>>>>>> Stashed changes
                     <Select
                       value={order.status || "new"}
                       onValueChange={(v) =>
@@ -657,15 +555,9 @@ export function AdminDashboard() {
                         ))}
                       </SelectContent>
                     </Select>
-<<<<<<< Updated upstream
                   </TableCell>
                   <TableCell>
                     <div className="flex flex-col gap-1.5">
-=======
-                  </td>
-                  <td className="px-4 py-3">
-                    <div className="flex flex-col gap-2">
->>>>>>> Stashed changes
                       {order.platform_publikasi?.map((platform) => {
                         const isChecked =
                           order.status_publikasi?.[platform] || false;
@@ -708,19 +600,11 @@ export function AdminDashboard() {
                                   );
                                 }
                               }}
-<<<<<<< Updated upstream
                               className="h-3 w-3"
                             />
                             <Label
                               htmlFor={`status-${order.id}-${platform}`}
                               className={`text-[9px] cursor-pointer leading-none ${isChecked ? "text-green-700 line-through" : "text-gray-600"}`}
-=======
-                              className="h-3.5 w-3.5"
-                            />
-                            <Label
-                              htmlFor={`status-${order.id}-${platform}`}
-                              className={`text-[10px] cursor-pointer leading-none ${isChecked ? "text-green-700 line-through" : "text-gray-600"}`}
->>>>>>> Stashed changes
                             >
                               {platform}
                             </Label>
@@ -728,21 +612,12 @@ export function AdminDashboard() {
                         );
                       })}
                     </div>
-<<<<<<< Updated upstream
                   </TableCell>
                   <TableCell>
                     <div className="flex items-center gap-1">
                       <Input
                         type="text"
                         placeholder="Link..."
-=======
-                  </td>
-                  <td className="px-4 py-3">
-                    <div className="flex items-center gap-1">
-                      <Input
-                        type="text"
-                        placeholder="Link desain..."
->>>>>>> Stashed changes
                         defaultValue={order.link_desain_selesai || ""}
                         onBlur={(e) => {
                           if (
@@ -755,11 +630,7 @@ export function AdminDashboard() {
                             );
                           }
                         }}
-<<<<<<< Updated upstream
                         className="h-7 text-[10px] w-24 px-2"
-=======
-                        className="h-7 text-[10px] w-28 px-2"
->>>>>>> Stashed changes
                       />
                       {order.link_desain_selesai && (
                         <a
@@ -772,24 +643,15 @@ export function AdminDashboard() {
                         </a>
                       )}
                     </div>
-<<<<<<< Updated upstream
                   </TableCell>
                 </TableRow>
               ))}
             </TableBody>
           </Table>
-=======
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
->>>>>>> Stashed changes
         );
 
       case "website":
         return (
-<<<<<<< Updated upstream
           <Table>
             <TableHeader>
               <TableRow>
@@ -823,41 +685,6 @@ export function AdminDashboard() {
                   </TableCell>
                   <TableCell>
                     <div className="flex flex-col gap-1 text-[10px]">
-=======
-          <table className="w-full text-sm text-left">
-            <thead className="bg-gray-100 text-gray-600 uppercase">
-              <tr>
-                <th className="px-4 py-3">Waktu</th>
-                <th className="px-4 py-3">Pemesan</th>
-                <th className="px-4 py-3">Tujuan</th>
-                <th className="px-4 py-3">Link & Shortlink</th>
-                <th className="px-4 py-3">Lampiran</th>
-                <th className="px-4 py-3">Status</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y">
-              {filteredOrders.filter(isWebsite).map((order) => (
-                <tr key={order.id} className="hover:bg-gray-50 bg-white">
-                  <td className="px-4 py-3 font-medium whitespace-nowrap">
-                    {helperDate(order.created_at)}
-                  </td>
-                  <td className="px-4 py-3">
-                    <div className="font-semibold">{order.nama}</div>
-                    <div className="text-xs text-muted-foreground">
-                      {order.kementerian}
-                    </div>
-                    <div className="text-xs text-muted-foreground">
-                      {order.nomor_whatsapp}
-                    </div>
-                  </td>
-                  <td className="px-4 py-3 max-w-xs">
-                    <span className="font-medium">
-                      {order.tujuan_pemesanan || "-"}
-                    </span>
-                  </td>
-                  <td className="px-4 py-3">
-                    <div className="flex flex-col gap-1 text-xs">
->>>>>>> Stashed changes
                       {order.link_original && (
                         <a
                           href={order.link_original}
@@ -869,34 +696,21 @@ export function AdminDashboard() {
                         </a>
                       )}
                       {order.custom_shortlink && (
-<<<<<<< Updated upstream
                         <span className="text-gray-700 font-medium">
-=======
-                        <span className="text-gray-700">
->>>>>>> Stashed changes
                           → {order.custom_shortlink}
                         </span>
                       )}
                       {!order.link_original && !order.custom_shortlink && "-"}
                     </div>
-<<<<<<< Updated upstream
                   </TableCell>
                   <TableCell>
-=======
-                  </td>
-                  <td className="px-4 py-3">
->>>>>>> Stashed changes
                     <div className="flex flex-col gap-1">
                       {order.link_pengajuan_fitur && (
                         <a
                           href={order.link_pengajuan_fitur}
                           target="_blank"
                           rel="noreferrer"
-<<<<<<< Updated upstream
                           className="text-blue-600 hover:underline flex items-center text-[10px]"
-=======
-                          className="text-blue-600 hover:underline flex items-center text-xs"
->>>>>>> Stashed changes
                         >
                           <ExternalLink className="w-3 h-3 mr-1" /> Fitur
                         </a>
@@ -906,11 +720,7 @@ export function AdminDashboard() {
                           href={order.link_pendaftaran_event}
                           target="_blank"
                           rel="noreferrer"
-<<<<<<< Updated upstream
                           className="text-blue-600 hover:underline flex items-center text-[10px]"
-=======
-                          className="text-blue-600 hover:underline flex items-center text-xs"
->>>>>>> Stashed changes
                         >
                           <ExternalLink className="w-3 h-3 mr-1" /> Event
                         </a>
@@ -919,13 +729,8 @@ export function AdminDashboard() {
                         !order.link_pendaftaran_event &&
                         "-"}
                     </div>
-<<<<<<< Updated upstream
                   </TableCell>
                   <TableCell>
-=======
-                  </td>
-                  <td className="px-4 py-3">
->>>>>>> Stashed changes
                     <Select
                       value={order.status || "new"}
                       onValueChange={(v) =>
@@ -945,24 +750,15 @@ export function AdminDashboard() {
                         ))}
                       </SelectContent>
                     </Select>
-<<<<<<< Updated upstream
                   </TableCell>
                 </TableRow>
               ))}
             </TableBody>
           </Table>
-=======
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
->>>>>>> Stashed changes
         );
 
       case "bantuan_teknis":
         return (
-<<<<<<< Updated upstream
           <Table>
             <TableHeader>
               <TableRow>
@@ -1011,50 +807,6 @@ export function AdminDashboard() {
                               order.id,
                               "tanggal_kegiatan",
                               formatted,
-=======
-          <table className="w-full text-sm text-left">
-            <thead className="bg-gray-100 text-gray-600 uppercase">
-              <tr>
-                <th className="px-4 py-3">Waktu</th>
-                <th className="px-4 py-3">Pemesan</th>
-                <th className="px-4 py-3">Kegiatan</th>
-                <th className="px-4 py-3">Jadwal & Tempat</th>
-                <th className="px-4 py-3">Jenis</th>
-                <th className="px-4 py-3">Status</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y">
-              {filteredOrders.filter(isBantuanTeknis).map((order) => (
-                <tr key={order.id} className="hover:bg-gray-50 bg-white">
-                  <td className="px-4 py-3 font-medium whitespace-nowrap">
-                    {helperDate(order.created_at)}
-                  </td>
-                  <td className="px-4 py-3">
-                    <div className="font-semibold">{order.nama}</div>
-                    <div className="text-xs text-muted-foreground">
-                      {order.kementerian}
-                    </div>
-                    <div className="text-xs text-muted-foreground">
-                      {order.nomor_whatsapp}
-                    </div>
-                  </td>
-                  <td className="px-4 py-3 max-w-xs">
-                    <div className="font-medium truncate">
-                      {order.nama_kegiatan}
-                    </div>
-                  </td>
-                  <td className="px-4 py-3 whitespace-nowrap">
-                    <div className="flex flex-col gap-1">
-                      <Input
-                        type="date"
-                        defaultValue={order.tanggal_kegiatan}
-                        onBlur={(e) => {
-                          if (e.target.value !== order.tanggal_kegiatan) {
-                            updateField(
-                              order.id,
-                              "tanggal_kegiatan",
-                              e.target.value,
->>>>>>> Stashed changes
                             );
                           }
                         }}
@@ -1075,40 +827,22 @@ export function AdminDashboard() {
                         className="h-7 text-[10px] w-28 px-2"
                       />
                     </div>
-<<<<<<< Updated upstream
                     <div className="text-[10px] text-muted-foreground mt-1">
                       {order.tempat_kegiatan}
                     </div>
                   </TableCell>
                   <TableCell>
                     <span className="bg-purple-100 text-purple-800 px-1.5 py-0.5 rounded text-[10px] font-medium">
-=======
-                    <div className="text-xs text-muted-foreground mt-1">
-                      {order.tempat_kegiatan}
-                    </div>
-                  </td>
-                  <td className="px-4 py-3">
-                    <span className="bg-purple-100 text-purple-800 px-1.5 py-0.5 rounded text-xs">
->>>>>>> Stashed changes
                       {getJenisBantuanLabel(order.jenis_bantuan)}
                     </span>
                     {order.jenis_bantuan === "lainnya" &&
                       order.jenis_bantuan_lainnya && (
-<<<<<<< Updated upstream
                         <div className="text-[10px] text-muted-foreground mt-1">
                           {order.jenis_bantuan_lainnya}
                         </div>
                       )}
                   </TableCell>
                   <TableCell>
-=======
-                        <div className="text-xs text-muted-foreground mt-1">
-                          {order.jenis_bantuan_lainnya}
-                        </div>
-                      )}
-                  </td>
-                  <td className="px-4 py-3">
->>>>>>> Stashed changes
                     <Select
                       value={order.status || "new"}
                       onValueChange={(v) =>
@@ -1128,24 +862,15 @@ export function AdminDashboard() {
                         ))}
                       </SelectContent>
                     </Select>
-<<<<<<< Updated upstream
                   </TableCell>
                 </TableRow>
               ))}
             </TableBody>
           </Table>
-=======
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
->>>>>>> Stashed changes
         );
 
       case "survey":
         return (
-<<<<<<< Updated upstream
           <Table>
             <TableHeader>
               <TableRow>
@@ -1201,65 +926,11 @@ export function AdminDashboard() {
                             : "";
                           if (formatted !== order.deadline_survey) {
                             updateField(order.id, "deadline_survey", formatted);
-=======
-          <table className="w-full text-sm text-left">
-            <thead className="bg-gray-100 text-gray-600 uppercase">
-              <tr>
-                <th className="px-4 py-3">Waktu</th>
-                <th className="px-4 py-3">Pemesan</th>
-                <th className="px-4 py-3">Judul Survey</th>
-                <th className="px-4 py-3">Target & Deadline</th>
-                <th className="px-4 py-3">Hadiah</th>
-                <th className="px-4 py-3">Brief</th>
-                <th className="px-4 py-3">Status</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y">
-              {filteredOrders.filter(isSurvey).map((order) => (
-                <tr key={order.id} className="hover:bg-gray-50 bg-white">
-                  <td className="px-4 py-3 font-medium whitespace-nowrap">
-                    {helperDate(order.created_at)}
-                  </td>
-                  <td className="px-4 py-3">
-                    <div className="font-semibold">{order.nama}</div>
-                    <div className="text-xs text-muted-foreground">
-                      {order.kementerian}
-                    </div>
-                    <div className="text-xs text-muted-foreground">
-                      {order.nomor_whatsapp}
-                    </div>
-                  </td>
-                  <td className="px-4 py-3 max-w-xs">
-                    <div className="font-medium truncate">
-                      {order.judul_survey}
-                    </div>
-                    <div className="text-xs text-muted-foreground truncate">
-                      {order.deskripsi_survey}
-                    </div>
-                  </td>
-                  <td className="px-4 py-3">
-                    <div className="text-xs mb-1">{order.target_responden}</div>
-                    <div className="flex items-center gap-1">
-                      <span className="text-xs text-muted-foreground">
-                        Deadline:
-                      </span>
-                      <Input
-                        type="date"
-                        defaultValue={order.deadline_survey}
-                        onBlur={(e) => {
-                          if (e.target.value !== order.deadline_survey) {
-                            updateField(
-                              order.id,
-                              "deadline_survey",
-                              e.target.value,
-                            );
->>>>>>> Stashed changes
                           }
                         }}
                         className="h-6 text-[10px] w-28 px-2"
                       />
                     </div>
-<<<<<<< Updated upstream
                   </TableCell>
                   <TableCell>
                     <span
@@ -1269,36 +940,16 @@ export function AdminDashboard() {
                     </span>
                   </TableCell>
                   <TableCell>
-=======
-                  </td>
-                  <td className="px-4 py-3">
-                    <span
-                      className={`px-1.5 py-0.5 rounded text-xs ${order.hadiah_survey === "ada" ? "bg-green-100 text-green-800" : "bg-gray-100 text-gray-600"}`}
-                    >
-                      {order.hadiah_survey === "ada" ? "Ada" : "Tidak"}
-                    </span>
-                  </td>
-                  <td className="px-4 py-3">
->>>>>>> Stashed changes
                     <a
                       href={order.link_gdrive_brief}
                       target="_blank"
                       rel="noreferrer"
-<<<<<<< Updated upstream
                       className="text-blue-600 hover:underline flex items-center text-[10px]"
                     >
                       <ExternalLink className="w-3 h-3 mr-1" /> Lihat
                     </a>
                   </TableCell>
                   <TableCell>
-=======
-                      className="text-blue-600 hover:underline flex items-center text-xs"
-                    >
-                      <ExternalLink className="w-3 h-3 mr-1" /> Lihat
-                    </a>
-                  </td>
-                  <td className="px-4 py-3">
->>>>>>> Stashed changes
                     <Select
                       value={order.status || "new"}
                       onValueChange={(v) =>
@@ -1318,19 +969,11 @@ export function AdminDashboard() {
                         ))}
                       </SelectContent>
                     </Select>
-<<<<<<< Updated upstream
                   </TableCell>
                 </TableRow>
               ))}
             </TableBody>
           </Table>
-=======
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
->>>>>>> Stashed changes
         );
     }
   };
@@ -1370,7 +1013,6 @@ export function AdminDashboard() {
           <CardHeader className="pb-3">
             <div className="flex items-center gap-2">
               <Filter className="w-4 h-4" />
-<<<<<<< Updated upstream
               <CardTitle className="text-base font-semibold">
                 Filter & Sortir
               </CardTitle>
@@ -1380,26 +1022,13 @@ export function AdminDashboard() {
             <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
               <div className="space-y-1.5">
                 <Label className="text-[10px] uppercase font-bold text-muted-foreground">
-=======
-              <CardTitle className="text-base">Filter & Sortir</CardTitle>
-            </div>
-          </CardHeader>
-          <CardContent>
-            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
-              <div className="space-y-1">
-                <Label className="text-[10px] uppercase text-muted-foreground">
->>>>>>> Stashed changes
                   Kementerian/Biro
                 </Label>
                 <Select
                   value={filterKementerian}
                   onValueChange={setFilterKementerian}
                 >
-<<<<<<< Updated upstream
                   <SelectTrigger className="h-9 text-xs w-full">
-=======
-                  <SelectTrigger className="h-8 text-xs">
->>>>>>> Stashed changes
                     <SelectValue placeholder="Semua" />
                   </SelectTrigger>
                   <SelectContent>
@@ -1412,7 +1041,6 @@ export function AdminDashboard() {
                   </SelectContent>
                 </Select>
               </div>
-<<<<<<< Updated upstream
               <div className="space-y-1.5">
                 <Label className="text-[10px] uppercase font-bold text-muted-foreground">
                   Tanggal Deadline
@@ -1429,33 +1057,13 @@ export function AdminDashboard() {
               {activeTab === "desain_publikasi" && (
                 <div className="space-y-1.5">
                   <Label className="text-[10px] uppercase font-bold text-muted-foreground">
-=======
-              <div className="space-y-1">
-                <Label className="text-[10px] uppercase text-muted-foreground">
-                  Tanggal Deadline
-                </Label>
-                <Input
-                  type="date"
-                  value={filterDate}
-                  onChange={(e) => setFilterDate(e.target.value)}
-                  className="h-8 text-xs"
-                />
-              </div>
-              {activeTab === "desain_publikasi" && (
-                <div className="space-y-1">
-                  <Label className="text-[10px] uppercase text-muted-foreground">
->>>>>>> Stashed changes
                     Platform
                   </Label>
                   <Select
                     value={filterPlatform}
                     onValueChange={setFilterPlatform}
                   >
-<<<<<<< Updated upstream
                     <SelectTrigger className="h-9 text-xs w-full">
-=======
-                    <SelectTrigger className="h-8 text-xs">
->>>>>>> Stashed changes
                       <SelectValue placeholder="Semua" />
                     </SelectTrigger>
                     <SelectContent>
@@ -1469,21 +1077,12 @@ export function AdminDashboard() {
                   </Select>
                 </div>
               )}
-<<<<<<< Updated upstream
               <div className="space-y-1.5">
                 <Label className="text-[10px] uppercase font-bold text-muted-foreground">
                   Status
                 </Label>
                 <Select value={filterStatus} onValueChange={setFilterStatus}>
                   <SelectTrigger className="h-9 text-xs w-full">
-=======
-              <div className="space-y-1">
-                <Label className="text-[10px] uppercase text-muted-foreground">
-                  Status
-                </Label>
-                <Select value={filterStatus} onValueChange={setFilterStatus}>
-                  <SelectTrigger className="h-8 text-xs">
->>>>>>> Stashed changes
                     <SelectValue placeholder="Semua" />
                   </SelectTrigger>
                   <SelectContent>
@@ -1496,24 +1095,15 @@ export function AdminDashboard() {
                   </SelectContent>
                 </Select>
               </div>
-<<<<<<< Updated upstream
               <div className="space-y-1.5">
                 <Label className="text-[10px] uppercase font-bold text-muted-foreground">
-=======
-              <div className="space-y-1">
-                <Label className="text-[10px] uppercase text-muted-foreground">
->>>>>>> Stashed changes
                   Urutkan
                 </Label>
                 <Select
                   value={sortBy}
                   onValueChange={(v) => setSortBy(v as SortOption)}
                 >
-<<<<<<< Updated upstream
                   <SelectTrigger className="h-9 text-xs w-full">
-=======
-                  <SelectTrigger className="h-8 text-xs">
->>>>>>> Stashed changes
                     <SelectValue placeholder="Urutkan" />
                   </SelectTrigger>
                   <SelectContent>
@@ -1527,18 +1117,8 @@ export function AdminDashboard() {
               <div className="flex items-end">
                 <Button
                   variant="outline"
-<<<<<<< Updated upstream
                   onClick={clearFilters}
                   className="h-9 w-full text-xs font-medium"
-=======
-                  onClick={() => {
-                    setFilterKementerian("all-kementerian");
-                    setFilterStatus("all-status");
-                    setFilterDate("");
-                    setFilterPlatform("all-platform");
-                  }}
-                  className="h-8 w-full text-xs"
->>>>>>> Stashed changes
                 >
                   Reset Filter
                 </Button>
@@ -1549,57 +1129,15 @@ export function AdminDashboard() {
 
         {/* Table Content */}
         <Card>
-<<<<<<< Updated upstream
           <CardHeader className="pb-3 border-b mb-4">
             <CardTitle className="flex items-center gap-2 text-lg font-bold">
-              <MenuIcon
-                icon={MENU_OPTIONS.find((m) => m.id === activeTab)?.icon || ""}
-                className="w-5 h-5 text-primary"
-              />
-              {MENU_OPTIONS.find((m) => m.id === activeTab)?.label}
-              <span className="ml-auto bg-primary/10 text-primary text-xs px-2.5 py-0.5 rounded-full">
-                {filteredOrders.length} Pesanan
-              </span>
+              {MENU_OPTIONS.find((m) => m.id === activeTab)?.label} Orders
             </CardTitle>
           </CardHeader>
-          <CardContent className="p-0 sm:p-6 sm:pt-0">
-            <div className="overflow-x-auto">
-              {filteredOrders.length === 0 ? (
-                <div className="text-center py-12 text-muted-foreground bg-muted/20 rounded-lg mx-6 my-4">
-                  Tidak ada pesanan{" "}
-                  {MENU_OPTIONS.find(
-                    (m) => m.id === activeTab,
-                  )?.label.toLowerCase()}{" "}
-                  yang ditemukan.
-=======
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <MenuIcon
-                icon={MENU_OPTIONS.find((m) => m.id === activeTab)?.icon || ""}
-                className="w-5 h-5"
-              />
-              {MENU_OPTIONS.find((m) => m.id === activeTab)?.label} (
-              {filteredOrders.length})
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="overflow-x-auto">
-              {filteredOrders.length === 0 ? (
-                <div className="text-center py-8 text-muted-foreground">
-                  Tidak ada pesanan{" "}
-                  {MENU_OPTIONS.find(
-                    (m) => m.id === activeTab,
-                  )?.label.toLowerCase()}
-                  .
->>>>>>> Stashed changes
-                </div>
-              ) : (
-                renderTable()
-              )}
-            </div>
-          </CardContent>
+          <CardContent>{renderTable()}</CardContent>
         </Card>
       </Tabs>
     </div>
   );
 }
+
