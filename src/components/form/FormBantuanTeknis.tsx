@@ -1,10 +1,13 @@
 "use client"
 
-import { UseFormReturn } from "react-hook-form"
+import { UseFormReturn, Controller } from "react-hook-form"
 import { BantuanTeknisFormValues } from "@/lib/schema"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
+import { DatePicker03 } from "@/components/shadcn-studio/date-picker/date-picker-03"
 import { JENIS_BANTUAN_OPTIONS } from "@/lib/constants"
+import { format } from "date-fns"
 
 interface FormBantuanTeknisProps {
     form: UseFormReturn<BantuanTeknisFormValues>
@@ -12,7 +15,7 @@ interface FormBantuanTeknisProps {
 }
 
 export function FormBantuanTeknis({ form, step }: FormBantuanTeknisProps) {
-    const { register, formState: { errors }, getValues, watch } = form
+    const { register, control, formState: { errors }, getValues, watch } = form
     const jenisBantuan = watch("jenis_bantuan")
 
     if (step === "detail") {
@@ -37,10 +40,16 @@ export function FormBantuanTeknis({ form, step }: FormBantuanTeknisProps) {
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <div className="grid gap-2">
                             <Label htmlFor="tanggal_kegiatan">Hari/Tanggal</Label>
-                            <Input
-                                id="tanggal_kegiatan"
-                                type="date"
-                                {...register("tanggal_kegiatan")}
+                            <Controller
+                                control={control}
+                                name="tanggal_kegiatan"
+                                render={({ field }) => (
+                                    <DatePicker03 
+                                        date={field.value ? new Date(field.value) : undefined}
+                                        setDate={(date) => field.onChange(date ? format(date, 'yyyy-MM-dd') : '')}
+                                        id="tanggal_kegiatan"
+                                    />
+                                )}
                             />
                             {errors.tanggal_kegiatan && <p className="text-sm text-destructive">{errors.tanggal_kegiatan.message}</p>}
                         </div>
@@ -68,19 +77,26 @@ export function FormBantuanTeknis({ form, step }: FormBantuanTeknisProps) {
 
                     <div className="grid gap-2">
                         <Label>Jenis Bantuan</Label>
-                        <div className="space-y-3 p-4 border rounded-md bg-secondary/20">
-                            {JENIS_BANTUAN_OPTIONS.map((option) => (
-                                <label key={option.id} className="flex items-center space-x-3 cursor-pointer">
-                                    <input
-                                        type="radio"
-                                        value={option.id}
-                                        className="h-4 w-4 border-gray-300 text-primary focus:ring-primary"
-                                        {...register("jenis_bantuan")}
-                                    />
-                                    <span className="text-sm">{option.label}</span>
-                                </label>
-                            ))}
-                        </div>
+                        <Controller
+                            control={control}
+                            name="jenis_bantuan"
+                            render={({ field }) => (
+                                <RadioGroup
+                                    onValueChange={field.onChange}
+                                    defaultValue={field.value}
+                                    className="space-y-3 p-4 border rounded-md bg-secondary/20"
+                                >
+                                    {JENIS_BANTUAN_OPTIONS.map((option) => (
+                                        <div key={option.id} className="flex items-center space-x-3">
+                                            <RadioGroupItem value={option.id} id={option.id} />
+                                            <Label htmlFor={option.id} className="text-sm font-normal cursor-pointer">
+                                                {option.label}
+                                            </Label>
+                                        </div>
+                                    ))}
+                                </RadioGroup>
+                            )}
+                        />
                         {errors.jenis_bantuan && <p className="text-sm text-destructive">{errors.jenis_bantuan.message}</p>}
                     </div>
 

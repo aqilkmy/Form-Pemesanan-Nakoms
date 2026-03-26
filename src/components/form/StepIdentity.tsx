@@ -1,18 +1,24 @@
 
-import { UseFormReturn, FieldValues } from "react-hook-form"
+import { UseFormReturn, Controller } from "react-hook-form"
 import { IdentityFormValues } from "@/lib/schema"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { SelectNative } from "@/components/ui/select-native"
+import { 
+    Select, 
+    SelectContent, 
+    SelectItem, 
+    SelectTrigger, 
+    SelectValue 
+} from "@/components/ui/select"
+import { Checkbox } from "@/components/ui/checkbox"
 import { KEMENTERIAN_OPTIONS } from "@/lib/constants"
-import { cn } from "@/lib/utils"
 
 interface StepProps {
     form: UseFormReturn<IdentityFormValues>
 }
 
 export function StepIdentity({ form }: StepProps) {
-    const { register, formState: { errors } } = form
+    const { register, control, formState: { errors } } = form
 
     return (
         <div className="space-y-6 animate-in fade-in slide-in-from-right-4 duration-500">
@@ -27,12 +33,22 @@ export function StepIdentity({ form }: StepProps) {
 
                 <div className="grid gap-2">
                     <Label htmlFor="kementerian">Asal Kementerian/Biro</Label>
-                    <SelectNative id="kementerian" {...register("kementerian")}>
-                        <option value="">Pilih Kementerian/Biro</option>
-                        {KEMENTERIAN_OPTIONS.map((k) => (
-                            <option key={k} value={k}>{k}</option>
-                        ))}
-                    </SelectNative>
+                    <Controller
+                        control={control}
+                        name="kementerian"
+                        render={({ field }) => (
+                            <Select onValueChange={field.onChange} value={field.value}>
+                                <SelectTrigger id="kementerian">
+                                    <SelectValue placeholder="Pilih Kementerian/Biro" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    {KEMENTERIAN_OPTIONS.map((k) => (
+                                        <SelectItem key={k} value={k}>{k}</SelectItem>
+                                    ))}
+                                </SelectContent>
+                            </Select>
+                        )}
+                    />
                     {errors.kementerian && <p className="text-sm text-destructive">{errors.kementerian.message}</p>}
                 </div>
 
@@ -51,22 +67,28 @@ export function StepIdentity({ form }: StepProps) {
             <div className="space-y-4 pt-4 border-t">
                 <h2 className="text-xl font-semibold text-primary">Konfirmasi SOP</h2>
                 <div className="flex items-start gradient-secondary p-4 rounded-lg">
-                    <div className="flex items-center h-5">
-                        <input
-                            id="sudah_baca_sop"
-                            type="checkbox"
-                            className="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary"
-                            {...register("sudah_baca_sop")}
+                    <div className="flex items-center h-5 mt-1">
+                        <Controller
+                            control={control}
+                            name="sudah_baca_sop"
+                            render={({ field }) => (
+                                <Checkbox 
+                                    id="sudah_baca_sop" 
+                                    checked={field.value} 
+                                    onCheckedChange={field.onChange}
+                                    className="border-white data-[state=checked]:bg-white data-[state=checked]:text-primary"
+                                />
+                            )}
                         />
                     </div>
                     <div className="ml-3 text-sm">
-                        <label htmlFor="sudah_baca_sop" className="font-medium text-white">
+                        <Label htmlFor="sudah_baca_sop" className="font-medium text-white cursor-pointer">
                             Saya sudah membaca dan memahami <span className="font-bold text-blue-900 italic underline"><a href="https://drive.google.com/drive/folders/1LfBlUZEg-fnwreUZxDfg8txBNbfNmEeP" target="blank">SOP Pemesanan Konten</a></span>
-                        </label>
+                        </Label>
                         <p className="text-white mt-1">
                             Dengan mencentang ini, Anda setuju untuk mengikuti semua prosedur yang berlaku.
                         </p>
-                        {errors.sudah_baca_sop && <p className="text-sm text-destructive mt-1">{errors.sudah_baca_sop.message}</p>}
+                        {errors.sudah_baca_sop && <p className="text-sm text-destructive mt-1 font-semibold">{errors.sudah_baca_sop.message}</p>}
                     </div>
                 </div>
             </div>

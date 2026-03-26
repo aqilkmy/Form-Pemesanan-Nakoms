@@ -2,7 +2,6 @@
 
 import * as React from "react";
 import { useRouter } from "next/navigation";
-import { Navbar } from "@/components/layout/Navbar";
 import { AdminDashboard } from "@/components/admin/AdminDashboard";
 import { Loader2 } from "lucide-react";
 
@@ -30,7 +29,6 @@ export default function AdminDashboardPage() {
   if (isLoading) {
     return (
       <main className="min-h-screen bg-gray-50 flex flex-col items-center">
-        <Navbar />
         <div className="flex-1 flex items-center justify-center">
           <Loader2 className="w-8 h-8 animate-spin text-primary" />
         </div>
@@ -44,7 +42,6 @@ export default function AdminDashboardPage() {
 
   return (
     <main className="min-h-screen bg-gray-50 flex flex-col items-center">
-      <Navbar />
       <div className="flex-1 container py-8">
         <div className="flex items-center justify-between mb-6">
           <h1 className="text-2xl font-bold tracking-tight mx-auto text-foreground">

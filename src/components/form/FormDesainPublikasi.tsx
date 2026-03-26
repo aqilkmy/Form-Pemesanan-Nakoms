@@ -1,12 +1,21 @@
 "use client"
 
-import { UseFormReturn } from "react-hook-form"
+import { UseFormReturn, Controller } from "react-hook-form"
 import { DesainPublikasiFormValues } from "@/lib/schema"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { SelectNative } from "@/components/ui/select-native"
+import { 
+    Select, 
+    SelectContent, 
+    SelectItem, 
+    SelectTrigger, 
+    SelectValue 
+} from "@/components/ui/select"
+import { Checkbox } from "@/components/ui/checkbox"
+import { DatePicker03 } from "@/components/shadcn-studio/date-picker/date-picker-03"
 import { PLATFORM_OPTIONS, WAKTU_PUBLIKASI_OPTIONS } from "@/lib/constants"
 import { AlertCircle } from "lucide-react"
+import { format } from "date-fns"
 
 interface FormDesainProps {
     form: UseFormReturn<DesainPublikasiFormValues>
@@ -14,7 +23,7 @@ interface FormDesainProps {
 }
 
 export function FormDesainPublikasi({ form, step }: FormDesainProps) {
-    const { register, formState: { errors }, getValues } = form
+    const { register, control, formState: { errors }, getValues } = form
 
     if (step === "detail") {
         return (
@@ -36,15 +45,31 @@ export function FormDesainPublikasi({ form, step }: FormDesainProps) {
                         <Label>Platform Publikasi (Semua Mirroring ke WAC, X/Twitter dan IGS)</Label>
                         <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 p-4 border rounded-md bg-secondary/20">
                             {PLATFORM_OPTIONS.map((platform) => (
-                                <label key={platform} className="flex items-center space-x-2 cursor-pointer">
-                                    <input
-                                        type="checkbox"
-                                        value={platform}
-                                        className="rounded border-gray-300 text-primary focus:ring-primary h-4 w-4"
-                                        {...register("platform_publikasi")}
+                                <div key={platform} className="flex items-center space-x-2">
+                                    <Controller
+                                        control={control}
+                                        name="platform_publikasi"
+                                        render={({ field }) => (
+                                            <Checkbox
+                                                id={`platform-${platform}`}
+                                                checked={field.value?.includes(platform)}
+                                                onCheckedChange={(checked) => {
+                                                    const current = field.value || []
+                                                    const updated = checked
+                                                        ? [...current, platform]
+                                                        : current.filter((value) => value !== platform)
+                                                    field.onChange(updated)
+                                                }}
+                                            />
+                                        )}
                                     />
-                                    <span className="text-sm">{platform}</span>
-                                </label>
+                                    <Label 
+                                        htmlFor={`platform-${platform}`}
+                                        className="text-sm font-normal cursor-pointer"
+                                    >
+                                        {platform}
+                                    </Label>
+                                </div>
                             ))}
                         </div>
                         {errors.platform_publikasi && <p className="text-sm text-destructive">{errors.platform_publikasi.message}</p>}
@@ -53,32 +78,45 @@ export function FormDesainPublikasi({ form, step }: FormDesainProps) {
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <div className="grid gap-2">
                             <Label htmlFor="tanggal_publikasi">Tanggal Publikasi</Label>
-                            <Input
-                                id="tanggal_publikasi"
-                                type="date"
-                                {...register("tanggal_publikasi")}
+                            <Controller
+                                control={control}
+                                name="tanggal_publikasi"
+                                render={({ field }) => (
+                                    <DatePicker03 
+                                        date={field.value ? new Date(field.value) : undefined}
+                                        setDate={(date) => field.onChange(date ? format(date, 'yyyy-MM-dd') : '')}
+                                        id="tanggal_publikasi"
+                                    />
+                                )}
                             />
                             {errors.tanggal_publikasi && <p className="text-sm text-destructive">{errors.tanggal_publikasi.message}</p>}
                         </div>
 
                         <div className="grid gap-2">
                             <Label htmlFor="waktu_publikasi">Waktu Publikasi</Label>
-                            <SelectNative
-                                id="waktu_publikasi"
-                                {...register("waktu_publikasi")}
-                            >
-                                <option value="">Pilih waktu</option>
-                                {WAKTU_PUBLIKASI_OPTIONS.map((waktu) => (
-                                    <option key={waktu} value={waktu}>{waktu}</option>
-                                ))}
-                            </SelectNative>
+                            <Controller
+                                control={control}
+                                name="waktu_publikasi"
+                                render={({ field }) => (
+                                    <Select onValueChange={field.onChange} value={field.value}>
+                                        <SelectTrigger id="waktu_publikasi">
+                                            <SelectValue placeholder="Pilih waktu" />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                            {WAKTU_PUBLIKASI_OPTIONS.map((waktu) => (
+                                                <SelectItem key={waktu} value={waktu}>{waktu}</SelectItem>
+                                            ))}
+                                        </SelectContent>
+                                    </Select>
+                                )}
+                            />
                             {errors.waktu_publikasi && <p className="text-sm text-destructive">{errors.waktu_publikasi.message}</p>}
                         </div>
                     </div>
                     <div className="ml-3 text-sm">
-                        <label className="font-medium text-foreground">
+                        <p className="font-medium text-foreground">
                             Lihat <span className="font-bold text-blue-700 italic underline"><a href="/jadwal" target="_blank">Jadwal Publikasi</a></span>
-                        </label>
+                        </p>
                         <p className="text-muted-foreground mt-1">
                             Lihat Jadwal Publikasi Sebelum Memilih Jadwal, Pastikan Tidak Ada Jadwal Bentrok dengan Konten Lain.
                         </p>

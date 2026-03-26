@@ -21,7 +21,7 @@ import { MenuType, JENIS_BANTUAN_OPTIONS } from "@/lib/constants"
 import { supabase } from "@/lib/supabase"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
-import { ProgressBar } from "@/components/ui/progress-bar"
+import { Progress } from "@/components/ui/progress"
 import { StepIdentity } from "./StepIdentity"
 import { MenuSelector } from "./MenuSelector"
 import { FormDesainPublikasi } from "./FormDesainPublikasi"
@@ -351,7 +351,7 @@ export function OrderForm() {
                             Langkah {currentStepIndex + 1} dari {totalSteps}
                         </span>
                     </div>
-                    <ProgressBar currentStep={currentStepIndex + 1} totalSteps={totalSteps} />
+                    <Progress value={((currentStepIndex + 1) / totalSteps) * 100} className="h-2" />
                 </CardHeader>
 
                 <CardContent className="pt-6">

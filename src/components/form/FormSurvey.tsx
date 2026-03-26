@@ -1,11 +1,14 @@
 "use client"
 
-import { UseFormReturn } from "react-hook-form"
+import { UseFormReturn, Controller } from "react-hook-form"
 import { SurveyFormValues } from "@/lib/schema"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
+import { DatePicker03 } from "@/components/shadcn-studio/date-picker/date-picker-03"
 import { AlertCircle } from "lucide-react"
+import { format } from "date-fns"
 
 interface FormSurveyProps {
     form: UseFormReturn<SurveyFormValues>
@@ -13,7 +16,7 @@ interface FormSurveyProps {
 }
 
 export function FormSurvey({ form, step }: FormSurveyProps) {
-    const { register, formState: { errors }, getValues } = form
+    const { register, control, formState: { errors }, getValues } = form
 
     if (step === "detail") {
         return (
@@ -57,10 +60,16 @@ export function FormSurvey({ form, step }: FormSurveyProps) {
 
                     <div className="grid gap-2">
                         <Label htmlFor="deadline_survey">Deadline Pengisian</Label>
-                        <Input
-                            id="deadline_survey"
-                            type="date"
-                            {...register("deadline_survey")}
+                        <Controller
+                            control={control}
+                            name="deadline_survey"
+                            render={({ field }) => (
+                                <DatePicker03 
+                                    date={field.value ? new Date(field.value) : undefined}
+                                    setDate={(date) => field.onChange(date ? format(date, 'yyyy-MM-dd') : '')}
+                                    id="deadline_survey"
+                                />
+                            )}
                         />
                         {errors.deadline_survey && <p className="text-sm text-destructive">{errors.deadline_survey.message}</p>}
                     </div>
@@ -86,26 +95,26 @@ export function FormSurvey({ form, step }: FormSurveyProps) {
 
                     <div className="grid gap-2">
                         <Label>Hadiah Survey</Label>
-                        <div className="flex gap-4 p-4 border rounded-md bg-secondary/20">
-                            <label className="flex items-center space-x-2 cursor-pointer">
-                                <input
-                                    type="radio"
-                                    value="ada"
-                                    className="h-4 w-4 border-gray-300 text-primary focus:ring-primary"
-                                    {...register("hadiah_survey")}
-                                />
-                                <span className="text-sm">Ada</span>
-                            </label>
-                            <label className="flex items-center space-x-2 cursor-pointer">
-                                <input
-                                    type="radio"
-                                    value="tidak"
-                                    className="h-4 w-4 border-gray-300 text-primary focus:ring-primary"
-                                    {...register("hadiah_survey")}
-                                />
-                                <span className="text-sm">Tidak Ada</span>
-                            </label>
-                        </div>
+                        <Controller
+                            control={control}
+                            name="hadiah_survey"
+                            render={({ field }) => (
+                                <RadioGroup
+                                    onValueChange={field.onChange}
+                                    defaultValue={field.value}
+                                    className="flex gap-4 p-4 border rounded-md bg-secondary/20"
+                                >
+                                    <div className="flex items-center space-x-2">
+                                        <RadioGroupItem value="ada" id="hadiah-ada" />
+                                        <Label htmlFor="hadiah-ada" className="text-sm font-normal cursor-pointer">Ada</Label>
+                                    </div>
+                                    <div className="flex items-center space-x-2">
+                                        <RadioGroupItem value="tidak" id="hadiah-tidak" />
+                                        <Label htmlFor="hadiah-tidak" className="text-sm font-normal cursor-pointer">Tidak Ada</Label>
+                                    </div>
+                                </RadioGroup>
+                            )}
+                        />
                         {errors.hadiah_survey && <p className="text-sm text-destructive">{errors.hadiah_survey.message}</p>}
                     </div>
                 </div>
