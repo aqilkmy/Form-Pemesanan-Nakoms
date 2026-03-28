@@ -246,7 +246,7 @@ export function AdminDashboard() {
     }
   };
 
-    const getStatusColor = (status: string) => {
+  const getStatusColor = (status: string) => {
     const option = STATUS_OPTIONS.find((opt) => opt.value === status);
     return option?.color || "bg-gray-100 text-gray-800";
   };
@@ -1205,7 +1205,7 @@ export function AdminDashboard() {
 
         {/* Table Content */}
         <Card>
-          <CardHeader className="pb-3 border-b mb-4">
+          <CardHeader className="pb-3  mb-4">
             <CardTitle className="flex items-center gap-2 text-lg font-bold">
               {MENU_OPTIONS.find((m) => m.id === activeTab)?.label} Orders
             </CardTitle>

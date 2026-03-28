@@ -456,7 +456,27 @@ export function ScheduleCalendar() {
                     padding: 8px;
                   }
                 }
+                /* Styling for Calendar Header (Days of the week) */
+                .fc .fc-col-header-cell {
+                  background-color: hsl(
+                    var(--muted)
+                  ) !important; /* Using muted background for header */
+                  border-bottom: 1px solid hsl(var(--border)) !important;
+                  border-right: 1px solid hsl(var(--border)) !important; /* Added right border for separation */
+                }
+                .dark .fc .fc-col-header-cell,
+                .dark .fc .fc-col-header-cell .fc-col-header-cell-cushion {
+                  background-color: #171717 !important;
+                }
+                .fc .fc-col-header-cell:first-child {
+                  /* Remove left border for the first cell if desired */
+                  border-left: 1px solid hsl(var(--border)) !important;
+                }
                 .fc .fc-col-header-cell-cushion {
+                  color: hsl(
+                    var(--muted-foreground)
+                  ) !important; /* Using muted-foreground for text color */
+                  font-weight: 600;
                   font-size: 10px;
                   padding: 4px 2px;
                 }

@@ -435,7 +435,7 @@ export function OrderForm() {
           </form>
         </CardContent>
 
-        <CardFooter className="flex justify-between border-t p-6 bg-gray-50/50">
+        <CardFooter className="flex justify-between border-t p-6 ">
           <Button
             type="button"
             variant="outline"

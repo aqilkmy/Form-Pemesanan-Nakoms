@@ -26,7 +26,7 @@ export function StepIdentity({ form }: StepProps) {
   return (
     <div className="space-y-6 animate-in fade-in slide-in-from-right-4 duration-500">
       <div className="space-y-4">
-        <h2 className="text-xl font-semibold text-primary">
+        <h2 className="text-xl font-semibold text-foreground">
           Identitas Pemesan
         </h2>
 
@@ -86,7 +86,9 @@ export function StepIdentity({ form }: StepProps) {
       </div>
 
       <div className="space-y-4 pt-4 border-t">
-        <h2 className="text-xl font-semibold text-primary">Konfirmasi SOP</h2>
+        <h2 className="text-xl font-semibold text-foreground">
+          Konfirmasi SOP
+        </h2>
         <div className="flex items-start gradient-secondary p-4 rounded-lg">
           <div className="flex items-center h-5 mt-1">
             <Controller
@@ -97,7 +99,6 @@ export function StepIdentity({ form }: StepProps) {
                   id="sudah_baca_sop"
                   checked={field.value}
                   onCheckedChange={field.onChange}
-                  className="border-white data-[state=checked]:bg-white data-[state=checked]:text-primary"
                 />
               )}
             />

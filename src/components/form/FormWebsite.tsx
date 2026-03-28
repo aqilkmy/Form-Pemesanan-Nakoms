@@ -18,7 +18,7 @@ export function FormWebsite({ form, step }: FormWebsiteProps) {
         return (
             <div className="space-y-6 animate-in fade-in slide-in-from-right-4 duration-500">
                 <div className="space-y-4">
-                    <h2 className="text-xl font-semibold text-primary">Pemesanan Laman Website</h2>
+                    <h2 className="text-xl font-semibold text-foreground">Pemesanan Laman Website</h2>
                     <p className="text-muted-foreground text-sm">
                         Lengkapi informasi untuk pembuatan shortlink atau pengajuan fitur/laman website
                     </p>
@@ -104,7 +104,7 @@ export function FormWebsite({ form, step }: FormWebsiteProps) {
     return (
         <div className="space-y-6 animate-in fade-in slide-in-from-right-4 duration-500">
             <div className="space-y-4">
-                <h2 className="text-xl font-semibold text-primary">Review Pesanan Website</h2>
+                <h2 className="text-xl font-semibold text-foreground">Review Pesanan Website</h2>
                 <p className="text-muted-foreground text-sm">
                     Mohon periksa kembali data pesanan Anda sebelum dikirim.
                 </p>

@@ -29,7 +29,7 @@ export function FormSurvey({ form, step }: FormSurveyProps) {
     return (
       <div className="space-y-6 animate-in fade-in slide-in-from-right-4 duration-500">
         <div className="space-y-4">
-          <h2 className="text-xl font-semibold text-primary">Detail Survey</h2>
+          <h2 className="text-xl font-semibold text-foreground">Detail Survey</h2>
           <p className="text-muted-foreground text-sm">
             Isi detail survey yang akan dipublikasikan
           </p>
@@ -190,7 +190,7 @@ export function FormSurvey({ form, step }: FormSurveyProps) {
   return (
     <div className="space-y-6 animate-in fade-in slide-in-from-right-4 duration-500">
       <div className="space-y-4">
-        <h2 className="text-xl font-semibold text-primary">
+        <h2 className="text-xl font-semibold text-foreground">
           Review Pesanan Survey
         </h2>
         <p className="text-muted-foreground text-sm">

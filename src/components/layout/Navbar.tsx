@@ -34,9 +34,11 @@ const menuItems = [
   },
 ];
 
+import { ThemeSwitcher } from "./ThemeSwitcher";
+
 export function Navbar() {
   return (
-    <nav className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 py-2">
+    <nav className="sticky top-0 z-50 w-full shadow-sm  bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 py-2">
       <div className="container mx-auto px-4">
         {/* Desktop Menu */}
         <div className="hidden items-center justify-between lg:flex">
@@ -70,7 +72,7 @@ export function Navbar() {
                     <NavigationMenuLink asChild>
                       <Link
                         href={item.url}
-                        className="group inline-flex h-10 w-max items-center justify-center rounded-md bg-transparent px-4 py-2 text-sm font-medium transition-colors  hover:text-accent-foreground"
+                        className="group inline-flex h-10 w-max items-center justify-center rounded-md bg-transparent px-4 py-2  text-sm font-medium transition-colors  hover:text-accent-foreground dark:hover:text-accent-foreground"
                       >
                         {item.title}
                       </Link>
@@ -80,7 +82,8 @@ export function Navbar() {
               </NavigationMenuList>
             </NavigationMenu>
           </div>
-          <div className="flex gap-2">
+          <div className="flex items-center gap-2">
+            <ThemeSwitcher />
             <Link href="/admin">
               <Button className="rounded-full px-2 font-semibold shadow-sm">
                 <User className="size-4 mr-1" /> Admin
@@ -90,8 +93,8 @@ export function Navbar() {
         </div>
 
         {/* Mobile Menu */}
-        <div className="block lg:hidden">
-          <div className="flex items-center justify-between">
+        <div className="block lg:hidden ">
+          <div className="flex items-center h-12 justify-between">
             {/* Logo */}
             <Link href="/" className="flex items-center gap-2">
               <div className="flex h-8 w-8 items-center justify-center rounded-full bg-foreground text-background">
@@ -112,60 +115,66 @@ export function Navbar() {
                 Nakoms Order
               </span>
             </Link>
-            <Sheet>
-              <SheetTrigger asChild>
-                <Button variant="outline" size="icon">
-                  <Menu className="size-4" />
-                </Button>
-              </SheetTrigger>
-              <SheetContent side="right" className="overflow-y-auto w-[300px]">
-                <SheetHeader>
-                  <SheetTitle className="text-left">
-                    <Link href="/" className="flex items-center gap-2">
-                      <div className="flex h-8 w-8 items-center justify-center rounded-full bg-foreground text-background">
-                        <svg
-                          xmlns="http://www.w3.org/2000/svg"
-                          viewBox="0 0 24 24"
-                          fill="none"
-                          stroke="currentColor"
-                          strokeWidth="2"
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          className="h-5 w-5"
-                        >
-                          <path d="m8 3 4 8 5-5 5 15H2L8 3z" />
-                        </svg>
-                      </div>
-                      <span className="text-lg font-bold tracking-tight">
-                        Nakoms Order
-                      </span>
-                    </Link>
-                  </SheetTitle>
-                </SheetHeader>
-                <div className="flex flex-col gap-6 p-4 mt-8">
-                  <div className="flex flex-col gap-4">
-                    {menuItems.map((item) => (
-                      <Link
-                        key={item.title}
-                        href={item.url}
-                        className="flex items-center gap-4 text-md font-semibold text-muted-foreground hover:text-foreground transition-colors p-2 rounded-md hover:bg-muted"
-                      >
-                        {item.icon}
-                        {item.title}
+            <div className="flex items-center gap-2">
+              <ThemeSwitcher />
+              <Sheet>
+                <SheetTrigger asChild>
+                  <Button variant="outline" size="icon">
+                    <Menu className="size-4" />
+                  </Button>
+                </SheetTrigger>
+                <SheetContent
+                  side="right"
+                  className="overflow-y-auto w-[300px]"
+                >
+                  <SheetHeader>
+                    <SheetTitle className="text-left">
+                      <Link href="/" className="flex items-center gap-2">
+                        <div className="flex h-8 w-8 items-center justify-center rounded-full bg-foreground text-background">
+                          <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            strokeWidth="2"
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            className="h-5 w-5"
+                          >
+                            <path d="m8 3 4 8 5-5 5 15H2L8 3z" />
+                          </svg>
+                        </div>
+                        <span className="text-lg font-bold tracking-tight">
+                          Nakoms Order
+                        </span>
                       </Link>
-                    ))}
-                  </div>
+                    </SheetTitle>
+                  </SheetHeader>
+                  <div className="flex flex-col gap-6 p-4 mt-8">
+                    <div className="flex flex-col gap-4">
+                      {menuItems.map((item) => (
+                        <Link
+                          key={item.title}
+                          href={item.url}
+                          className="flex items-center gap-4 text-md font-semibold text-muted-foreground hover:text-foreground dark:hover:text-foreground transition-colors p-2 rounded-md hover:bg-muted"
+                        >
+                          {item.icon}
+                          {item.title}
+                        </Link>
+                      ))}
+                    </div>
 
-                  <div className="flex flex-col gap-3 pt-4 border-t">
-                    <Link href="/admin">
-                      <Button className="w-full justify-start font-semibold rounded-lg shadow-sm">
-                        <User className="size-5 mr-3" /> Admin
-                      </Button>
-                    </Link>
+                    <div className="flex flex-col gap-3 pt-4 border-t">
+                      <Link href="/admin">
+                        <Button className="w-full justify-start font-semibold rounded-lg shadow-sm">
+                          <User className="size-5 mr-3" /> Admin
+                        </Button>
+                      </Link>
+                    </div>
                   </div>
-                </div>
-              </SheetContent>
-            </Sheet>
+                </SheetContent>
+              </Sheet>
+            </div>
           </div>
         </div>
       </div>

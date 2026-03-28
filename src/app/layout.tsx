@@ -22,18 +22,27 @@ export const metadata: Metadata = {
     "Form pemesanan konten untuk kebutuhan media dan publikasi event BEM Unsoed. Isi formulir dengan lengkap untuk mengajukan pesanan desain grafis, video, dan kebutuhan media lainnya.",
 };
 
+import { ThemeProvider } from "@/components/layout/ThemeProvider";
+
 export default function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={cn("font-sans", inter.variable)}>
+    <html lang="en" className={cn("font-sans", inter.variable)} suppressHydrationWarning>
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        <Navbar />
-        {children}
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="system"
+          enableSystem
+          disableTransitionOnChange
+        >
+          <Navbar />
+          {children}
+        </ThemeProvider>
       </body>
     </html>
   );

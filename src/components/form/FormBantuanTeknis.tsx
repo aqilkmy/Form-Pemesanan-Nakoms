@@ -30,7 +30,7 @@ export function FormBantuanTeknis({ form, step }: FormBantuanTeknisProps) {
     return (
       <div className="space-y-6 animate-in fade-in slide-in-from-right-4 duration-500">
         <div className="space-y-4">
-          <h2 className="text-xl font-semibold text-primary">
+          <h2 className="text-xl font-semibold text-foreground">
             Detail Bantuan Teknis
           </h2>
           <p className="text-muted-foreground text-sm">
@@ -175,7 +175,7 @@ export function FormBantuanTeknis({ form, step }: FormBantuanTeknisProps) {
   return (
     <div className="space-y-6 animate-in fade-in slide-in-from-right-4 duration-500">
       <div className="space-y-4">
-        <h2 className="text-xl font-semibold text-primary">
+        <h2 className="text-xl font-semibold text-foreground">
           Review Pesanan Bantuan Teknis
         </h2>
         <p className="text-muted-foreground text-sm">

@@ -36,7 +36,7 @@ export function FormDesainPublikasi({ form, step }: FormDesainProps) {
     return (
       <div className="space-y-6 animate-in fade-in slide-in-from-right-4 duration-500">
         <div className="space-y-4">
-          <h2 className="text-xl font-semibold text-primary">Detail Konten</h2>
+          <h2 className="text-xl font-semibold text-foreground">Detail Konten</h2>
 
           <div className="grid gap-2">
             <Label htmlFor="judul_desain">Judul Desain / Konten</Label>
@@ -165,7 +165,7 @@ export function FormDesainPublikasi({ form, step }: FormDesainProps) {
     return (
       <div className="space-y-6 animate-in fade-in slide-in-from-right-4 duration-500">
         <div className="space-y-4">
-          <h2 className="text-xl font-semibold text-primary">
+          <h2 className="text-xl font-semibold text-foreground">
             Aset & Request Tambahan
           </h2>
 
@@ -256,7 +256,7 @@ export function FormDesainPublikasi({ form, step }: FormDesainProps) {
   return (
     <div className="space-y-6 animate-in fade-in slide-in-from-right-4 duration-500">
       <div className="space-y-4">
-        <h2 className="text-xl font-semibold text-primary">
+        <h2 className="text-xl font-semibold text-foreground">
           Review Pesanan Desain & Publikasi
         </h2>
         <p className="text-muted-foreground text-sm">

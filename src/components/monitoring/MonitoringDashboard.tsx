@@ -689,12 +689,12 @@ export function MonitoringDashboard() {
         className="w-full"
       >
         <div className="flex justify-center mb-6">
-          <TabsList className="grid grid-cols-2 mb-5 md:grid-cols-4 h-auto md:mb-0  rounded-lg   ">
+          <TabsList className="grid grid-cols-2 mb-5 md:grid-cols-4 h-auto md:mb-0  rounded-lg  ">
             {MENU_OPTIONS.map((menu) => (
               <TabsTrigger
                 key={menu.id}
                 value={menu.id}
-                className="flex items-center justify-center gap-2 py-2 px-4 rounded-md data-[state=active]:bg-background data-[state=active]:shadow-sm"
+                className="flex items-center justify-between gap-2 py-2 px-4 rounded-md data-[state=active]:bg-background data-[state=active]:shadow-sm"
               >
                 <MenuIcon icon={menu.icon} className="w-4 h-4" />
                 <span className="hidden sm:inline">{menu.label}</span>
@@ -831,7 +831,7 @@ export function MonitoringDashboard() {
 
         {/* Table Content */}
         <Card>
-          <CardHeader className="pb-3 border-b mb-4">
+          <CardHeader className="pb-3  mb-4">
             <CardTitle className="flex items-center gap-2 text-lg font-bold">
               <MenuIcon
                 icon={MENU_OPTIONS.find((m) => m.id === activeTab)?.icon || ""}
