@@ -60,7 +60,7 @@ export function Navbar() {
                 </svg>
               </div>
               <span className="text-lg font-bold tracking-tight">
-                Nakoms Order
+                Rizmed Order
               </span>
             </Link>
           </div>
@@ -112,7 +112,7 @@ export function Navbar() {
                 </svg>
               </div>
               <span className="text-lg font-bold tracking-tight">
-                Nakoms Order
+                Rizmed Order
               </span>
             </Link>
             <div className="flex items-center gap-2">
@@ -145,7 +145,7 @@ export function Navbar() {
                           </svg>
                         </div>
                         <span className="text-lg font-bold tracking-tight">
-                          Nakoms Order
+                          Rizmed Order
                         </span>
                       </Link>
                     </SheetTitle>
