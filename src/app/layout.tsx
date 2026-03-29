@@ -30,7 +30,11 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={cn("font-sans", inter.variable)} suppressHydrationWarning>
+    <html
+      lang="en"
+      className={cn("font-sans", inter.variable)}
+      suppressHydrationWarning
+    >
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
@@ -42,7 +46,13 @@ export default function RootLayout({
         >
           <Navbar />
           {children}
-        </ThemeProvider>
+        </ThemeProvider>{" "}
+        <footer className="py-3 text-center text-sm text-muted-foreground shadow-inner bg-background w-full">
+          <p>&copy; {new Date().getFullYear()} BEM Unsoed 2026</p>
+          <p className="mt-1">
+            Kemenko Riset dan Media | Kementrian Media & Komunikasi
+          </p>
+        </footer>
       </body>
     </html>
   );
