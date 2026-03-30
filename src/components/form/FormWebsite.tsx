@@ -1,10 +1,12 @@
 "use client"
 
+import { useState } from "react"
 import { UseFormReturn } from "react-hook-form"
 import { WebsiteFormValues } from "@/lib/schema"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { AlertCircle } from "lucide-react"
+import { Button } from "@/components/ui/button"
+import { AlertCircle, ExternalLink } from "lucide-react"
 
 interface FormWebsiteProps {
     form: UseFormReturn<WebsiteFormValues>
@@ -12,7 +14,20 @@ interface FormWebsiteProps {
 }
 
 export function FormWebsite({ form, step }: FormWebsiteProps) {
+    const [shortlinkError, setShortlinkError] = useState<string | null>(null)
     const { register, formState: { errors }, getValues } = form
+
+    const handlePesanShortlink = () => {
+        const values = getValues()
+        setShortlinkError(null)
+
+        if (!values.tujuan_pemesanan || values.tujuan_pemesanan.trim() === "") {
+            setShortlinkError("Tujuan Pemesanan Link harus diisi terlebih dahulu")
+            return
+        }
+
+        window.open("https://bem-unsoed.com", "_blank")
+    }
 
     if (step === "detail") {
         return (
@@ -36,28 +51,21 @@ export function FormWebsite({ form, step }: FormWebsiteProps) {
                         </p>
                     </div>
 
-                    <div className="grid gap-2">
-                        <Label htmlFor="link_original">Link Original (Opsional)</Label>
-                        <Input
-                            id="link_original"
-                            placeholder="https://... (link asli yang ingin di-shorten)"
-                            {...register("link_original")}
-                        />
-                        <p className="text-xs text-muted-foreground">
-                            Isi jika ingin mengajukan custom/shorten link dari URL yang sudah ada
-                        </p>
-                    </div>
-
-                    <div className="grid gap-2">
-                        <Label htmlFor="custom_shortlink">Judul Custom/Shorten Link (Opsional)</Label>
-                        <Input
-                            id="custom_shortlink"
-                            placeholder="Contoh: bit.ly/PENGUMUMANOPRECBEMU2025"
-                            {...register("custom_shortlink")}
-                        />
-                        <p className="text-xs text-muted-foreground">
-                            Format shortlink yang Anda inginkan
-                        </p>
+                    <div className="bg-amber-50 border border-amber-200 rounded-md p-4">
+                        <p className="text-sm text-amber-800 font-semibold mb-3">Pesan Shortlink</p>
+                        {shortlinkError && (
+                            <p className="text-sm text-destructive mb-3 flex items-center gap-2">
+                                <AlertCircle className="w-4 h-4" />
+                                {shortlinkError}
+                            </p>
+                        )}
+                        <Button
+                            type="button"
+                            onClick={handlePesanShortlink}
+                            className="w-full flex items-center gap-2"
+                        >
+                            Pesan Shortlink <ExternalLink className="w-4 h-4" />
+                        </Button>
                     </div>
 
                     <div className="bg-blue-50 border border-blue-200 rounded-md p-4 flex items-start gap-3">
@@ -127,18 +135,6 @@ export function FormWebsite({ form, step }: FormWebsiteProps) {
                         <div className="grid grid-cols-3 gap-1 mt-1">
                             <span className="text-muted-foreground">Tujuan:</span>
                             <span className="col-span-2 font-medium">{values.tujuan_pemesanan}</span>
-                            {values.link_original && (
-                                <>
-                                    <span className="text-muted-foreground">Link Original:</span>
-                                    <a href={values.link_original} target="_blank" className="col-span-2 text-blue-600 hover:underline truncate">{values.link_original}</a>
-                                </>
-                            )}
-                            {values.custom_shortlink && (
-                                <>
-                                    <span className="text-muted-foreground">Custom Link:</span>
-                                    <span className="col-span-2 font-medium">{values.custom_shortlink}</span>
-                                </>
-                            )}
                         </div>
                     </div>
 
