@@ -11,13 +11,15 @@ import { AlertCircle, ExternalLink } from "lucide-react"
 interface FormWebsiteProps {
     form: UseFormReturn<WebsiteFormValues>
     step: "detail" | "review"
+    onOrderShortlink?: (values: WebsiteFormValues) => Promise<void>
 }
 
-export function FormWebsite({ form, step }: FormWebsiteProps) {
+export function FormWebsite({ form, step, onOrderShortlink }: FormWebsiteProps) {
     const [shortlinkError, setShortlinkError] = useState<string | null>(null)
-    const { register, formState: { errors }, getValues } = form
+    const [isLoadingShortlink, setIsLoadingShortlink] = useState(false)
+    const { register, formState: { errors }, getValues, trigger } = form
 
-    const handlePesanShortlink = () => {
+    const handlePesanShortlink = async () => {
         const values = getValues()
         setShortlinkError(null)
 
@@ -26,7 +28,28 @@ export function FormWebsite({ form, step }: FormWebsiteProps) {
             return
         }
 
-        window.open("https://bem-unsoed.com", "_blank")
+        try {
+            setIsLoadingShortlink(true)
+            // Validate form
+            const isValid = await trigger(["tujuan_pemesanan"])
+            if (!isValid) {
+                setShortlinkError("Mohon periksa kembali form Anda")
+                return
+            }
+
+            // Call the callback if provided
+            if (onOrderShortlink) {
+                await onOrderShortlink(values)
+            }
+
+            // Open the link
+            window.open("https://bem-unsoed.com", "_blank")
+        } catch (error) {
+            setShortlinkError("Terjadi kesalahan. Silakan coba lagi.")
+            console.error(error)
+        } finally {
+            setIsLoadingShortlink(false)
+        }
     }
 
     if (step === "detail") {
@@ -62,9 +85,10 @@ export function FormWebsite({ form, step }: FormWebsiteProps) {
                         <Button
                             type="button"
                             onClick={handlePesanShortlink}
+                            disabled={isLoadingShortlink}
                             className="w-full flex items-center gap-2"
                         >
-                            Pesan Shortlink <ExternalLink className="w-4 h-4" />
+                            {isLoadingShortlink ? "Memproses..." : "Pesan Shortlink"} <ExternalLink className="w-4 h-4" />
                         </Button>
                     </div>
 

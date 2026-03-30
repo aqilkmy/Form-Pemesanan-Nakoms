@@ -274,6 +274,32 @@ export function OrderForm() {
     setSelectedMenu(menu);
   };
 
+  const handleOrderShortlink = async (values: WebsiteFormValues) => {
+    try {
+      const { error } = await supabase.from("orders").insert([values]);
+
+      if (error) {
+        throw error;
+      }
+
+      setSubmittedData({
+        menu_type: "website",
+        kementerian: values.kementerian,
+        nama: values.nama,
+      });
+      setIsSuccess(true);
+
+      // Reset form
+      websiteForm.reset();
+
+      topRef.current?.scrollIntoView({ behavior: "smooth" });
+    } catch (error: any) {
+      const errorMsg = error?.message || error?.code || "Unknown error";
+      console.error("Error submitting shortlink order:", errorMsg);
+      throw new Error(errorMsg);
+    }
+  };
+
   const onSubmit = async () => {
     if (currentStep !== "review" || isNavigating || !selectedMenu) return;
 
@@ -373,7 +399,7 @@ export function OrderForm() {
           case "desain_publikasi":
             return <FormDesainPublikasi form={desainForm} step="detail" />;
           case "website":
-            return <FormWebsite form={websiteForm} step="detail" />;
+            return <FormWebsite form={websiteForm} step="detail" onOrderShortlink={handleOrderShortlink} />;
           case "bantuan_teknis":
             return <FormBantuanTeknis form={bantuanTeknisForm} step="detail" />;
           case "survey":
