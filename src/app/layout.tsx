@@ -50,7 +50,7 @@ export default function RootLayout({
         <footer className="py-3 text-center text-sm text-muted-foreground shadow-inner bg-background w-full">
           <p>&copy; {new Date().getFullYear()} BEM Unsoed 2026</p>
           <p className="mt-1">
-            Kemenko Riset dan Media | Kementrian Media & Komunikasi
+            Kemenko Riset dan Media | Kementerian Media & Komunikasi 🤙
           </p>
         </footer>
       </body>
