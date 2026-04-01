@@ -2,6 +2,7 @@
 
 import * as React from "react";
 import { supabase } from "@/lib/supabase";
+import { PostgrestError } from "@supabase/supabase-js";
 import {
   Order,
   OrderStatus,
@@ -20,7 +21,7 @@ import {
   JENIS_BANTUAN_OPTIONS,
 } from "@/lib/constants";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   Select,
   SelectContent,
@@ -240,9 +241,10 @@ export function AdminDashboard() {
       }
 
       setOrders((prev) => prev.filter((order) => order.id !== orderId));
-    } catch (error: any) {
-      console.error("Error deleting order:", error);
-      alert(`Error: ${error.message || "Terjadi kesalahan saat menghapus"}`);
+    } catch (error) {
+      const postgrestError = error as PostgrestError;
+      console.error("Error deleting order:", postgrestError);
+      alert(`Error: ${postgrestError.message || "Terjadi kesalahan saat menghapus"}`);
     }
   };
 
@@ -251,10 +253,7 @@ export function AdminDashboard() {
     return option?.color || "bg-gray-100 text-gray-800";
   };
 
-  const getStatusLabel = (status: string) => {
-    const option = STATUS_OPTIONS.find((opt) => opt.value === status);
-    return option?.label || status || "New";
-  };
+
 
   const getJenisBantuanLabel = (jenis: string) => {
     const option = JENIS_BANTUAN_OPTIONS.find((o) => o.id === jenis);
@@ -405,18 +404,18 @@ export function AdminDashboard() {
     if (collisionCount === 0 || activeTab !== "desain_publikasi") return null;
 
     return (
-      <Card className="border-yellow-400 bg-yellow-50 mb-6">
+      <Card className="border-destructive/20 bg-destructive/10 mb-6">
         <CardContent className="py-3">
-          <div className="flex items-start gap-2">
-            <AlertTriangle className="w-5 h-5 text-yellow-600 flex-shrink-0 mt-0.5" />
-            <div>
-              <p className="font-semibold text-yellow-800">
+          <div className="flex items-start gap-3">
+            <AlertTriangle className="w-5 h-5 text-destructive flex-shrink-0 mt-0.5" />
+            <div className="text-destructive">
+              <p className="font-semibold">
                 Peringatan: Jadwal Upload Bersamaan
               </p>
-              <p className="text-sm text-yellow-700 mt-1">
+              <p className="text-sm text-destructive/90 mt-1">
                 Ada {collisionCount} jadwal dengan lebih dari 1 pesanan:
               </p>
-              <ul className="text-sm text-yellow-700 mt-2 space-y-1">
+              <ul className="text-sm text-destructive/90 mt-2 space-y-1">
                 {Object.entries(scheduleCollisions).map(([key, orders]) => (
                   <li key={key} className="flex items-center gap-2">
                     <span className="font-medium">
@@ -462,7 +461,7 @@ export function AdminDashboard() {
                   key={order.id}
                   className={
                     hasCollision(order)
-                      ? "bg-yellow-50 hover:bg-yellow-100"
+                      ? "bg-destructive/10 hover:bg-destructive/20"
                       : ""
                   }
                 >
@@ -534,7 +533,7 @@ export function AdminDashboard() {
                       </Select>
                     </div>
                     {hasCollision(order) && (
-                      <div className="flex items-center gap-1 mt-1 text-yellow-600">
+                      <div className="flex items-center gap-1 mt-1 text-destructive">
                         <AlertTriangle className="w-3 h-3" />
                         <span className="text-[9px]">Tabrakan!</span>
                       </div>
