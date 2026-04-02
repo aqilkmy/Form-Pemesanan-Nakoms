@@ -90,6 +90,9 @@ export function FormWebsite({ form, step, onOrderShortlink }: FormWebsiteProps) 
                         >
                             {isLoadingShortlink ? "Memproses..." : "Pesan Shortlink"} <ExternalLink className="w-4 h-4" />
                         </Button>
+                        <p className="text-sm text-muted-foreground mt-2">
+                            Password: "kausacipta"
+                        </p>
                     </div>
 
                     <div className="bg-blue-50 border border-blue-200 rounded-md p-4 flex items-start gap-3">
