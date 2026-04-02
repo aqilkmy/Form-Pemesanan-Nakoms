@@ -1,7 +1,14 @@
 "use client";
 
 import Link from "next/link";
-import { Menu, Home, Calendar, LayoutDashboard, User } from "lucide-react";
+import {
+  Menu,
+  Home,
+  Calendar,
+  LayoutDashboard,
+  User,
+  Link2,
+} from "lucide-react";
 
 import { Accordion } from "@/components/ui/accordion";
 import { Button } from "@/components/ui/button";
@@ -31,6 +38,11 @@ const menuItems = [
     title: "Monitoring",
     url: "/monitoring",
     icon: <LayoutDashboard className="size-5 shrink-0" />,
+  },
+  {
+    title: "Url Shortener",
+    url: "https://www.bem-unsoed.com/shortener",
+    icon: <Link2 className="size-5 shrink-0" />,
   },
 ];
 
