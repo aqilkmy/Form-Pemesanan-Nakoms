@@ -47,6 +47,8 @@ import {
   ExternalLink,
   Filter,
   AlertTriangle,
+  ChevronDown,
+  ChevronUp,
   Palette,
   Globe,
   Video,
@@ -92,6 +94,16 @@ function isSurvey(order: Order): order is SurveyOrder {
   return order.menu_type === "survey";
 }
 
+function isPublicationChecklistCompleted(order: DesainPublikasiOrder): boolean {
+  if (!order.platform_publikasi || order.platform_publikasi.length === 0) {
+    return false;
+  }
+
+  return order.platform_publikasi.every(
+    (platform) => order.status_publikasi?.[platform] === true,
+  );
+}
+
 export function AdminDashboard() {
   const [orders, setOrders] = React.useState<Order[]>([]);
   const [isLoading, setIsLoading] = React.useState(true);
@@ -106,6 +118,9 @@ export function AdminDashboard() {
   const [filterPlatform, setFilterPlatform] =
     React.useState<string>("all-platform");
   const [sortBy, setSortBy] = React.useState<SortOption>("waktu_pemesanan");
+  const [expandedDesainOrderIds, setExpandedDesainOrderIds] = React.useState<
+    string[]
+  >([]);
 
   React.useEffect(() => {
     fetchOrders();
@@ -264,7 +279,8 @@ export function AdminDashboard() {
   const scheduleCollisions = React.useMemo(() => {
     const desainOrders = orders
       .filter(isDesainPublikasi)
-      .filter((o) => o.status !== "cancel");
+      .filter((o) => o.status !== "cancel")
+      .filter((o) => !isPublicationChecklistCompleted(o));
     const collisionMap: { [key: string]: DesainPublikasiOrder[] } = {};
 
     desainOrders.forEach((order) => {
@@ -358,6 +374,14 @@ export function AdminDashboard() {
 
         return new Date(aDate).getTime() - new Date(bDate).getTime();
       });
+
+      if (activeTab === "desain_publikasi") {
+        result = result.filter(
+          (order) =>
+            !isDesainPublikasi(order) ||
+            !isPublicationChecklistCompleted(order),
+        );
+      }
     }
 
     return result;
@@ -388,6 +412,14 @@ export function AdminDashboard() {
     setFilterStatus("all-status");
     setFilterDate("");
     setFilterPlatform("all-platform");
+  };
+
+  const toggleDesainOrderDetail = (orderId: string) => {
+    setExpandedDesainOrderIds((prev) =>
+      prev.includes(orderId)
+        ? prev.filter((id) => id !== orderId)
+        : [...prev, orderId],
+    );
   };
 
   if (isLoading) {
@@ -456,238 +488,305 @@ export function AdminDashboard() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {filteredOrders.filter(isDesainPublikasi).map((order) => (
-                <TableRow
-                  key={order.id}
-                  className={
-                    hasCollision(order)
-                      ? "bg-destructive/10 hover:bg-destructive/20"
-                      : ""
-                  }
-                >
-                  <TableCell className="font-medium whitespace-nowrap">
-                    {helperDate(order.created_at)}
-                  </TableCell>
-                  <TableCell>
-                    <div className="font-semibold">{order.nama}</div>
-                    <div className="text-[10px] text-muted-foreground">
-                      {order.kementerian}
-                    </div>
-                    <div className="text-[10px] text-muted-foreground">
-                      {order.nomor_whatsapp}
-                    </div>
-                  </TableCell>
-                  <TableCell className="max-w-xs">
-                    <div className="font-medium truncate">
-                      {order.judul_desain}
-                    </div>
-                    <div className="text-[10px] mt-1 flex flex-wrap gap-1">
-                      {order.platform_publikasi?.map((p) => (
-                        <span
-                          key={p}
-                          className="bg-blue-100 text-blue-800 px-1.5 py-0.5 rounded text-[9px]"
-                        >
-                          {p}
-                        </span>
-                      ))}
-                    </div>
-                  </TableCell>
-                  <TableCell className="whitespace-nowrap">
-                    <div className="flex flex-col gap-1">
-                      <DatePicker03
-                        date={
-                          order.tanggal_publikasi
-                            ? new Date(order.tanggal_publikasi)
-                            : undefined
-                        }
-                        setDate={(date) => {
-                          const formatted = date
-                            ? format(date, "yyyy-MM-dd")
-                            : "";
-                          if (formatted !== order.tanggal_publikasi) {
-                            updateField(
-                              order.id,
-                              "tanggal_publikasi",
-                              formatted,
-                            );
-                          }
-                        }}
-                        className="h-7 text-[10px] w-28 px-2"
-                      />
-                      <Select
-                        defaultValue={order.waktu_publikasi}
-                        onValueChange={(v) =>
-                          updateField(order.id, "waktu_publikasi", v)
-                        }
-                      >
-                        <SelectTrigger className="h-7 text-[10px] w-28 px-2">
-                          <SelectValue placeholder="Waktu" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {WAKTU_PUBLIKASI_OPTIONS.map((w) => (
-                            <SelectItem key={w} value={w}>
-                              {w}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    </div>
-                    {hasCollision(order) && (
-                      <div className="flex items-center gap-1 mt-1 text-destructive">
-                        <AlertTriangle className="w-3 h-3" />
-                        <span className="text-[9px]">Tabrakan!</span>
-                      </div>
-                    )}
-                  </TableCell>
-                  <TableCell>
-                    <div className="flex flex-col gap-1">
-                      <a
-                        href={order.link_file_konten}
-                        target="_blank"
-                        rel="noreferrer"
-                        className="text-blue-600 hover:underline flex items-center text-[10px]"
-                      >
-                        <ExternalLink className="w-3 h-3 mr-1" /> Files
-                      </a>
-                      <a
-                        href={order.link_caption_docs}
-                        target="_blank"
-                        rel="noreferrer"
-                        className="text-blue-600 hover:underline flex items-center text-[10px]"
-                      >
-                        <ExternalLink className="w-3 h-3 mr-1" /> Caption
-                      </a>
-                    </div>
-                  </TableCell>
-                  <TableCell className="max-w-[150px]">
-                    <div
-                      className="text-[10px] text-gray-700 truncate"
-                      title={order.request_lagu || ""}
-                    >
-                      {order.request_lagu || "-"}
-                    </div>
-                  </TableCell>
-                  <TableCell>
-                    <Select
-                      value={order.status || "new"}
-                      onValueChange={(v) =>
-                        updateStatus(order.id, v as OrderStatus)
+              {filteredOrders.filter(isDesainPublikasi).map((order) => {
+                const isExpanded = expandedDesainOrderIds.includes(order.id);
+
+                return (
+                  <React.Fragment key={order.id}>
+                    <TableRow
+                      className={
+                        hasCollision(order)
+                          ? "bg-destructive/10 hover:bg-destructive/20"
+                          : ""
                       }
                     >
-                      <SelectTrigger
-                        className={`h-7 text-[10px] w-24 px-2 rounded-full font-semibold border-0 ${getStatusColor(order.status)}`}
-                      >
-                        <SelectValue placeholder="Status" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {STATUS_OPTIONS.map((opt) => (
-                          <SelectItem key={opt.value} value={opt.value}>
-                            {opt.label}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </TableCell>
-                  <TableCell>
-                    <div className="flex flex-col gap-1.5">
-                      {order.platform_publikasi?.map((platform) => {
-                        const isChecked =
-                          order.status_publikasi?.[platform] || false;
-                        return (
-                          <div
-                            key={platform}
-                            className="flex items-center gap-1.5"
-                          >
-                            <Checkbox
-                              id={`status-${order.id}-${platform}`}
-                              checked={isChecked}
-                              onCheckedChange={async (checked) => {
-                                const newStatusPublikasi = {
-                                  ...(order.status_publikasi || {}),
-                                  [platform]: checked === true,
-                                };
-                                try {
-                                  const { error } = await supabase
-                                    .from("orders")
-                                    .update({
-                                      status_publikasi: newStatusPublikasi,
-                                    })
-                                    .eq("id", order.id);
-                                  if (error) throw error;
-                                  setOrders((prev) =>
-                                    prev.map((o) =>
-                                      o.id === order.id
-                                        ? ({
-                                            ...o,
-                                            status_publikasi:
-                                              newStatusPublikasi,
-                                          } as Order)
-                                        : o,
-                                    ),
-                                  );
-                                } catch (error) {
-                                  console.error(
-                                    "Error updating status_publikasi:",
-                                    error,
-                                  );
-                                }
-                              }}
-                              className="h-3 w-3"
-                            />
-                            <Label
-                              htmlFor={`status-${order.id}-${platform}`}
-                              className={`text-[9px] cursor-pointer leading-none ${isChecked ? "text-green-700 line-through" : "text-gray-600"}`}
+                      <TableCell className="font-medium whitespace-nowrap">
+                        {helperDate(order.created_at)}
+                      </TableCell>
+                      <TableCell>
+                        <div className="font-semibold">{order.nama}</div>
+                        <div className="text-[10px] text-muted-foreground">
+                          {order.kementerian}
+                        </div>
+                        <div className="text-[10px] text-muted-foreground">
+                          {order.nomor_whatsapp}
+                        </div>
+                      </TableCell>
+                      <TableCell className="max-w-xs">
+                        <div className="font-medium truncate">
+                          {order.judul_desain}
+                        </div>
+                        <div className="text-[10px] mt-1 flex flex-wrap gap-1">
+                          {order.platform_publikasi?.map((p) => (
+                            <span
+                              key={p}
+                              className="bg-blue-100 text-blue-800 px-1.5 py-0.5 rounded text-[9px]"
                             >
-                              {platform}
-                            </Label>
-                          </div>
-                        );
-                      })}
-                    </div>
-                  </TableCell>
-                  <TableCell>
-                    <div className="flex items-center gap-1">
-                      <Input
-                        type="text"
-                        placeholder="Link..."
-                        defaultValue={order.link_desain_selesai || ""}
-                        onBlur={(e) => {
-                          if (
-                            e.target.value !== (order.link_desain_selesai || "")
-                          ) {
-                            updateField(
-                              order.id,
-                              "link_desain_selesai",
-                              e.target.value,
-                            );
-                          }
-                        }}
-                        className="h-7 text-[10px] w-24 px-2"
-                      />
-                      {order.link_desain_selesai && (
-                        <a
-                          href={order.link_desain_selesai}
-                          target="_blank"
-                          rel="noreferrer"
-                          className="text-blue-600 hover:text-blue-800"
+                              {p}
+                            </span>
+                          ))}
+                        </div>
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => toggleDesainOrderDetail(order.id)}
+                          className="h-6 px-2 mt-1 text-[10px]"
                         >
-                          <ExternalLink className="w-3 h-3" />
-                        </a>
-                      )}
-                    </div>
-                  </TableCell>
-                  <TableCell>
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="h-7 w-7 text-red-500 hover:text-red-700 hover:bg-red-50"
-                      onClick={() => deleteOrder(order.id)}
-                    >
-                      <Trash2 className="w-4 h-4" />
-                    </Button>
-                  </TableCell>
-                </TableRow>
-              ))}
+                          {isExpanded ? (
+                            <ChevronUp className="w-3 h-3 mr-1" />
+                          ) : (
+                            <ChevronDown className="w-3 h-3 mr-1" />
+                          )}
+                          {isExpanded ? "Sembunyikan" : "Detail"}
+                        </Button>
+                      </TableCell>
+                      <TableCell className="whitespace-nowrap">
+                        <div className="flex flex-col gap-1">
+                          <DatePicker03
+                            date={
+                              order.tanggal_publikasi
+                                ? new Date(order.tanggal_publikasi)
+                                : undefined
+                            }
+                            setDate={(date) => {
+                              const formatted = date
+                                ? format(date, "yyyy-MM-dd")
+                                : "";
+                              if (formatted !== order.tanggal_publikasi) {
+                                updateField(
+                                  order.id,
+                                  "tanggal_publikasi",
+                                  formatted,
+                                );
+                              }
+                            }}
+                            className="h-7 text-[10px] w-28 px-2"
+                          />
+                          <Select
+                            defaultValue={order.waktu_publikasi}
+                            onValueChange={(v) =>
+                              updateField(order.id, "waktu_publikasi", v)
+                            }
+                          >
+                            <SelectTrigger className="h-7 text-[10px] w-28 px-2">
+                              <SelectValue placeholder="Waktu" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              {WAKTU_PUBLIKASI_OPTIONS.map((w) => (
+                                <SelectItem key={w} value={w}>
+                                  {w}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                        </div>
+                        {hasCollision(order) && (
+                          <div className="flex items-center gap-1 mt-1 text-destructive">
+                            <AlertTriangle className="w-3 h-3" />
+                            <span className="text-[9px]">Tabrakan!</span>
+                          </div>
+                        )}
+                      </TableCell>
+                      <TableCell>
+                        <div className="flex flex-col gap-1">
+                          <a
+                            href={order.link_file_konten}
+                            target="_blank"
+                            rel="noreferrer"
+                            className="text-blue-600 hover:underline flex items-center text-[10px]"
+                          >
+                            <ExternalLink className="w-3 h-3 mr-1" /> Files
+                          </a>
+                          <a
+                            href={order.link_caption_docs}
+                            target="_blank"
+                            rel="noreferrer"
+                            className="text-blue-600 hover:underline flex items-center text-[10px]"
+                          >
+                            <ExternalLink className="w-3 h-3 mr-1" /> Caption
+                          </a>
+                        </div>
+                      </TableCell>
+                      <TableCell className="max-w-[150px]">
+                        <div
+                          className="text-[10px] text-gray-700 truncate"
+                          title={order.request_lagu || ""}
+                        >
+                          {order.request_lagu || "-"}
+                        </div>
+                      </TableCell>
+                      <TableCell>
+                        <Select
+                          value={order.status || "new"}
+                          onValueChange={(v) =>
+                            updateStatus(order.id, v as OrderStatus)
+                          }
+                        >
+                          <SelectTrigger
+                            className={`h-7 text-[10px] w-24 px-2 rounded-full font-semibold border-0 ${getStatusColor(order.status)}`}
+                          >
+                            <SelectValue placeholder="Status" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {STATUS_OPTIONS.map((opt) => (
+                              <SelectItem key={opt.value} value={opt.value}>
+                                {opt.label}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </TableCell>
+                      <TableCell>
+                        <div className="flex flex-col gap-1.5">
+                          {order.platform_publikasi?.map((platform) => {
+                            const isChecked =
+                              order.status_publikasi?.[platform] || false;
+                            return (
+                              <div
+                                key={platform}
+                                className="flex items-center gap-1.5"
+                              >
+                                <Checkbox
+                                  id={`status-${order.id}-${platform}`}
+                                  checked={isChecked}
+                                  onCheckedChange={async (checked) => {
+                                    const newStatusPublikasi = {
+                                      ...(order.status_publikasi || {}),
+                                      [platform]: checked === true,
+                                    };
+                                    try {
+                                      const { error } = await supabase
+                                        .from("orders")
+                                        .update({
+                                          status_publikasi: newStatusPublikasi,
+                                        })
+                                        .eq("id", order.id);
+                                      if (error) throw error;
+                                      setOrders((prev) =>
+                                        prev.map((o) =>
+                                          o.id === order.id
+                                            ? ({
+                                                ...o,
+                                                status_publikasi:
+                                                  newStatusPublikasi,
+                                              } as Order)
+                                            : o,
+                                        ),
+                                      );
+                                    } catch (error) {
+                                      console.error(
+                                        "Error updating status_publikasi:",
+                                        error,
+                                      );
+                                    }
+                                  }}
+                                  className="h-3 w-3"
+                                />
+                                <Label
+                                  htmlFor={`status-${order.id}-${platform}`}
+                                  className={`text-[9px] cursor-pointer leading-none ${isChecked ? "text-green-700 line-through" : "text-gray-600"}`}
+                                >
+                                  {platform}
+                                </Label>
+                              </div>
+                            );
+                          })}
+                        </div>
+                      </TableCell>
+                      <TableCell>
+                        <div className="flex items-center gap-1">
+                          <Input
+                            type="text"
+                            placeholder="Link..."
+                            defaultValue={order.link_desain_selesai || ""}
+                            onBlur={(e) => {
+                              if (
+                                e.target.value !==
+                                (order.link_desain_selesai || "")
+                              ) {
+                                updateField(
+                                  order.id,
+                                  "link_desain_selesai",
+                                  e.target.value,
+                                );
+                              }
+                            }}
+                            className="h-7 text-[10px] w-24 px-2"
+                          />
+                          {order.link_desain_selesai && (
+                            <a
+                              href={order.link_desain_selesai}
+                              target="_blank"
+                              rel="noreferrer"
+                              className="text-blue-600 hover:text-blue-800"
+                            >
+                              <ExternalLink className="w-3 h-3" />
+                            </a>
+                          )}
+                        </div>
+                      </TableCell>
+                      <TableCell>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="h-7 w-7 text-red-500 hover:text-red-700 hover:bg-red-50"
+                          onClick={() => deleteOrder(order.id)}
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </Button>
+                      </TableCell>
+                    </TableRow>
+
+                    {isExpanded && (
+                      <TableRow className="bg-muted/30">
+                        <TableCell colSpan={10}>
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-2 text-xs py-1">
+                            <div>
+                              <span className="font-semibold">Judul lengkap:</span>{" "}
+                              {order.judul_desain}
+                            </div>
+                            <div>
+                              <span className="font-semibold">Platform:</span>{" "}
+                              {order.platform_publikasi?.join(", ") || "-"}
+                            </div>
+                            <div>
+                              <span className="font-semibold">File konten:</span>{" "}
+                              <a
+                                href={order.link_file_konten}
+                                target="_blank"
+                                rel="noreferrer"
+                                className="text-blue-600 hover:underline"
+                              >
+                                Lihat file konten
+                              </a>
+                            </div>
+                            <div>
+                              <span className="font-semibold">Caption docs:</span>{" "}
+                              <a
+                                href={order.link_caption_docs}
+                                target="_blank"
+                                rel="noreferrer"
+                                className="text-blue-600 hover:underline"
+                              >
+                                Lihat caption docs
+                              </a>
+                            </div>
+                            <div>
+                              <span className="font-semibold">Request lagu:</span>{" "}
+                              {order.request_lagu || "-"}
+                            </div>
+                            <div>
+                              <span className="font-semibold">Nomor WhatsApp:</span>{" "}
+                              {order.nomor_whatsapp}
+                            </div>
+                          </div>
+                        </TableCell>
+                      </TableRow>
+                    )}
+                  </React.Fragment>
+                );
+              })}
             </TableBody>
           </Table>
         );
@@ -967,14 +1066,12 @@ export function AdminDashboard() {
                     <div className="font-medium text-xs truncate">
                       {order.judul_survey}
                     </div>
-                    <div className="text-[10px] text-muted-foreground truncate">
+                    <div className="text-[10px] text-muted-foreground whitespace-normal wrap-break-word">
                       {order.deskripsi_survey}
                     </div>
                   </TableCell>
                   <TableCell>
-                    <div className="text-[10px] mb-1">
-                      {order.target_responden}
-                    </div>
+                    <div className="text-[10px] mb-1">{order.target_responden}</div>
                     <div className="flex items-center gap-1">
                       <span className="text-[10px] text-muted-foreground">
                         Deadline:

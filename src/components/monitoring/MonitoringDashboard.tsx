@@ -42,6 +42,8 @@ import {
   ExternalLink,
   Filter,
   AlertTriangle,
+  ChevronDown,
+  ChevronUp,
   Palette,
   Globe,
   Video,
@@ -85,6 +87,16 @@ function isSurvey(order: Order): order is SurveyOrder {
   return order.menu_type === "survey";
 }
 
+function isPublicationChecklistCompleted(order: DesainPublikasiOrder): boolean {
+  if (!order.platform_publikasi || order.platform_publikasi.length === 0) {
+    return false;
+  }
+
+  return order.platform_publikasi.every(
+    (platform) => order.status_publikasi?.[platform] === true,
+  );
+}
+
 export function MonitoringDashboard() {
   const [orders, setOrders] = React.useState<Order[]>([]);
   const [isLoading, setIsLoading] = React.useState(true);
@@ -99,6 +111,9 @@ export function MonitoringDashboard() {
   const [filterPlatform, setFilterPlatform] =
     React.useState<string>("all-platform");
   const [sortBy, setSortBy] = React.useState<SortOption>("waktu_pemesanan");
+  const [expandedDesainOrderIds, setExpandedDesainOrderIds] = React.useState<
+    string[]
+  >([]);
 
   React.useEffect(() => {
     fetchOrders();
@@ -190,7 +205,8 @@ export function MonitoringDashboard() {
   const scheduleCollisions = React.useMemo(() => {
     const desainOrders = orders
       .filter(isDesainPublikasi)
-      .filter((o) => o.status !== "cancel");
+      .filter((o) => o.status !== "cancel")
+      .filter((o) => !isPublicationChecklistCompleted(o));
     const collisionMap: { [key: string]: DesainPublikasiOrder[] } = {};
 
     desainOrders.forEach((order) => {
@@ -286,6 +302,14 @@ export function MonitoringDashboard() {
 
         return new Date(aDate).getTime() - new Date(bDate).getTime();
       });
+
+      if (activeTab === "desain_publikasi") {
+        result = result.filter(
+          (order) =>
+            !isDesainPublikasi(order) ||
+            !isPublicationChecklistCompleted(order),
+        );
+      }
     }
 
     return result;
@@ -316,6 +340,14 @@ export function MonitoringDashboard() {
     setFilterStatus("all-status");
     setFilterDate(undefined);
     setFilterPlatform("all-platform");
+  };
+
+  const toggleDesainOrderDetail = (orderId: string) => {
+    setExpandedDesainOrderIds((prev) =>
+      prev.includes(orderId)
+        ? prev.filter((id) => id !== orderId)
+        : [...prev, orderId],
+    );
   };
 
   if (isLoading) {
@@ -380,76 +412,134 @@ export function MonitoringDashboard() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {filteredOrders.filter(isDesainPublikasi).map((order) => (
-                <TableRow
-                  key={order.id}
-                  className={
-                    hasCollision(order)
-                      ? "bg-destructive/10 hover:bg-destructive/20"
-                      : ""
-                  }
-                >
-                  <TableCell className="font-medium whitespace-nowrap">
-                    {helperDate(order.created_at)}
-                  </TableCell>
-                  <TableCell>
-                    <div className="font-semibold">{order.nama}</div>
-                    <div className="text-xs text-muted-foreground">
-                      {order.kementerian}
-                    </div>
-                  </TableCell>
-                  <TableCell className="max-w-xs">
-                    <div className="font-medium truncate">
-                      {order.judul_desain}
-                    </div>
-                    <div className="text-[10px] mt-1 flex flex-wrap gap-1">
-                      {order.platform_publikasi?.map((p) => (
-                        <span
-                          key={p}
-                          className="bg-blue-100 text-blue-800 px-1.5 py-0.5 rounded text-[9px]"
-                        >
-                          {p}
-                        </span>
-                      ))}
-                    </div>
-                  </TableCell>
-                  <TableCell className="whitespace-nowrap">
-                    <div className="text-xs font-medium">
-                      {formatDate(order.tanggal_publikasi)}
-                    </div>
-                    <div className="text-[10px] text-muted-foreground">
-                      {order.waktu_publikasi}
-                    </div>
-                    {hasCollision(order) && (
-                      <div className="flex items-center gap-1 mt-1 text-destructive">
-                        <AlertTriangle className="w-3 h-3" />
-                        <span className="text-[9px]">Tabrakan!</span>
-                      </div>
-                    )}
-                  </TableCell>
-                  <TableCell>
-                    <span
-                      className={`px-2.5 py-0.5 rounded-full text-[10px] font-semibold ${getStatusColor(order.status)}`}
+              {filteredOrders.filter(isDesainPublikasi).map((order) => {
+                const isExpanded = expandedDesainOrderIds.includes(order.id);
+
+                return (
+                  <React.Fragment key={order.id}>
+                    <TableRow
+                      className={
+                        hasCollision(order)
+                          ? "bg-destructive/10 hover:bg-destructive/20"
+                          : ""
+                      }
                     >
-                      {getStatusLabel(order.status)}
-                    </span>
-                  </TableCell>
-                  <TableCell>
-                    {order.link_desain_selesai ? (
-                      <a
-                        href={order.link_desain_selesai}
-                        target="_blank"
-                        rel="noreferrer"
-                        className="text-blue-600 hover:underline flex items-center text-xs"
-                      >
-                        <ExternalLink className="w-3 h-3 mr-1" /> Lihat
-                      </a>
-                    ) : (
-                      <span className="text-xs text-muted-foreground">-</span>
+                      <TableCell className="font-medium whitespace-nowrap">
+                        {helperDate(order.created_at)}
+                      </TableCell>
+                      <TableCell>
+                        <div className="font-semibold">{order.nama}</div>
+                        <div className="text-xs text-muted-foreground">
+                          {order.kementerian}
+                        </div>
+                      </TableCell>
+                      <TableCell className="max-w-xs">
+                        <div className="font-medium truncate">
+                          {order.judul_desain}
+                        </div>
+                        <div className="text-[10px] mt-1 flex flex-wrap gap-1">
+                          {order.platform_publikasi?.map((p) => (
+                            <span
+                              key={p}
+                              className="bg-blue-100 text-blue-800 px-1.5 py-0.5 rounded text-[9px]"
+                            >
+                              {p}
+                            </span>
+                          ))}
+                        </div>
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => toggleDesainOrderDetail(order.id)}
+                          className="h-6 px-2 mt-1 text-[10px]"
+                        >
+                          {isExpanded ? (
+                            <ChevronUp className="w-3 h-3 mr-1" />
+                          ) : (
+                            <ChevronDown className="w-3 h-3 mr-1" />
+                          )}
+                          {isExpanded ? "Sembunyikan" : "Detail"}
+                        </Button>
+                      </TableCell>
+                      <TableCell className="whitespace-nowrap">
+                        <div className="text-xs font-medium">
+                          {formatDate(order.tanggal_publikasi)}
+                        </div>
+                        <div className="text-[10px] text-muted-foreground">
+                          {order.waktu_publikasi}
+                        </div>
+                        {hasCollision(order) && (
+                          <div className="flex items-center gap-1 mt-1 text-destructive">
+                            <AlertTriangle className="w-3 h-3" />
+                            <span className="text-[9px]">Tabrakan!</span>
+                          </div>
+                        )}
+                      </TableCell>
+                      <TableCell>
+                        <span
+                          className={`px-2.5 py-0.5 rounded-full text-[10px] font-semibold ${getStatusColor(order.status)}`}
+                        >
+                          {getStatusLabel(order.status)}
+                        </span>
+                      </TableCell>
+                      <TableCell>
+                        {order.link_desain_selesai ? (
+                          <a
+                            href={order.link_desain_selesai}
+                            target="_blank"
+                            rel="noreferrer"
+                            className="text-blue-600 hover:underline flex items-center text-xs"
+                          >
+                            <ExternalLink className="w-3 h-3 mr-1" /> Lihat
+                          </a>
+                        ) : (
+                          <span className="text-xs text-muted-foreground">-</span>
+                        )}
+                      </TableCell>
+                    </TableRow>
+
+                    {isExpanded && (
+                      <TableRow className="bg-muted/30">
+                        <TableCell colSpan={6}>
+                          <div className="text-xs space-y-1.5 py-1">
+                            <div>
+                              <span className="font-semibold">Judul lengkap:</span>{" "}
+                              {order.judul_desain}
+                            </div>
+                            <div>
+                              <span className="font-semibold">Aset konten:</span>{" "}
+                              <a
+                                href={order.link_file_konten}
+                                target="_blank"
+                                rel="noreferrer"
+                                className="text-blue-600 hover:underline"
+                              >
+                                Link file konten
+                              </a>
+                            </div>
+                            <div>
+                              <span className="font-semibold">Caption:</span>{" "}
+                              <a
+                                href={order.link_caption_docs}
+                                target="_blank"
+                                rel="noreferrer"
+                                className="text-blue-600 hover:underline"
+                              >
+                                Link caption docs
+                              </a>
+                            </div>
+                            <div>
+                              <span className="font-semibold">Request lagu:</span>{" "}
+                              {order.request_lagu || "-"}
+                            </div>
+                          </div>
+                        </TableCell>
+                      </TableRow>
                     )}
-                  </TableCell>
-                </TableRow>
-              ))}
+                  </React.Fragment>
+                );
+              })}
             </TableBody>
           </Table>
         );
@@ -637,7 +727,7 @@ export function MonitoringDashboard() {
                     <div className="font-medium text-xs truncate">
                       {order.judul_survey}
                     </div>
-                    <div className="text-[10px] text-muted-foreground truncate">
+                    <div className="text-[10px] text-muted-foreground whitespace-normal wrap-break-word">
                       {order.deskripsi_survey}
                     </div>
                   </TableCell>
