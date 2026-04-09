@@ -7,6 +7,7 @@ import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 
 import { DatePicker03 } from "@/components/shadcn-studio/date-picker/date-picker-03";
+import { formatDateOnly, parseDateOnly } from "@/lib/date";
 
 import { JENIS_BANTUAN_OPTIONS } from "@/lib/constants";
 import { format } from "date-fns";
@@ -59,7 +60,7 @@ export function FormBantuanTeknis({ form, step }: FormBantuanTeknisProps) {
                 name="tanggal_kegiatan"
                 render={({ field }) => (
                   <DatePicker03
-                    date={field.value ? new Date(field.value) : undefined}
+                    date={parseDateOnly(field.value)}
                     setDate={(date) =>
                       field.onChange(date ? format(date, "yyyy-MM-dd") : "")
                     }
@@ -157,15 +158,6 @@ export function FormBantuanTeknis({ form, step }: FormBantuanTeknisProps) {
 
   // Review step
   const values = getValues();
-  const formatDate = (date: string) => {
-    if (!date) return "-";
-    return new Date(date).toLocaleDateString("id-ID", {
-      weekday: "long",
-      year: "numeric",
-      month: "long",
-      day: "numeric",
-    });
-  };
 
   const getJenisBantuanLabel = (id: string) => {
     const option = JENIS_BANTUAN_OPTIONS.find((o) => o.id === id);
@@ -208,7 +200,7 @@ export function FormBantuanTeknis({ form, step }: FormBantuanTeknisProps) {
               </span>
               <span className="text-muted-foreground">Tanggal:</span>
               <span className="col-span-2 font-medium">
-                {formatDate(values.tanggal_kegiatan)}
+                {formatDateOnly(values.tanggal_kegiatan)}
               </span>
               <span className="text-muted-foreground">Waktu:</span>
               <span className="col-span-2 font-medium">

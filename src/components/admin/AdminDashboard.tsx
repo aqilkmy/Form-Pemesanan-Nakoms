@@ -34,6 +34,7 @@ import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
 import { DatePicker03 } from "@/components/shadcn-studio/date-picker/date-picker-03";
+import { formatDateOnly, parseDateOnly } from "@/lib/date";
 import {
   Table,
   TableBody,
@@ -183,7 +184,7 @@ export function AdminDashboard() {
   const formatDate = (d: string) => {
     if (!d) return "-";
     try {
-      return new Date(d).toLocaleDateString("id-ID", {
+      return formatDateOnly(d, {
         day: "numeric",
         month: "short",
         year: "numeric",
@@ -544,11 +545,7 @@ export function AdminDashboard() {
                       <TableCell className="whitespace-nowrap">
                         <div className="flex flex-col gap-1">
                           <DatePicker03
-                            date={
-                              order.tanggal_publikasi
-                                ? new Date(order.tanggal_publikasi)
-                                : undefined
-                            }
+                            date={parseDateOnly(order.tanggal_publikasi)}
                             setDate={(date) => {
                               const formatted = date
                                 ? format(date, "yyyy-MM-dd")
@@ -946,11 +943,7 @@ export function AdminDashboard() {
                   <TableCell className="whitespace-nowrap">
                     <div className="flex flex-col gap-1">
                       <DatePicker03
-                        date={
-                          order.tanggal_kegiatan
-                            ? new Date(order.tanggal_kegiatan)
-                            : undefined
-                        }
+                        date={parseDateOnly(order.tanggal_kegiatan)}
                         setDate={(date) => {
                           const formatted = date
                             ? format(date, "yyyy-MM-dd")
@@ -1077,11 +1070,7 @@ export function AdminDashboard() {
                         Deadline:
                       </span>
                       <DatePicker03
-                        date={
-                          order.deadline_survey
-                            ? new Date(order.deadline_survey)
-                            : undefined
-                        }
+                        date={parseDateOnly(order.deadline_survey)}
                         setDate={(date) => {
                           const formatted = date
                             ? format(date, "yyyy-MM-dd")
@@ -1218,7 +1207,7 @@ export function AdminDashboard() {
                   Tanggal Deadline
                 </Label>
                 <DatePicker03
-                  date={filterDate ? new Date(filterDate) : undefined}
+                  date={parseDateOnly(filterDate)}
                   setDate={(date) =>
                     setFilterDate(date ? format(date, "yyyy-MM-dd") : "")
                   }

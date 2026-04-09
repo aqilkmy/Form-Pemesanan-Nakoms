@@ -8,6 +8,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 
 import { DatePicker03 } from "@/components/shadcn-studio/date-picker/date-picker-03";
+import { formatDateOnly, parseDateOnly } from "@/lib/date";
 
 import { AlertCircle } from "lucide-react";
 import { format } from "date-fns";
@@ -86,7 +87,7 @@ export function FormSurvey({ form, step }: FormSurveyProps) {
               name="deadline_survey"
               render={({ field }) => (
                 <DatePicker03
-                  date={field.value ? new Date(field.value) : undefined}
+                    date={parseDateOnly(field.value)}
                   setDate={(date) =>
                     field.onChange(date ? format(date, "yyyy-MM-dd") : "")
                   }
@@ -177,15 +178,6 @@ export function FormSurvey({ form, step }: FormSurveyProps) {
 
   // Review step
   const values = getValues();
-  const formatDate = (date: string) => {
-    if (!date) return "-";
-    return new Date(date).toLocaleDateString("id-ID", {
-      weekday: "long",
-      year: "numeric",
-      month: "long",
-      day: "numeric",
-    });
-  };
 
   return (
     <div className="space-y-6 animate-in fade-in slide-in-from-right-4 duration-500">
@@ -229,7 +221,7 @@ export function FormSurvey({ form, step }: FormSurveyProps) {
               </span>
               <span className="text-muted-foreground">Deadline:</span>
               <span className="col-span-2 font-medium">
-                {formatDate(values.deadline_survey)}
+                {formatDateOnly(values.deadline_survey)}
               </span>
               <span className="text-muted-foreground">Hadiah:</span>
               <span className="col-span-2 font-medium">

@@ -29,6 +29,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { DatePicker03 } from "@/components/shadcn-studio/date-picker/date-picker-03";
+import { formatDateOnly } from "@/lib/date";
 import {
   Table,
   TableBody,
@@ -49,6 +50,7 @@ import {
   Video,
   ClipboardList,
 } from "lucide-react";
+import { format } from "date-fns";
 
 const MenuIcon = ({
   icon,
@@ -176,7 +178,7 @@ export function MonitoringDashboard() {
   const formatDate = (d: string) => {
     if (!d) return "-";
     try {
-      return new Date(d).toLocaleDateString("id-ID", {
+      return formatDateOnly(d, {
         day: "numeric",
         month: "short",
         year: "numeric",
@@ -246,7 +248,7 @@ export function MonitoringDashboard() {
 
     // Date filter based on menu type
     if (filterDate) {
-      const filterDateString = filterDate.toISOString().split("T")[0];
+      const filterDateString = format(filterDate, "yyyy-MM-dd");
       result = result.filter((o) => {
         if (isDesainPublikasi(o))
           return o.tanggal_publikasi === filterDateString;

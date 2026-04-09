@@ -14,6 +14,7 @@ import {
 import { Checkbox } from "@/components/ui/checkbox";
 
 import { DatePicker03 } from "@/components/shadcn-studio/date-picker/date-picker-03";
+import { formatDateOnly, parseDateOnly } from "@/lib/date";
 
 import { PLATFORM_OPTIONS, WAKTU_PUBLIKASI_OPTIONS } from "@/lib/constants";
 import { AlertCircle } from "lucide-react";
@@ -102,7 +103,7 @@ export function FormDesainPublikasi({ form, step }: FormDesainProps) {
                 name="tanggal_publikasi"
                 render={({ field }) => (
                   <DatePicker03
-                    date={field.value ? new Date(field.value) : undefined}
+                    date={parseDateOnly(field.value)}
                     setDate={(date) =>
                       field.onChange(date ? format(date, "yyyy-MM-dd") : "")
                     }
@@ -245,15 +246,6 @@ export function FormDesainPublikasi({ form, step }: FormDesainProps) {
 
   // Review step
   const values = getValues();
-  const formatDate = (date: string) => {
-    if (!date) return "-";
-    return new Date(date).toLocaleDateString("id-ID", {
-      weekday: "long",
-      year: "numeric",
-      month: "long",
-      day: "numeric",
-    });
-  };
 
   return (
     <div className="space-y-6 animate-in fade-in slide-in-from-right-4 duration-500">
@@ -295,7 +287,7 @@ export function FormDesainPublikasi({ form, step }: FormDesainProps) {
               </span>
               <span className="text-muted-foreground">Waktu Tayang:</span>
               <span className="col-span-2 font-medium">
-                {formatDate(values.tanggal_publikasi)} — Pukul{" "}
+                {formatDateOnly(values.tanggal_publikasi)} — Pukul{" "}
                 {values.waktu_publikasi}
               </span>
             </div>
