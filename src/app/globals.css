@@ -191,7 +191,7 @@
 }
 
 .gradient-secondary {
-  background: linear-gradient(135deg, #e68500 0%, #ffc452 100%);
+  background: linear-gradient(135deg, #3A609F 0%, #88A5DF 100%);
 }
 
 .gradient-primary-reverse {
@@ -199,7 +199,7 @@
 }
 
 .gradient-secondary-reverse {
-  background: linear-gradient(135deg, #ffc452 0%, #e68500 100%);
+  background: linear-gradient(135deg, #88A5DF 0%, #3A609F 100%);
 }
 
 /* Text gradient utilities */
@@ -211,7 +211,7 @@
 }
 
 .text-gradient-secondary {
-  background: linear-gradient(135deg, #e68500 0%, #ffc452 100%);
+  background: linear-gradient(135deg, #3A609F 0%, #88A5DF 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
