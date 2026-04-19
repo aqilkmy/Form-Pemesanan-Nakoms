@@ -81,6 +81,11 @@ const MenuIcon = ({
 
 type SortOption = "waktu_pemesanan" | "deadline";
 
+const COLLISION_EXEMPT_WAKTU_PUBLIKASI = new Set([
+  "12.00 (Instagram Story)",
+  "18.00 (Instagram Story)",
+]);
+
 // Type guard functions
 function isDesainPublikasi(order: Order): order is DesainPublikasiOrder {
   return order.menu_type === "desain_publikasi";
@@ -103,6 +108,10 @@ function isPublicationChecklistCompleted(order: DesainPublikasiOrder): boolean {
   return order.platform_publikasi.every(
     (platform) => order.status_publikasi?.[platform] === true,
   );
+}
+
+function isCollisionExempt(order: DesainPublikasiOrder): boolean {
+  return COLLISION_EXEMPT_WAKTU_PUBLIKASI.has(order.waktu_publikasi);
 }
 
 export function AdminDashboard() {
@@ -281,7 +290,8 @@ export function AdminDashboard() {
     const desainOrders = orders
       .filter(isDesainPublikasi)
       .filter((o) => o.status !== "cancel")
-      .filter((o) => !isPublicationChecklistCompleted(o));
+      .filter((o) => !isPublicationChecklistCompleted(o))
+      .filter((o) => !isCollisionExempt(o));
     const collisionMap: { [key: string]: DesainPublikasiOrder[] } = {};
 
     desainOrders.forEach((order) => {

@@ -34,10 +34,12 @@ export const PLATFORM_OPTIONS = [
 
 export const WAKTU_PUBLIKASI_OPTIONS = [
     "10.00 (Feeds)",
-    "12.00 (Reels, Igs & Tiktok)",
+    "12.00 (Reels & Tiktok)",
+    "12.00 (Instagram Story)",
     "13.00 (Feeds)",
     "17.00 (Spotify & YouTube)",
-    "18.00 (Reels, Igs & Tiktok)",
+    "18.00 (Reels & Tiktok)",
+    "18.00 (Instagram Story)",
     "19.00 (Feeds)"
 ]
 
