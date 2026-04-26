@@ -8,7 +8,7 @@ import Link from "next/link";
 // 🎞️ Animation Variants
 const fadeUp = {
   hidden: { opacity: 0, y: 20 },
-  visible: { opacity: 1, y: 0, transition: { duration: 0.9, ease: "easeOut" } },
+  visible: { opacity: 1, y: 0, transition: { duration: 0.9 } },
 };
 
 const globeVariants = {
@@ -17,15 +17,14 @@ const globeVariants = {
     scale: 1,
     opacity: 1,
     y: 0,
-    transition: { duration: 1, ease: "easeOut" },
+    transition: { duration: 1 },
   },
   floating: {
     y: [-4, 4],
     transition: {
       duration: 5,
-      ease: "easeInOut",
       repeat: Infinity,
-      repeatType: "reverse",
+      repeatType: "reverse" as const,
     },
   },
 };
