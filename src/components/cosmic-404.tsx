@@ -57,8 +57,9 @@ export function Globe({ className, config = GLOBE_CONFIG }: GlobeProps) {
       ...config,
       width: widthRef.current * 2,
       height: widthRef.current * 2,
-      onRender,
     });
+
+    globe.onRender(onRender);
 
    
 
