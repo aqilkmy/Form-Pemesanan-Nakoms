@@ -35,13 +35,6 @@ export function Globe({ className, config = GLOBE_CONFIG }: GlobeProps) {
   const phiRef = useRef(0);
   const widthRef = useRef(0);
 
-  const onRender = useCallback((state: Record<string, any>) => {
-    phiRef.current += 0.005; 
-    state.phi = phiRef.current;
-    state.width = widthRef.current * 2;
-    state.height = widthRef.current * 2;
-  }, []);
-
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
@@ -59,15 +52,11 @@ export function Globe({ className, config = GLOBE_CONFIG }: GlobeProps) {
       height: widthRef.current * 2,
     });
 
-    globe.onRender(onRender);
-
-   
-
     return () => {
       globe.destroy();
       window.removeEventListener("resize", handleResize);
     };
-  }, [config, onRender]);
+  }, [config]);
 
   return (
     <div className={cn("relative aspect-square w-full max-w-md", className)}>
