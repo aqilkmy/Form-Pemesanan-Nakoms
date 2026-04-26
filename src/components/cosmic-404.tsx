@@ -7,7 +7,6 @@ import { cn } from "@/lib/utils";
 const GLOBE_CONFIG: COBEOptions = {
   width: 600,
   height: 600,
-  onRender: () => {},
   devicePixelRatio: 2,
   phi: 0,
   theta: 0.3,
