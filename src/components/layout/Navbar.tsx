@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { Menu, Home, Calendar, LayoutDashboard, User } from "lucide-react";
-
+import Image from "next/image";
 import { Accordion } from "@/components/ui/accordion";
 import { Button } from "@/components/ui/button";
 import {
@@ -45,19 +45,14 @@ export function Navbar() {
           <div className="flex items-center gap-6">
             {/* Logo */}
             <Link href="/" className="flex items-center gap-2">
-              <div className="flex h-8 w-8 items-center justify-center rounded-full bg-foreground text-background">
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  className="h-5 w-5"
-                >
-                  <path d="m8 3 4 8 5-5 5 15H2L8 3z" />
-                </svg>
+              <div className="flex h-8 w-8 items-center justify-center ">
+                <Image
+                  src="/KabinetKausaCipta.webp"
+                  alt="BEM-U logo"
+                  width={65}
+                  height={12}
+                  priority
+                />
               </div>
               <span className="text-lg font-bold tracking-tight">
                 Rizmed Order
@@ -97,19 +92,14 @@ export function Navbar() {
           <div className="flex items-center h-12 justify-between">
             {/* Logo */}
             <Link href="/" className="flex items-center gap-2">
-              <div className="flex h-8 w-8 items-center justify-center rounded-full bg-foreground text-background">
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  className="h-5 w-5"
-                >
-                  <path d="m8 3 4 8 5-5 5 15H2L8 3z" />
-                </svg>
+              <div className="flex h-8 w-8 items-center justify-center ">
+                <Image
+                  src="/KabinetKausaCipta.webp"
+                  alt="BEM-U logo"
+                  width={65}
+                  height={12}
+                  priority
+                />
               </div>
               <span className="text-lg font-bold tracking-tight">
                 Rizmed Order
@@ -130,19 +120,14 @@ export function Navbar() {
                   <SheetHeader>
                     <SheetTitle className="text-left">
                       <Link href="/" className="flex items-center gap-2">
-                        <div className="flex h-8 w-8 items-center justify-center rounded-full bg-foreground text-background">
-                          <svg
-                            xmlns="http://www.w3.org/2000/svg"
-                            viewBox="0 0 24 24"
-                            fill="none"
-                            stroke="currentColor"
-                            strokeWidth="2"
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            className="h-5 w-5"
-                          >
-                            <path d="m8 3 4 8 5-5 5 15H2L8 3z" />
-                          </svg>
+                        <div className="flex h-8 w-8 items-center justify-center ">
+                          <Image
+                            src="/KabinetKausaCipta.webp"
+                            alt="BEM-U logo"
+                            width={65}
+                            height={12}
+                            priority
+                          />
                         </div>
                         <span className="text-lg font-bold tracking-tight">
                           Rizmed Order
