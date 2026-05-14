@@ -114,6 +114,8 @@ export function FormSurvey({ form, step }: FormSurveyProps) {
               <p className="mt-1">
                 Pastikan akses sudah dibuka (Anyone with the link can view).
               </p>
+              <br />
+              <p>Contoh brief survei & oprec: <strong><a href="https://docs.google.com/document/d/1R_3sjZE6oGd_Qg3Mnf3K-g0bQL1Bcor7gncfe92LD3A/edit?usp=drive_link" target="blank">KLIK DISINI</a></strong></p>
             </div>
           </div>
 
