@@ -1,9 +1,9 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
 import { Menu, Home, Calendar, LayoutDashboard, User } from "lucide-react";
 
-import { Accordion } from "@/components/ui/accordion";
 import { Button } from "@/components/ui/button";
 import {
   NavigationMenu,
@@ -18,7 +18,8 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet";
-import { cn } from "@/lib/utils";
+
+import { ThemeSwitcher } from "./ThemeSwitcher";
 
 const menuItems = [
   { title: "Home", url: "/", icon: <Home className="size-5 shrink-0" /> },
@@ -34,8 +35,6 @@ const menuItems = [
   },
 ];
 
-import { ThemeSwitcher } from "./ThemeSwitcher";
-
 export function Navbar() {
   return (
     <nav className="sticky top-0 z-50 w-full shadow-sm  bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 py-2">
@@ -45,20 +44,14 @@ export function Navbar() {
           <div className="flex items-center gap-6">
             {/* Logo */}
             <Link href="/" className="flex items-center gap-2">
-              <div className="flex h-8 w-8 items-center justify-center rounded-full bg-foreground text-background">
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  className="h-5 w-5"
-                >
-                  <path d="m8 3 4 8 5-5 5 15H2L8 3z" />
-                </svg>
-              </div>
+              <Image
+                src="/logo.svg"
+                alt="Rizmed Order"
+                width={32}
+                height={32}
+                className="h-8 w-8 object-contain invert dark:invert-0"
+                priority
+              />
               <span className="text-lg font-bold tracking-tight">
                 Rizmed Order
               </span>
@@ -97,20 +90,14 @@ export function Navbar() {
           <div className="flex items-center h-12 justify-between">
             {/* Logo */}
             <Link href="/" className="flex items-center gap-2">
-              <div className="flex h-8 w-8 items-center justify-center rounded-full bg-foreground text-background">
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  className="h-5 w-5"
-                >
-                  <path d="m8 3 4 8 5-5 5 15H2L8 3z" />
-                </svg>
-              </div>
+              <Image
+                src="/logo.svg"
+                alt="Rizmed Order"
+                width={32}
+                height={32}
+                className="h-8 w-8 object-contain invert dark:invert-0"
+                priority
+              />
               <span className="text-lg font-bold tracking-tight">
                 Rizmed Order
               </span>
@@ -130,20 +117,14 @@ export function Navbar() {
                   <SheetHeader>
                     <SheetTitle className="text-left">
                       <Link href="/" className="flex items-center gap-2">
-                        <div className="flex h-8 w-8 items-center justify-center rounded-full bg-foreground text-background">
-                          <svg
-                            xmlns="http://www.w3.org/2000/svg"
-                            viewBox="0 0 24 24"
-                            fill="none"
-                            stroke="currentColor"
-                            strokeWidth="2"
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            className="h-5 w-5"
-                          >
-                            <path d="m8 3 4 8 5-5 5 15H2L8 3z" />
-                          </svg>
-                        </div>
+                        <Image
+                          src="/logo.svg"
+                          alt="Rizmed Order"
+                          width={32}
+                          height={32}
+                          className="h-8 w-8 object-contain invert dark:invert-0"
+                          priority
+                        />
                         <span className="text-lg font-bold tracking-tight">
                           Rizmed Order
                         </span>
