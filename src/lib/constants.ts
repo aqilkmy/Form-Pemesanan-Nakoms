@@ -122,8 +122,8 @@ export const PJ_BANTUAN_TEKNIS: Record<"A" | "B", { nama: string; nomor: string 
 
 // PJ Survey
 export const PJ_SURVEY: { nama: string; nomor: string } = {
-    nama: "Erga",  // Ganti dengan nama PJ survey
-    nomor: "6285878335352"  // Ganti dengan nomor PJ survey
+    nama: "Fahmi",  // Ganti dengan nama PJ survey
+    nomor: "6289630259393"  // Ganti dengan nomor PJ survey
 }
 
 // PJ Platform Khusus (untuk Desain & Publikasi)
