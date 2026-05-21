@@ -49,7 +49,7 @@ export function StepIdentity({ form }: StepProps) {
             name="kementerian"
             render={({ field }) => (
               <Select onValueChange={field.onChange} value={field.value}>
-                <SelectTrigger className="w-full" id="kementerian ">
+                <SelectTrigger className="w-full" id="kementerian">
                   <SelectValue placeholder="Pilih Kementerian/Biro" />
                 </SelectTrigger>
                 <SelectContent>
