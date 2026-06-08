@@ -20,7 +20,7 @@ import {
   MenuType,
   JENIS_BANTUAN_OPTIONS,
 } from "@/lib/constants";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   Select,
@@ -43,6 +43,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { Progress } from "@/components/ui/progress";
 import {
   Loader2,
   ExternalLink,
@@ -55,6 +56,12 @@ import {
   Video,
   ClipboardList,
   Trash2,
+  BarChart3,
+  TrendingUp,
+  Users2,
+  CalendarRange,
+  Flame,
+  Activity,
 } from "lucide-react";
 import { format } from "date-fns";
 
@@ -80,11 +87,75 @@ const MenuIcon = ({
 };
 
 type SortOption = "waktu_pemesanan" | "deadline";
+type DashboardTab = MenuType | "statistik";
 
 const COLLISION_EXEMPT_WAKTU_PUBLIKASI = new Set([
   "12.00 (Instagram Story)",
   "18.00 (Instagram Story)",
 ]);
+
+const HEATMAP_LEVEL_CLASSES = [
+  "bg-emerald-50 dark:bg-emerald-950",
+  "bg-emerald-100 dark:bg-emerald-900",
+  "bg-emerald-200 dark:bg-emerald-800",
+  "bg-emerald-300 dark:bg-emerald-700",
+  "bg-emerald-400 dark:bg-emerald-600",
+  "bg-emerald-500 dark:bg-emerald-500",
+  "bg-emerald-600 dark:bg-emerald-400",
+  "bg-emerald-700 dark:bg-emerald-300",
+  "bg-emerald-800 dark:bg-emerald-200",
+  "bg-emerald-900 dark:bg-emerald-100",
+];
+
+const MENU_BADGE_STYLES: Record<MenuType, string> = {
+  desain_publikasi: "bg-sky-100 text-sky-800 dark:bg-sky-900/40 dark:text-sky-200",
+  website: "bg-violet-100 text-violet-800 dark:bg-violet-900/40 dark:text-violet-200",
+  bantuan_teknis: "bg-amber-100 text-amber-800 dark:bg-amber-900/40 dark:text-amber-200",
+  survey: "bg-emerald-100 text-emerald-800 dark:bg-emerald-900/40 dark:text-emerald-200",
+};
+
+function getHeatmapLevel(count: number, maxCount: number): string {
+  if (count === 0) return "bg-muted/40 ring-1 ring-inset ring-border";
+
+  const ratio = count / Math.max(maxCount, 1);
+  const levelIndex = Math.min(
+    HEATMAP_LEVEL_CLASSES.length - 1,
+    Math.max(0, Math.ceil(ratio * HEATMAP_LEVEL_CLASSES.length) - 1),
+  );
+
+  return HEATMAP_LEVEL_CLASSES[levelIndex];
+}
+
+function StatCard({
+  title,
+  value,
+  description,
+  icon: Icon,
+}: {
+  title: string;
+  value: string | number;
+  description: string;
+  icon: React.ComponentType<{ className?: string }>;
+}) {
+  return (
+    <Card className="border-border/60 bg-linear-to-br from-background to-muted/30 shadow-sm">
+      <CardContent className="p-4">
+        <div className="flex items-start justify-between gap-3">
+          <div>
+            <p className="text-[10px] uppercase tracking-[0.2em] text-muted-foreground">
+              {title}
+            </p>
+            <div className="mt-2 text-2xl font-bold tracking-tight">{value}</div>
+            <p className="mt-1 text-xs text-muted-foreground">{description}</p>
+          </div>
+          <div className="rounded-xl bg-primary/10 p-2 text-primary">
+            <Icon className="h-4 w-4" />
+          </div>
+        </div>
+      </CardContent>
+    </Card>
+  );
+}
 
 // Type guard functions
 function isDesainPublikasi(order: Order): order is DesainPublikasiOrder {
@@ -117,8 +188,9 @@ function isCollisionExempt(order: DesainPublikasiOrder): boolean {
 export function AdminDashboard() {
   const [orders, setOrders] = React.useState<Order[]>([]);
   const [isLoading, setIsLoading] = React.useState(true);
-  const [activeTab, setActiveTab] =
-    React.useState<MenuType>("desain_publikasi");
+  const [activeTab, setActiveTab] = React.useState<DashboardTab>(
+    "desain_publikasi",
+  );
 
   // Filter states
   const [filterKementerian, setFilterKementerian] =
@@ -418,6 +490,121 @@ export function AdminDashboard() {
     };
   }, [orders]);
 
+  const statusCounts = React.useMemo(() => {
+    return STATUS_OPTIONS.map((status) => ({
+      ...status,
+      count: orders.filter((order) => order.status === status.value).length,
+    }));
+  }, [orders]);
+
+  const kementerianStats = React.useMemo(() => {
+    const counts = new Map<string, number>();
+    const menuCountsByKementerian = new Map<
+      string,
+      Record<MenuType, number>
+    >();
+
+    orders.forEach((order) => {
+      counts.set(order.kementerian, (counts.get(order.kementerian) || 0) + 1);
+
+      const currentMenuCounts = menuCountsByKementerian.get(order.kementerian) ?? {
+        desain_publikasi: 0,
+        website: 0,
+        bantuan_teknis: 0,
+        survey: 0,
+      };
+      currentMenuCounts[order.menu_type] += 1;
+      menuCountsByKementerian.set(order.kementerian, currentMenuCounts);
+    });
+
+    return Array.from(counts.entries())
+      .sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0], "id"))
+      .map(([kementerian, count]) => ({
+        kementerian,
+        count,
+        menuCounts: menuCountsByKementerian.get(kementerian) ?? {
+          desain_publikasi: 0,
+          website: 0,
+          bantuan_teknis: 0,
+          survey: 0,
+        },
+      }));
+  }, [orders]);
+
+  const orderStats = React.useMemo(() => {
+    const total = orders.length;
+    const active = orders.filter((order) => order.status !== "cancel").length;
+    const completed = orders.filter((order) => order.status === "ready").length;
+    const uniqueKementerian = new Set(orders.map((order) => order.kementerian)).size;
+
+    const menuBreakdown = MENU_OPTIONS.map((menu) => ({
+      ...menu,
+      count: orders.filter((order) => order.menu_type === menu.id).length,
+    }));
+
+    const createdAtCounts = new Map<string, number>();
+    orders.forEach((order) => {
+      const date = new Date(order.created_at);
+      if (Number.isNaN(date.getTime())) return;
+      const key = format(date, "yyyy-MM-dd");
+      createdAtCounts.set(key, (createdAtCounts.get(key) || 0) + 1);
+    });
+
+    const days: { date: Date; key: string; count: number }[] = [];
+    const today = new Date();
+    for (let offset = 83; offset >= 0; offset -= 1) {
+      const day = new Date(today);
+      day.setDate(today.getDate() - offset);
+      const key = format(day, "yyyy-MM-dd");
+      days.push({ date: day, key, count: createdAtCounts.get(key) || 0 });
+    }
+
+    const heatmapWeeks: typeof days[] = [];
+    for (let index = 0; index < days.length; index += 7) {
+      heatmapWeeks.push(days.slice(index, index + 7));
+    }
+
+    const busiestDay = days.reduce(
+      (best, current) => (current.count > best.count ? current : best),
+      days[0] || { date: today, key: format(today, "yyyy-MM-dd"), count: 0 },
+    );
+
+    return {
+      total,
+      active,
+      completed,
+      uniqueKementerian,
+      menuBreakdown,
+      days,
+      heatmapWeeks,
+      busiestDay,
+      averagePerDay: total / 84,
+    };
+  }, [orders]);
+
+  const heatmapMaxCount = React.useMemo(
+    () => Math.max(1, ...orderStats.days.map((day) => day.count)),
+    [orderStats.days],
+  );
+
+  const heatmapMonthLabels = React.useMemo(() => {
+    return orderStats.heatmapWeeks.map((week, index) => {
+      const firstDay = week[0];
+      const currentLabel = firstDay ? format(firstDay.date, "MMM") : "";
+      const previousWeek = orderStats.heatmapWeeks[index - 1];
+      const previousLabel = previousWeek?.[0]
+        ? format(previousWeek[0].date, "MMM")
+        : "";
+
+      return currentLabel !== previousLabel ? currentLabel : "";
+    });
+  }, [orderStats.heatmapWeeks]);
+
+  const heatmapLabels = ["Min", "Sen", "Sel", "Rab", "Kam", "Jum", "Sab"];
+
+  const percentageFromTotal = (count: number) =>
+    orderStats.total > 0 ? Math.round((count / orderStats.total) * 100) : 0;
+
   const clearFilters = () => {
     setFilterKementerian("all-kementerian");
     setFilterStatus("all-status");
@@ -450,7 +637,7 @@ export function AdminDashboard() {
       <Card className="border-destructive/20 bg-destructive/10 mb-6">
         <CardContent className="py-3">
           <div className="flex items-start gap-3">
-            <AlertTriangle className="w-5 h-5 text-destructive flex-shrink-0 mt-0.5" />
+            <AlertTriangle className="w-5 h-5 text-destructive shrink-0 mt-0.5" />
             <div className="text-destructive">
               <p className="font-semibold">
                 Peringatan: Jadwal Upload Bersamaan
@@ -481,6 +668,8 @@ export function AdminDashboard() {
   // Render table based on active tab
   const renderTable = () => {
     switch (activeTab) {
+      case "statistik":
+        return null;
       case "desain_publikasi":
         return (
           <Table>
@@ -615,7 +804,7 @@ export function AdminDashboard() {
                           </a>
                         </div>
                       </TableCell>
-                      <TableCell className="max-w-[150px]">
+                      <TableCell className="max-w-37.5">
                         <div
                           className="text-[10px] text-gray-700 truncate"
                           title={order.request_lagu || ""}
@@ -1149,16 +1338,287 @@ export function AdminDashboard() {
     }
   };
 
+  const renderStatistics = () => {
+    return (
+      <div className="space-y-6">
+        <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+          <StatCard
+            title="Total Pesanan"
+            value={orderStats.total}
+            description="Semua pesanan dari seluruh menu"
+            icon={BarChart3}
+          />
+          <StatCard
+            title="Pesanan Aktif"
+            value={orderStats.active}
+            description="Status selain cancel"
+            icon={Activity}
+          />
+          <StatCard
+            title="Pesanan Selesai"
+            value={orderStats.completed}
+            description="Status ready"
+            icon={TrendingUp}
+          />
+          <StatCard
+            title="Kementerian Unik"
+            value={orderStats.uniqueKementerian}
+            description="Jumlah kementerian/biro yang aktif"
+            icon={Users2}
+          />
+        </div>
+
+        <div className="grid gap-4 xl:grid-cols-[1.5fr_1fr]">
+          <Card>
+            <CardHeader className="pb-3">
+              <div className="flex items-center gap-2">
+                <Flame className="h-4 w-4 text-primary" />
+                <CardTitle className="text-base font-semibold">
+                  Pemesan Terbanyak
+                </CardTitle>
+              </div>
+              <CardDescription>
+                Diurutkan dari paling banyak hingga paling sedikit berdasarkan kementerian.
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead className="w-12">#</TableHead>
+                    <TableHead>Kementerian/Biro</TableHead>
+                    <TableHead>Rincian Jenis</TableHead>
+                    <TableHead className="text-right">Jumlah</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {kementerianStats.map((item, index) => (
+                    <TableRow key={item.kementerian}>
+                      <TableCell className="font-medium text-muted-foreground">
+                        {index + 1}
+                      </TableCell>
+                      <TableCell>
+                        <div className="font-medium">{item.kementerian}</div>
+                      </TableCell>
+                      <TableCell>
+                        <div className="flex flex-wrap gap-1.5">
+                          {orderStats.menuBreakdown
+                            .map((menu) => ({
+                              ...menu,
+                              count: item.menuCounts[menu.id],
+                            }))
+                            .filter((menu) => menu.count > 0)
+                            .sort((a, b) => b.count - a.count)
+                            .map((menu) => (
+                              <span
+                                key={menu.id}
+                                className={`rounded-full px-2 py-0.5 text-[10px] font-medium ${MENU_BADGE_STYLES[menu.id]}`}
+                                title={menu.label}
+                              >
+                                {menu.label}: {menu.count}
+                              </span>
+                            ))}
+                          {orderStats.menuBreakdown.every(
+                            (menu) => item.menuCounts[menu.id] === 0,
+                          ) && (
+                            <span className="text-xs text-muted-foreground">
+                              -
+                            </span>
+                          )}
+                        </div>
+                      </TableCell>
+                      <TableCell className="text-right font-semibold">
+                        {item.count}
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                  {kementerianStats.length === 0 && (
+                    <TableRow>
+                      <TableCell colSpan={4} className="py-6 text-center text-muted-foreground">
+                        Belum ada data pesanan.
+                      </TableCell>
+                    </TableRow>
+                  )}
+                </TableBody>
+              </Table>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader className="pb-3">
+              <div className="flex items-center gap-2">
+                <CalendarRange className="h-4 w-4 text-primary" />
+                <CardTitle className="text-base font-semibold">
+                  Ringkasan Aktivitas
+                </CardTitle>
+              </div>
+              <CardDescription>
+                Rata-rata {orderStats.averagePerDay.toFixed(2)} pesanan per hari dalam 84 hari terakhir.
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="grid gap-3 sm:grid-cols-2">
+                <div className="rounded-xl border bg-muted/30 p-3">
+                  <p className="text-[10px] uppercase tracking-[0.2em] text-muted-foreground">
+                    Hari tersibuk
+                  </p>
+                  <div className="mt-2 text-sm font-semibold">
+                    {orderStats.busiestDay.count > 0
+                      ? format(orderStats.busiestDay.date, "dd MMM yyyy")
+                      : "Belum ada data"}
+                  </div>
+                  <p className="mt-1 text-xs text-muted-foreground">
+                    {orderStats.busiestDay.count} pesanan masuk
+                  </p>
+                </div>
+                <div className="rounded-xl border bg-muted/30 p-3">
+                  <p className="text-[10px] uppercase tracking-[0.2em] text-muted-foreground">
+                    Total menu aktif
+                  </p>
+                  <div className="mt-2 text-sm font-semibold">
+                    {orderStats.menuBreakdown.filter((menu) => menu.count > 0).length} menu
+                  </div>
+                  <p className="mt-1 text-xs text-muted-foreground">
+                    Dari {orderStats.menuBreakdown.length} kategori layanan
+                  </p>
+                </div>
+              </div>
+
+              <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+                {orderStats.menuBreakdown.map((menu) => (
+                  <div key={menu.id} className="rounded-xl border bg-background p-3">
+                    <div className="flex items-start justify-between gap-2">
+                      <div>
+                        <p className="text-xs font-medium">{menu.label}</p>
+                        <p className="mt-1 text-xs text-muted-foreground">
+                          {menu.description}
+                        </p>
+                      </div>
+                      <span className="rounded-full bg-muted px-2 py-0.5 text-xs font-semibold">
+                        {menu.count}
+                      </span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+
+        <div className="grid gap-4 xl:grid-cols-[1fr_1.1fr]">
+          <Card>
+            <CardHeader className="pb-3">
+              <CardTitle className="text-base font-semibold">
+                Jumlah Berdasar Status
+              </CardTitle>
+              <CardDescription>
+                Distribusi status pesanan dari seluruh data.
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              {statusCounts.map((status) => {
+                const percent = percentageFromTotal(status.count);
+
+                return (
+                  <div key={status.value} className="space-y-1.5">
+                    <div className="flex items-center justify-between gap-3 text-sm">
+                      <span className={`rounded-full px-2 py-0.5 text-[10px] font-semibold ${status.color}`}>
+                        {status.label}
+                      </span>
+                      <span className="font-semibold">
+                        {status.count} <span className="text-muted-foreground">({percent}%)</span>
+                      </span>
+                    </div>
+                    <Progress value={percent} className="h-2" />
+                  </div>
+                );
+              })}
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader className="pb-3">
+              <div className="flex items-center gap-2">
+                <Activity className="h-4 w-4 text-primary" />
+                <CardTitle className="text-base font-semibold">
+                  Heatmap Upload 84 Hari
+                </CardTitle>
+              </div>
+              <CardDescription>
+                Setiap kotak mewakili satu hari upload. Semakin gelap, semakin banyak pesanan masuk.
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="mb-3 flex flex-wrap items-center gap-3 text-[10px] text-muted-foreground">
+                <span className="flex items-center gap-1">
+                  <span className="h-3 w-3 rounded-sm bg-muted/40 ring-1 ring-inset ring-border" />
+                  0
+                </span>
+                <span className="flex items-center gap-1">
+                  {HEATMAP_LEVEL_CLASSES.map((levelClass, index) => (
+                    <span
+                      key={levelClass}
+                      className={`h-3 w-3 rounded-sm ${levelClass}`}
+                      title={`Level ${index + 1}`}
+                    />
+                  ))}
+                  <span className="ml-1">1-10</span>
+                </span>
+              </div>
+
+              <div className="flex gap-1 overflow-x-auto pb-2">
+                <div className="flex flex-col gap-1 pr-1 pt-[1.1rem] text-[10px] text-muted-foreground">
+                  {heatmapLabels.map((label) => (
+                    <span key={label} className="h-3.5 leading-none">
+                      {label}
+                    </span>
+                  ))}
+                </div>
+
+                <div className="flex flex-col gap-1">
+                  <div className="flex items-end gap-1 pl-px pb-1 text-[10px] font-medium text-muted-foreground">
+                    {heatmapMonthLabels.map((label, index) => (
+                      <span
+                        key={`${label || "month"}-${index}`}
+                        className="w-3.5 text-center leading-none"
+                      >
+                        {label}
+                      </span>
+                    ))}
+                  </div>
+
+                  <div className="flex gap-1">
+                    {orderStats.heatmapWeeks.map((week, weekIndex) => (
+                      <div key={weekIndex} className="flex flex-col gap-1">
+                        {week.map((day) => (
+                          <div
+                            key={day.key}
+                            title={`${format(day.date, "dd MMM yyyy")} · ${day.count} pesanan`}
+                            className={`h-3.5 w-3.5 rounded-sm border border-transparent ${getHeatmapLevel(day.count, heatmapMaxCount)}`}
+                          />
+                        ))}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      </div>
+    );
+  };
+
   return (
     <div className="space-y-6">
       <Tabs
         defaultValue="desain_publikasi"
         value={activeTab}
-        onValueChange={(v) => setActiveTab(v as MenuType)}
+        onValueChange={(v) => setActiveTab(v as DashboardTab)}
         className="w-full"
       >
         <div className="flex justify-center mb-6">
-          <TabsList className="grid grid-cols-2 mb-5 md:mb-0  md:grid-cols-4 h-auto p-1 bg-muted">
+          <TabsList className="grid grid-cols-2 mb-5 md:mb-0 md:grid-cols-5 h-auto p-1 bg-muted">
             {MENU_OPTIONS.map((menu) => (
               <TabsTrigger
                 key={menu.id}
@@ -1173,140 +1633,154 @@ export function AdminDashboard() {
                 </span>
               </TabsTrigger>
             ))}
+            <TabsTrigger
+              value="statistik"
+              className="flex items-center gap-2 py-2 px-4 data-[state=active]:bg-background data-[state=active]:shadow-sm"
+            >
+              <BarChart3 className="w-4 h-4" />
+              <span className="hidden sm:inline">Statistik</span>
+              <span className="sm:hidden">Stat</span>
+              <span className="ml-1 bg-muted-foreground/10 px-1.5 py-0.5 rounded-full text-[10px]">
+                {orders.length}
+              </span>
+            </TabsTrigger>
           </TabsList>
         </div>
 
-        {/* Collision Warning */}
-        <CollisionWarning />
+        {activeTab !== "statistik" && (
+          <>
+            <CollisionWarning />
 
-        {/* Filter Section */}
-        <Card className="mb-6">
-          <CardHeader className="pb-3">
-            <div className="flex items-center gap-2">
-              <Filter className="w-4 h-4" />
-              <CardTitle className="text-base font-semibold">
-                Filter & Sortir
-              </CardTitle>
-            </div>
-          </CardHeader>
-          <CardContent>
-            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
-              <div className="space-y-1.5">
-                <Label className="text-[10px] uppercase font-bold text-muted-foreground">
-                  Kementerian/Biro
-                </Label>
-                <Select
-                  value={filterKementerian}
-                  onValueChange={setFilterKementerian}
-                >
-                  <SelectTrigger className="h-9 text-xs w-full">
-                    <SelectValue placeholder="Semua" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all-kementerian">Semua</SelectItem>
-                    {KEMENTERIAN_OPTIONS.map((k) => (
-                      <SelectItem key={k} value={k}>
-                        {k}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-              <div className="space-y-1.5">
-                <Label className="text-[10px] uppercase font-bold text-muted-foreground">
-                  Tanggal Deadline
-                </Label>
-                <DatePicker03
-                  date={parseDateOnly(filterDate)}
-                  setDate={(date) =>
-                    setFilterDate(date ? format(date, "yyyy-MM-dd") : "")
-                  }
-                  className="h-9 text-xs w-full"
-                  placeholder="Semua Tanggal"
-                />
-              </div>
-              {activeTab === "desain_publikasi" && (
-                <div className="space-y-1.5">
-                  <Label className="text-[10px] uppercase font-bold text-muted-foreground">
-                    Platform
-                  </Label>
-                  <Select
-                    value={filterPlatform}
-                    onValueChange={setFilterPlatform}
-                  >
-                    <SelectTrigger className="h-9 text-xs w-full">
-                      <SelectValue placeholder="Semua" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="all-platform">Semua</SelectItem>
-                      {PLATFORM_OPTIONS.map((p) => (
-                        <SelectItem key={p} value={p}>
-                          {p}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+            <Card className="mb-6">
+              <CardHeader className="pb-3">
+                <div className="flex items-center gap-2">
+                  <Filter className="w-4 h-4" />
+                  <CardTitle className="text-base font-semibold">
+                    Filter & Sortir
+                  </CardTitle>
                 </div>
-              )}
-              <div className="space-y-1.5">
-                <Label className="text-[10px] uppercase font-bold text-muted-foreground">
-                  Status
-                </Label>
-                <Select value={filterStatus} onValueChange={setFilterStatus}>
-                  <SelectTrigger className="h-9 text-xs w-full">
-                    <SelectValue placeholder="Semua" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all-status">Semua</SelectItem>
-                    {STATUS_OPTIONS.map((s) => (
-                      <SelectItem key={s.value} value={s.value}>
-                        {s.label}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-              <div className="space-y-1.5">
-                <Label className="text-[10px] uppercase font-bold text-muted-foreground">
-                  Urutkan
-                </Label>
-                <Select
-                  value={sortBy}
-                  onValueChange={(v) => setSortBy(v as SortOption)}
-                >
-                  <SelectTrigger className="h-9 text-xs w-full">
-                    <SelectValue placeholder="Urutkan" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="waktu_pemesanan">
-                      Waktu Pemesanan
-                    </SelectItem>
-                    <SelectItem value="deadline">Deadline Terdekat</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-              <div className="flex items-end">
-                <Button
-                  variant="outline"
-                  onClick={clearFilters}
-                  className="h-9 w-full text-xs font-medium"
-                >
-                  Reset Filter
-                </Button>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
+              </CardHeader>
+              <CardContent>
+                <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
+                  <div className="space-y-1.5">
+                    <Label className="text-[10px] uppercase font-bold text-muted-foreground">
+                      Kementerian/Biro
+                    </Label>
+                    <Select
+                      value={filterKementerian}
+                      onValueChange={setFilterKementerian}
+                    >
+                      <SelectTrigger className="h-9 text-xs w-full">
+                        <SelectValue placeholder="Semua" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="all-kementerian">Semua</SelectItem>
+                        {KEMENTERIAN_OPTIONS.map((k) => (
+                          <SelectItem key={k} value={k}>
+                            {k}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="space-y-1.5">
+                    <Label className="text-[10px] uppercase font-bold text-muted-foreground">
+                      Tanggal Deadline
+                    </Label>
+                    <DatePicker03
+                      date={parseDateOnly(filterDate)}
+                      setDate={(date) =>
+                        setFilterDate(date ? format(date, "yyyy-MM-dd") : "")
+                      }
+                      className="h-9 text-xs w-full"
+                      placeholder="Semua Tanggal"
+                    />
+                  </div>
+                  {activeTab === "desain_publikasi" && (
+                    <div className="space-y-1.5">
+                      <Label className="text-[10px] uppercase font-bold text-muted-foreground">
+                        Platform
+                      </Label>
+                      <Select
+                        value={filterPlatform}
+                        onValueChange={setFilterPlatform}
+                      >
+                        <SelectTrigger className="h-9 text-xs w-full">
+                          <SelectValue placeholder="Semua" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="all-platform">Semua</SelectItem>
+                          {PLATFORM_OPTIONS.map((p) => (
+                            <SelectItem key={p} value={p}>
+                              {p}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  )}
+                  <div className="space-y-1.5">
+                    <Label className="text-[10px] uppercase font-bold text-muted-foreground">
+                      Status
+                    </Label>
+                    <Select value={filterStatus} onValueChange={setFilterStatus}>
+                      <SelectTrigger className="h-9 text-xs w-full">
+                        <SelectValue placeholder="Semua" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="all-status">Semua</SelectItem>
+                        {STATUS_OPTIONS.map((s) => (
+                          <SelectItem key={s.value} value={s.value}>
+                            {s.label}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="space-y-1.5">
+                    <Label className="text-[10px] uppercase font-bold text-muted-foreground">
+                      Urutkan
+                    </Label>
+                    <Select
+                      value={sortBy}
+                      onValueChange={(v) => setSortBy(v as SortOption)}
+                    >
+                      <SelectTrigger className="h-9 text-xs w-full">
+                        <SelectValue placeholder="Urutkan" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="waktu_pemesanan">
+                          Waktu Pemesanan
+                        </SelectItem>
+                        <SelectItem value="deadline">Deadline Terdekat</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="flex items-end">
+                    <Button
+                      variant="outline"
+                      onClick={clearFilters}
+                      className="h-9 w-full text-xs font-medium"
+                    >
+                      Reset Filter
+                    </Button>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
 
-        {/* Table Content */}
-        <Card>
-          <CardHeader className="pb-3  mb-4">
-            <CardTitle className="flex items-center gap-2 text-lg font-bold">
-              {MENU_OPTIONS.find((m) => m.id === activeTab)?.label} Orders
-            </CardTitle>
-          </CardHeader>
-          <CardContent>{renderTable()}</CardContent>
-        </Card>
+            <Card>
+              <CardHeader className="pb-3  mb-4">
+                <CardTitle className="flex items-center gap-2 text-lg font-bold">
+                  {MENU_OPTIONS.find((m) => m.id === activeTab)?.label} Orders
+                </CardTitle>
+              </CardHeader>
+              <CardContent>{renderTable()}</CardContent>
+            </Card>
+          </>
+        )}
+
+        {activeTab === "statistik" && renderStatistics()}
       </Tabs>
     </div>
   );
