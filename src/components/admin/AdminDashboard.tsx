@@ -62,6 +62,8 @@ import {
   CalendarRange,
   Flame,
   Activity,
+  CheckCircle2,
+  XCircle,
 } from "lucide-react";
 import { format } from "date-fns";
 
@@ -183,6 +185,29 @@ function isPublicationChecklistCompleted(order: DesainPublikasiOrder): boolean {
 
 function isCollisionExempt(order: DesainPublikasiOrder): boolean {
   return COLLISION_EXEMPT_WAKTU_PUBLIKASI.has(order.waktu_publikasi);
+}
+
+/** Returns the relevant content/upload date key (yyyy-MM-dd) for heatmap.
+ *  - desain_publikasi → tanggal_publikasi
+ *  - bantuan_teknis   → tanggal_kegiatan
+ *  - survey           → deadline_survey
+ *  - website          → created_at (no content date field)
+ */
+function getContentDateKey(order: Order): string | null {
+  switch (order.menu_type) {
+    case "desain_publikasi":
+      return (order as DesainPublikasiOrder).tanggal_publikasi || null;
+    case "bantuan_teknis":
+      return (order as BantuanTeknisOrder).tanggal_kegiatan || null;
+    case "survey":
+      return (order as SurveyOrder).deadline_survey || null;
+    case "website": {
+      const d = new Date(order.created_at);
+      return Number.isNaN(d.getTime()) ? null : format(d, "yyyy-MM-dd");
+    }
+    default:
+      return null;
+  }
 }
 
 export function AdminDashboard() {
@@ -542,12 +567,23 @@ export function AdminDashboard() {
       count: orders.filter((order) => order.menu_type === menu.id).length,
     }));
 
-    const createdAtCounts = new Map<string, number>();
+    // Per-menu breakdown: completed (ready) and cancelled counts
+    const menuStatusBreakdown = MENU_OPTIONS.map((menu) => {
+      const menuOrders = orders.filter((o) => o.menu_type === menu.id);
+      return {
+        ...menu,
+        total: menuOrders.length,
+        completed: menuOrders.filter((o) => o.status === "ready").length,
+        cancelled: menuOrders.filter((o) => o.status === "cancel").length,
+      };
+    });
+
+    // Heatmap: use content dates (tanggal_publikasi / tanggal_kegiatan / deadline_survey)
+    const contentDateCounts = new Map<string, number>();
     orders.forEach((order) => {
-      const date = new Date(order.created_at);
-      if (Number.isNaN(date.getTime())) return;
-      const key = format(date, "yyyy-MM-dd");
-      createdAtCounts.set(key, (createdAtCounts.get(key) || 0) + 1);
+      const key = getContentDateKey(order);
+      if (!key) return;
+      contentDateCounts.set(key, (contentDateCounts.get(key) || 0) + 1);
     });
 
     const days: { date: Date; key: string; count: number }[] = [];
@@ -556,7 +592,7 @@ export function AdminDashboard() {
       const day = new Date(today);
       day.setDate(today.getDate() - offset);
       const key = format(day, "yyyy-MM-dd");
-      days.push({ date: day, key, count: createdAtCounts.get(key) || 0 });
+      days.push({ date: day, key, count: contentDateCounts.get(key) || 0 });
     }
 
     const heatmapWeeks: typeof days[] = [];
@@ -569,16 +605,31 @@ export function AdminDashboard() {
       days[0] || { date: today, key: format(today, "yyyy-MM-dd"), count: 0 },
     );
 
+    // Count only orders with content dates that fall within the 84-day window for average
+    const windowStart = format(
+      new Date(today.getFullYear(), today.getMonth(), today.getDate() - 83),
+      "yyyy-MM-dd",
+    );
+    const windowEnd = format(today, "yyyy-MM-dd");
+    let contentCountInWindow = 0;
+    orders.forEach((order) => {
+      const key = getContentDateKey(order);
+      if (key && key >= windowStart && key <= windowEnd) {
+        contentCountInWindow += 1;
+      }
+    });
+
     return {
       total,
       active,
       completed,
       uniqueKementerian,
       menuBreakdown,
+      menuStatusBreakdown,
       days,
       heatmapWeeks,
       busiestDay,
-      averagePerDay: total / 84,
+      averagePerDay: contentCountInWindow / 84,
     };
   }, [orders]);
 
@@ -1361,11 +1412,44 @@ export function AdminDashboard() {
             icon={TrendingUp}
           />
           <StatCard
-            title="Kementerian Unik"
+            title="Kementerian"
             value={orderStats.uniqueKementerian}
-            description="Jumlah kementerian/biro yang aktif"
+            description="Jumlah kementerian/biro"
             icon={Users2}
           />
+        </div>
+
+        {/* Per-Menu Status Breakdown */}
+        <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+          {orderStats.menuStatusBreakdown.map((menu) => (
+            <Card key={menu.id} className="border-border/60 bg-linear-to-br from-background to-muted/30 shadow-sm">
+              <CardContent className="p-4">
+                <div className="flex items-start justify-between gap-3">
+                  <div className="space-y-2">
+                    <p className="text-[10px] uppercase tracking-[0.2em] text-muted-foreground">
+                      {menu.label}
+                    </p>
+                    <div className="text-2xl font-bold tracking-tight">{menu.total}</div>
+                    <div className="flex items-center gap-3 text-xs">
+                      <span className="flex items-center gap-1 text-emerald-600 dark:text-emerald-400">
+                        <CheckCircle2 className="h-3.5 w-3.5" />
+                        <span className="font-semibold">{menu.completed}</span>
+                        <span className="text-muted-foreground">selesai</span>
+                      </span>
+                      <span className="flex items-center gap-1 text-red-600 dark:text-red-400">
+                        <XCircle className="h-3.5 w-3.5" />
+                        <span className="font-semibold">{menu.cancelled}</span>
+                        <span className="text-muted-foreground">cancel</span>
+                      </span>
+                    </div>
+                  </div>
+                  <div className="rounded-xl bg-primary/10 p-2 text-primary">
+                    <MenuIcon icon={menu.icon} className="h-4 w-4" />
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          ))}
         </div>
 
         <div className="grid gap-4 xl:grid-cols-[1.5fr_1fr]">
@@ -1453,7 +1537,7 @@ export function AdminDashboard() {
                 </CardTitle>
               </div>
               <CardDescription>
-                Rata-rata {orderStats.averagePerDay.toFixed(2)} pesanan per hari dalam 84 hari terakhir.
+                Rata-rata {orderStats.averagePerDay.toFixed(2)} konten per hari dalam 84 hari terakhir (berdasar tanggal konten).
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
@@ -1468,7 +1552,7 @@ export function AdminDashboard() {
                       : "Belum ada data"}
                   </div>
                   <p className="mt-1 text-xs text-muted-foreground">
-                    {orderStats.busiestDay.count} pesanan masuk
+                    {orderStats.busiestDay.count} konten dijadwalkan
                   </p>
                 </div>
                 <div className="rounded-xl border bg-muted/30 p-3">
@@ -1541,11 +1625,11 @@ export function AdminDashboard() {
               <div className="flex items-center gap-2">
                 <Activity className="h-4 w-4 text-primary" />
                 <CardTitle className="text-base font-semibold">
-                  Heatmap Upload 84 Hari
+                  Heatmap Konten 84 Hari
                 </CardTitle>
               </div>
               <CardDescription>
-                Setiap kotak mewakili satu hari upload. Semakin gelap, semakin banyak pesanan masuk.
+                Berdasarkan tanggal konten (publikasi/kegiatan/deadline). Semakin gelap, semakin banyak konten dijadwalkan.
               </CardDescription>
             </CardHeader>
             <CardContent>
@@ -1593,7 +1677,7 @@ export function AdminDashboard() {
                         {week.map((day) => (
                           <div
                             key={day.key}
-                            title={`${format(day.date, "dd MMM yyyy")} · ${day.count} pesanan`}
+                            title={`${format(day.date, "dd MMM yyyy")} · ${day.count} konten`}
                             className={`h-3.5 w-3.5 rounded-sm border border-transparent ${getHeatmapLevel(day.count, heatmapMaxCount)}`}
                           />
                         ))}

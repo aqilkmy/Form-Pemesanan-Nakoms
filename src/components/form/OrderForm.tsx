@@ -1,6 +1,7 @@
 "use client";
 
 import * as React from "react";
+import Image from "next/image";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
@@ -435,7 +436,18 @@ export function OrderForm() {
       className="w-full max-w-3xl mx-auto p-4"
       onKeyDown={handleKeyDown}
     >
-      <Card className="shadow-lg border-t-4 border-t-primary">
+      <Card className="shadow-lg overflow-hidden border-t-4 border-t-primary">
+        {/* Google Form-style Banner */}
+        {/* <div className="relative w-full aspect-[4/1] overflow-hidden bg-muted">
+          <Image
+            src="/rizzmed_banner.png"
+            alt="Rizzmed Banner"
+            fill
+            sizes="(max-width: 768px) 100vw, 768px"
+            className="object-cover"
+            priority
+          />
+        </div> */}
         <CardHeader>
           <div className="flex items-center justify-between mb-2">
             <CardTitle>{getStepTitle()}</CardTitle>
