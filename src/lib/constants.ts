@@ -72,7 +72,7 @@ export const JENIS_BANTUAN_OPTIONS = [
 
 // PJ Desain Grafis berdasarkan kementerian pemesan (untuk menu Desain & Publikasi)
 export const PJ_DESAIN_GRAFIS: Record<string, { nama: string; nomor: string }> = {
-    "Lingkar Presiden": { nama: "Rosyid", nomor: "6285134057783" },
+    "Lingkar Presiden": { nama: "Rosyid", nomor: "6289516552616" },
     "Biro Kesekretariatan": { nama: "Livia", nomor: "6289504858150" },
     "Biro Keuangan": { nama: "Dhina", nomor: "6285691140342" },
     "Biro Pengembangan Sumber Daya Anggota": { nama: "Kes", nomor: "62895362396200" },
@@ -87,7 +87,7 @@ export const PJ_DESAIN_GRAFIS: Record<string, { nama: string; nomor: string }> =
     "Kementerian Aksi dan Propaganda": { nama: "Kes", nomor: "62895362396200" },
     "Kementerian Analisis Isu Strategis": { nama: "Rahma", nomor: "6281392626815" },
     "Kementerian Pemberdayaan Perempuan": { nama: "Kynaa", nomor: "6289526269980" },
-    "Kementerian Media Kreatif dan Aplikatif": { nama: "Rosyid", nomor: "6285134057783" },
+    "Kementerian Media Kreatif dan Aplikatif": { nama: "Rosyid", nomor: "6289516552616" },
     "Kementerian Media Komunikasi dan Informasi": { nama: "Rissa", nomor: "6281393665862" },
     "Kementerian Riset dan Data": { nama: "Isa", nomor: "6285727631992" },
 }
