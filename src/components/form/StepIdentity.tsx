@@ -109,7 +109,7 @@ export function StepIdentity({ form }: StepProps) {
               className="font-medium text-white cursor-pointer"
             >
               Saya sudah membaca dan memahami{" "}
-              <span className="font-bold text-blue-900 italic underline">
+              <span className="font-bold text-white italic underline">
                 <a
                   href="https://drive.google.com/drive/folders/1LfBlUZEg-fnwreUZxDfg8txBNbfNmEeP"
                   target="blank"
