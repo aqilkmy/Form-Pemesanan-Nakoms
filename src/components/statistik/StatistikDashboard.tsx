@@ -259,7 +259,7 @@ export function StatistikDashboard() {
         className="w-full"
       >
         <div className="flex justify-center mb-2">
-          <TabsList className="grid grid-cols-4 h-auto rounded-lg">
+          <TabsList className="grid grid-cols-2 sm:grid-cols-4 h-auto rounded-lg">
             {TRIWULAN_PERIODS.map((tw) => (
               <TabsTrigger
                 key={tw.key}
@@ -284,9 +284,9 @@ export function StatistikDashboard() {
       </div>
 
       {/* ─── Summary Cards ─── */}
-      <div className="grid grid-cols-2 lg:grid-cols-5 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
         {/* Total card */}
-        <Card className="col-span-2 lg:col-span-1 border-primary/20 bg-gradient-to-br from-primary/5 to-primary/10">
+        <Card className="col-span-1 md:col-span-1 lg:col-span-1 border-primary/20 bg-gradient-to-br from-primary/5 to-primary/10">
           <CardContent className="pt-6">
             <div className="flex items-center gap-3">
               <div className="rounded-xl bg-primary/20 p-3">

@@ -69,3 +69,43 @@ create policy "Enable update for all" on orders
 create index idx_orders_menu_type on orders(menu_type);
 create index idx_orders_status on orders(status);
 create index idx_orders_created_at on orders(created_at desc);
+
+-- ================================================================
+-- PJ Mappings table (Penanggung Jawab)
+-- Source of truth for PJ assignments, managed via Admin Dashboard
+-- ================================================================
+
+create table pj_contacts (
+  id uuid default gen_random_uuid() primary key,
+  nama text not null,
+  nomor text not null,
+  role text,
+  created_at timestamptz default now()
+);
+
+alter table pj_contacts enable row level security;
+create policy "Enable read access for all on contacts" on pj_contacts for select using (true);
+create policy "Enable insert for all on contacts" on pj_contacts for insert with check (true);
+create policy "Enable update for all on contacts" on pj_contacts for update using (true);
+create policy "Enable delete for all on contacts" on pj_contacts for delete using (true);
+
+create table pj_mappings (
+  id uuid default gen_random_uuid() primary key,
+  category text not null,        -- 'desain_grafis' | 'website' | 'bantuan_teknis' | 'survey' | 'platform_khusus'
+  lookup_key text not null,      -- kementerian name, "A"/"B", "all", or platform group key
+  pj_id uuid references pj_contacts(id) on delete set null,
+  platforms text[],              -- only used for platform_khusus category
+  updated_at timestamptz default now(),
+  unique(category, lookup_key)
+);
+
+alter table pj_mappings enable row level security;
+create policy "Enable read access for all on mappings" on pj_mappings for select using (true);
+create policy "Enable insert for all on mappings" on pj_mappings for insert with check (true);
+create policy "Enable update for all on mappings" on pj_mappings for update using (true);
+create policy "Enable delete for all on mappings" on pj_mappings for delete using (true);
+
+create index idx_pj_mappings_category on pj_mappings(category);
+create index idx_pj_mappings_category_key on pj_mappings(category, lookup_key);
+create index idx_pj_mappings_pj_id on pj_mappings(pj_id);
+

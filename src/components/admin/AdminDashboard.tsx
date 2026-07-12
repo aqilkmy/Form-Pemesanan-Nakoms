@@ -4,6 +4,18 @@ import * as React from "react";
 import { supabase } from "@/lib/supabase";
 import { PostgrestError } from "@supabase/supabase-js";
 import {
+  PJMapping,
+  PJContact,
+  PJCategory,
+  PJ_CATEGORY_LABELS,
+  fetchAllPJMappings,
+  fetchPJContacts,
+  createPJContact,
+  updatePJContact,
+  deletePJContact,
+  updatePJMapping,
+} from "@/lib/pj";
+import {
   Order,
   OrderStatus,
   DesainPublikasiOrder,
@@ -22,6 +34,12 @@ import {
 } from "@/lib/constants";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion";
 import {
   Select,
   SelectContent,
@@ -64,6 +82,11 @@ import {
   Activity,
   CheckCircle2,
   XCircle,
+  UserCog,
+  Pencil,
+  Save,
+  X,
+  Phone,
 } from "lucide-react";
 import { format } from "date-fns";
 
@@ -89,7 +112,7 @@ const MenuIcon = ({
 };
 
 type SortOption = "waktu_pemesanan" | "deadline";
-type DashboardTab = MenuType | "statistik";
+type DashboardTab = MenuType | "statistik" | "kelola_pj";
 
 const COLLISION_EXEMPT_WAKTU_PUBLIKASI = new Set([
   "12.00 (Instagram Story)",
@@ -229,8 +252,21 @@ export function AdminDashboard() {
     string[]
   >([]);
 
+  // PJ management states
+  const [pjMappings, setPjMappings] = React.useState<PJMapping[]>([]);
+  const [pjContacts, setPjContacts] = React.useState<PJContact[]>([]);
+  const [isPjLoading, setIsPjLoading] = React.useState(false);
+
+  // States for Master PJ
+  const [editingContactId, setEditingContactId] = React.useState<string | null>(null);
+  const [contactNama, setContactNama] = React.useState("");
+  const [contactNomor, setContactNomor] = React.useState("");
+  const [contactRole, setContactRole] = React.useState<string | null>(null);
+  const [contactSaving, setContactSaving] = React.useState(false);
+
   React.useEffect(() => {
     fetchOrders();
+    fetchPJs();
 
     const channel = supabase
       .channel("orders_realtime")
@@ -271,6 +307,102 @@ export function AdminDashboard() {
       console.error("Error fetching orders:", error);
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const fetchPJs = async () => {
+    setIsPjLoading(true);
+    try {
+      const [mappings, contacts] = await Promise.all([
+        fetchAllPJMappings(),
+        fetchPJContacts(),
+      ]);
+      setPjMappings(mappings);
+      setPjContacts(contacts);
+    } catch (error) {
+      console.error("Error fetching PJs:", error);
+    } finally {
+      setIsPjLoading(false);
+    }
+  };
+
+  const startEditContact = (contact: PJContact | null) => {
+    if (contact) {
+      setEditingContactId(contact.id);
+      setContactNama(contact.nama);
+      setContactNomor(contact.nomor);
+      setContactRole(contact.role || null);
+    } else {
+      setEditingContactId("new");
+      setContactNama("");
+      setContactNomor("");
+      setContactRole(null);
+    }
+  };
+
+  const cancelEditContact = () => {
+    setEditingContactId(null);
+    setContactNama("");
+    setContactNomor("");
+    setContactRole(null);
+  };
+
+  const saveContact = async () => {
+    if (!contactNama || !contactNomor || !contactRole) {
+      alert("Nama, Nomor, dan Kategori Role harus diisi!");
+      return;
+    }
+    setContactSaving(true);
+    try {
+      let res;
+      if (editingContactId && editingContactId !== "new") {
+        res = await updatePJContact(editingContactId, contactNama, contactNomor, contactRole);
+      } else {
+        res = await createPJContact(contactNama, contactNomor, contactRole);
+      }
+      
+      if (res.success) {
+        await fetchPJs();
+        cancelEditContact();
+      } else {
+        alert("Gagal menyimpan kontak PJ: " + res.error);
+      }
+    } catch (e) {
+      console.error(e);
+      alert("Terjadi kesalahan");
+    } finally {
+      setContactSaving(false);
+    }
+  };
+
+  const hapusContact = async (id: string) => {
+    if (!confirm("Yakin ingin menghapus PJ ini? Kementrian yang ditugaskan akan menjadi kosong.")) return;
+    setContactSaving(true);
+    try {
+      const res = await deletePJContact(id);
+      if (res.success) {
+        await fetchPJs();
+      } else {
+        alert("Gagal menghapus PJ: " + res.error);
+      }
+    } catch (e) {
+      console.error(e);
+    } finally {
+      setContactSaving(false);
+    }
+  };
+
+  const handleMappingChange = async (mappingId: string, newPjId: string) => {
+    const pjId = newPjId === "none" ? null : newPjId;
+    try {
+      const res = await updatePJMapping(mappingId, pjId);
+      if (res.success) {
+        await fetchPJs();
+      } else {
+        alert("Gagal merubah penugasan PJ.");
+      }
+    } catch(e) {
+      console.error(e);
     }
   };
 
@@ -1466,8 +1598,9 @@ export function AdminDashboard() {
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <Table>
-                <TableHeader>
+              <div className="overflow-x-auto">
+                <Table>
+                  <TableHeader>
                   <TableRow>
                     <TableHead className="w-12">#</TableHead>
                     <TableHead>Kementerian/Biro</TableHead>
@@ -1525,6 +1658,7 @@ export function AdminDashboard() {
                   )}
                 </TableBody>
               </Table>
+              </div>
             </CardContent>
           </Card>
 
@@ -1693,6 +1827,284 @@ export function AdminDashboard() {
     );
   };
 
+  const renderKelolaPJ = () => {
+    if (isPjLoading) {
+      return (
+        <div className="flex justify-center items-center h-64">
+          <Loader2 className="w-8 h-8 animate-spin text-primary" />
+        </div>
+      );
+    }
+
+    const categories: PJCategory[] = [
+      "desain_grafis",
+      "website",
+      "bantuan_teknis",
+      "survey",
+      "platform_khusus",
+    ];
+
+    return (
+      <div className="space-y-6">
+        <div className="m-6 mb-4">
+          <h2 className="text-xl font-bold tracking-tight">Kelola Penanggung Jawab (PJ)</h2>
+          <p className="text-sm text-muted-foreground mt-1">
+            Atur Master Data PJ dan ubah Penugasan Kementerian.
+          </p>
+        </div>
+
+        <div className="mx-6">
+          <Accordion type="multiple" defaultValue={["master", "penugasan"]} className="w-full space-y-4">
+            
+            {/* Master Data PJ */}
+            <AccordionItem value="master" className="border rounded-lg bg-card text-card-foreground shadow-sm px-4">
+              <AccordionTrigger className="hover:no-underline py-4">
+                <div className="flex items-center gap-2 font-bold text-lg">
+                  <Users2 className="w-5 h-5 text-primary" />
+                  Master Data PJ
+                </div>
+              </AccordionTrigger>
+              <AccordionContent className="pb-4 pt-1">
+                <div className="flex justify-end mb-4">
+                  {!editingContactId && (
+                    <Button size="sm" onClick={() => startEditContact(null)} className="h-8">
+                      Tambah PJ
+                    </Button>
+                  )}
+                </div>
+                <div className="overflow-x-auto">
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead>Nama PJ</TableHead>
+                        <TableHead>Nomor WA</TableHead>
+                        <TableHead>Kategori PJ</TableHead>
+                        <TableHead className="text-right">Aksi</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {editingContactId === "new" && (
+                        <TableRow>
+                          <TableCell>
+                            <Input
+                              value={contactNama}
+                              onChange={(e) => setContactNama(e.target.value)}
+                              placeholder="Nama PJ"
+                              className="h-8 text-xs min-w-[120px]"
+                            />
+                          </TableCell>
+                          <TableCell>
+                            <Input
+                              value={contactNomor}
+                              onChange={(e) => setContactNomor(e.target.value)}
+                              placeholder="Nomor WA (628...)"
+                              className="h-8 text-xs min-w-[120px]"
+                            />
+                          </TableCell>
+                          <TableCell>
+                            <Select
+                              value={contactRole || ""}
+                              onValueChange={(val) => setContactRole(val)}
+                            >
+                              <SelectTrigger className="h-8 text-xs w-full min-w-[140px]">
+                                <SelectValue placeholder="Pilih Kategori..." />
+                              </SelectTrigger>
+                              <SelectContent>
+                                {categories.map((c) => (
+                                  <SelectItem key={c} value={c}>
+                                    {PJ_CATEGORY_LABELS[c]}
+                                  </SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
+                          </TableCell>
+                          <TableCell className="text-right">
+                            <div className="flex justify-end gap-2">
+                              <Button size="sm" variant="outline" className="h-7 px-2" onClick={cancelEditContact} disabled={contactSaving}>
+                                Batal
+                              </Button>
+                              <Button size="sm" className="h-7 px-2 bg-green-600 hover:bg-green-700 text-white" onClick={saveContact} disabled={contactSaving}>
+                                Simpan
+                              </Button>
+                            </div>
+                          </TableCell>
+                        </TableRow>
+                      )}
+                      {pjContacts.map((contact) => (
+                        <TableRow key={contact.id}>
+                          <TableCell>
+                            {editingContactId === contact.id ? (
+                              <Input
+                                value={contactNama}
+                                onChange={(e) => setContactNama(e.target.value)}
+                                className="h-8 text-xs min-w-[120px]"
+                              />
+                            ) : (
+                              <span className="font-medium">{contact.nama}</span>
+                            )}
+                          </TableCell>
+                          <TableCell>
+                            {editingContactId === contact.id ? (
+                              <Input
+                                value={contactNomor}
+                                onChange={(e) => setContactNomor(e.target.value)}
+                                className="h-8 text-xs min-w-[120px]"
+                              />
+                            ) : (
+                              <div className="flex items-center gap-1.5 text-muted-foreground">
+                                <Phone className="w-3 h-3" />
+                                {contact.nomor}
+                              </div>
+                            )}
+                          </TableCell>
+                          <TableCell>
+                            {editingContactId === contact.id ? (
+                              <Select
+                                value={contactRole || ""}
+                                onValueChange={(val) => setContactRole(val)}
+                              >
+                                <SelectTrigger className="h-8 text-xs w-full min-w-[140px]">
+                                  <SelectValue placeholder="Pilih Kategori..." />
+                                </SelectTrigger>
+                                <SelectContent>
+                                  {categories.map((c) => (
+                                    <SelectItem key={c} value={c}>
+                                      {PJ_CATEGORY_LABELS[c]}
+                                    </SelectItem>
+                                  ))}
+                                </SelectContent>
+                              </Select>
+                            ) : (
+                              <div className="text-xs">
+                                {contact.role
+                                  ? PJ_CATEGORY_LABELS[contact.role as PJCategory] || contact.role
+                                  : <span className="text-muted-foreground italic">Belum Diatur</span>}
+                              </div>
+                            )}
+                          </TableCell>
+                          <TableCell className="text-right">
+                            {editingContactId === contact.id ? (
+                              <div className="flex flex-wrap justify-end gap-2">
+                                <Button size="sm" variant="outline" className="h-7 px-2" onClick={cancelEditContact} disabled={contactSaving}>
+                                  Batal
+                                </Button>
+                                <Button size="sm" className="h-7 px-2 bg-green-600 hover:bg-green-700 text-white" onClick={saveContact} disabled={contactSaving}>
+                                  Simpan
+                                </Button>
+                              </div>
+                            ) : (
+                              <div className="flex flex-wrap justify-end gap-2">
+                                <Button size="sm" variant="ghost" className="h-7 px-2" onClick={() => startEditContact(contact)}>
+                                  <Pencil className="w-3 h-3 mr-1" /> Edit
+                                </Button>
+                                <Button size="sm" variant="ghost" className="h-7 px-2 text-destructive hover:text-destructive hover:bg-destructive/10" onClick={() => hapusContact(contact.id)}>
+                                  <Trash2 className="w-3 h-3 mr-1" /> Hapus
+                                </Button>
+                              </div>
+                            )}
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                      {pjContacts.length === 0 && editingContactId !== "new" && (
+                        <TableRow>
+                          <TableCell colSpan={4} className="text-center text-muted-foreground py-6">
+                            Belum ada data Master PJ.
+                          </TableCell>
+                        </TableRow>
+                      )}
+                    </TableBody>
+                  </Table>
+                </div>
+              </AccordionContent>
+            </AccordionItem>
+
+          </Accordion>
+        </div>
+
+        {/* Penugasan Kementerian */}
+        <div className="mx-6 mt-8 mb-4">
+          <h3 className="text-lg font-bold flex items-center gap-2">
+            <ClipboardList className="w-5 h-5 text-primary" />
+            Penugasan Kementerian
+          </h3>
+          <p className="text-sm text-muted-foreground mt-1 mb-4">
+            Pilih kategori di bawah untuk mengatur PJ kementerian.
+          </p>
+          <Accordion type="multiple" className="w-full space-y-3">
+            {categories.map((cat) => {
+              const pjs = pjMappings.filter((p) => p.category === cat);
+              return (
+                        <AccordionItem key={cat} value={cat} className="border rounded-md px-3 bg-muted/20">
+                          <AccordionTrigger className="hover:no-underline py-3">
+                            <div className="flex items-center gap-2 font-semibold text-base">
+                              <UserCog className="w-4 h-4 text-primary" />
+                              {PJ_CATEGORY_LABELS[cat]}
+                            </div>
+                          </AccordionTrigger>
+                          <AccordionContent className="pb-3">
+                            <div className="overflow-x-auto">
+                              <Table>
+                                <TableHeader>
+                                  <TableRow>
+                                    <TableHead className="w-[40%]">Identifier / Kementerian</TableHead>
+                                    <TableHead className="w-[60%]">Penugasan PJ</TableHead>
+                                  </TableRow>
+                                </TableHeader>
+                                <TableBody>
+                                  {pjs.length === 0 ? (
+                                    <TableRow>
+                                      <TableCell colSpan={2} className="text-center text-muted-foreground py-6">
+                                        Belum ada data penugasan untuk kategori ini.
+                                      </TableCell>
+                                    </TableRow>
+                                  ) : (
+                                    pjs.map((pjMap) => (
+                                      <TableRow key={pjMap.id}>
+                                        <TableCell className="font-medium align-top">
+                                          <div className="mt-1.5">{pjMap.lookup_key}</div>
+                                          {cat === "platform_khusus" && pjMap.platforms && (
+                                            <div className="text-[10px] text-muted-foreground mt-1">
+                                              {pjMap.platforms.join(", ")}
+                                            </div>
+                                          )}
+                                        </TableCell>
+                                        <TableCell>
+                                          <Select
+                                            value={pjMap.pj_id || "none"}
+                                            onValueChange={(val) => handleMappingChange(pjMap.id, val)}
+                                          >
+                                            <SelectTrigger className="h-9 text-xs sm:text-sm w-full min-w-[140px] max-w-[300px]">
+                                              <SelectValue placeholder="Pilih PJ..." />
+                                            </SelectTrigger>
+                                            <SelectContent>
+                                              <SelectItem value="none" className="text-muted-foreground italic">-- Tidak ada PJ --</SelectItem>
+                                              {pjContacts
+                                                .filter((contact) => contact.role === cat)
+                                                .map((contact) => (
+                                                  <SelectItem key={contact.id} value={contact.id}>
+                                                    {contact.nama} ({contact.nomor})
+                                                  </SelectItem>
+                                                ))}
+                                            </SelectContent>
+                                          </Select>
+                                        </TableCell>
+                                      </TableRow>
+                                    ))
+                                  )}
+                                </TableBody>
+                              </Table>
+                            </div>
+                          </AccordionContent>
+                        </AccordionItem>
+                      );
+                    })}
+                  </Accordion>
+
+        </div>
+      </div>
+    );
+  };
+
   return (
     <div className="space-y-6">
       <Tabs
@@ -1702,7 +2114,7 @@ export function AdminDashboard() {
         className="w-full"
       >
         <div className="flex justify-center mb-6">
-          <TabsList className="grid grid-cols-2 mb-5 md:mb-0 md:grid-cols-5 h-auto p-1 bg-muted">
+          <TabsList className="grid grid-cols-2 lg:grid-cols-6 mb-5 md:mb-0 md:grid-cols-3 h-auto p-1 bg-muted">
             {MENU_OPTIONS.map((menu) => (
               <TabsTrigger
                 key={menu.id}
@@ -1728,10 +2140,18 @@ export function AdminDashboard() {
                 {orders.length}
               </span>
             </TabsTrigger>
+            <TabsTrigger
+              value="kelola_pj"
+              className="flex items-center gap-2 py-2 px-4 data-[state=active]:bg-background data-[state=active]:shadow-sm"
+            >
+              <UserCog className="w-4 h-4" />
+              <span className="hidden sm:inline">Kelola PJ</span>
+              <span className="sm:hidden">PJ</span>
+            </TabsTrigger>
           </TabsList>
         </div>
 
-        {activeTab !== "statistik" && (
+        {activeTab !== "statistik" && activeTab !== "kelola_pj" && (
           <>
             <CollisionWarning />
 
@@ -1745,7 +2165,7 @@ export function AdminDashboard() {
                 </div>
               </CardHeader>
               <CardContent>
-                <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
                   <div className="space-y-1.5">
                     <Label className="text-[10px] uppercase font-bold text-muted-foreground">
                       Kementerian/Biro
@@ -1859,12 +2279,17 @@ export function AdminDashboard() {
                   {MENU_OPTIONS.find((m) => m.id === activeTab)?.label} Orders
                 </CardTitle>
               </CardHeader>
-              <CardContent>{renderTable()}</CardContent>
+              <CardContent>
+                <div className="overflow-x-auto">
+                  {renderTable()}
+                </div>
+              </CardContent>
             </Card>
           </>
         )}
 
         {activeTab === "statistik" && renderStatistics()}
+        {activeTab === "kelola_pj" && renderKelolaPJ()}
       </Tabs>
     </div>
   );

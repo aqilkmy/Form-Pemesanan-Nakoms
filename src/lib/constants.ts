@@ -70,6 +70,12 @@ export const JENIS_BANTUAN_OPTIONS = [
     { id: "lainnya", label: "Lainnya (isi sendiri)", pj: "A" },
 ] as const
 
+// ================================================================
+// PJ (Penanggung Jawab) Mappings — FALLBACK DATA
+// Source of truth: tabel `pj_mappings` di Supabase (dikelola via Admin Dashboard)
+// Data di bawah ini digunakan sebagai fallback jika database tidak tersedia
+// ================================================================
+
 // PJ Desain Grafis berdasarkan kementerian pemesan (untuk menu Desain & Publikasi)
 export const PJ_DESAIN_GRAFIS: Record<string, { nama: string; nomor: string }> = {
     "Lingkar Presiden": { nama: "Rosyid", nomor: "6289516552616" },

@@ -473,12 +473,13 @@ export function OrderForm() {
           </form>
         </CardContent>
 
-        <CardFooter className="flex justify-between border-t p-6 ">
+        <CardFooter className="flex flex-col-reverse sm:flex-row gap-3 sm:gap-0 sm:justify-between border-t p-4 sm:p-6">
           <Button
             type="button"
             variant="outline"
             onClick={prevStep}
             disabled={currentStepIndex === 0 || isLoading || isNavigating}
+            className="w-full sm:w-auto"
           >
             <ChevronLeft className="w-4 h-4 mr-2" />
             Kembali
@@ -489,6 +490,7 @@ export function OrderForm() {
               type="button"
               onClick={nextStep}
               disabled={isLoading || isNavigating || !canProceed}
+              className="w-full sm:w-auto"
             >
               Lanjut
               <ChevronRight className="w-4 h-4 ml-2" />
@@ -498,7 +500,7 @@ export function OrderForm() {
               type="submit"
               form="order-form"
               disabled={isLoading || isNavigating}
-              className="bg-green-600 hover:bg-green-700"
+              className="w-full sm:w-auto bg-green-600 hover:bg-green-700"
             >
               {isLoading ? "Mengirim..." : "Kirim Pesanan"}
               <Save className="w-4 h-4 ml-2" />

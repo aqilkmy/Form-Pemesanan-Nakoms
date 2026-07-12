@@ -1,7 +1,11 @@
 
-import { CheckCircle2, MessageCircle } from "lucide-react"
+"use client"
+
+import * as React from "react"
+import { CheckCircle2, MessageCircle, Loader2 } from "lucide-react"
 import { Button } from "@/components/ui/button"
-import { PJ_DESAIN_GRAFIS, PJ_WEBSITE, PJ_BANTUAN_TEKNIS, PJ_SURVEY, PJ_PLATFORM_KHUSUS, MenuType, JENIS_BANTUAN_OPTIONS } from "@/lib/constants"
+import { MenuType, JENIS_BANTUAN_OPTIONS } from "@/lib/constants"
+import { getPJLookupsWithFallback } from "@/lib/pj"
 
 interface SubmittedData {
     menu_type: MenuType
@@ -28,6 +32,15 @@ function getPJForBantuanTeknis(jenisBantuan: string): "A" | "B" {
 }
 
 export function SuccessMessage({ onReset, submittedData }: SuccessMessageProps) {
+    const [pjData, setPjData] = React.useState<Awaited<ReturnType<typeof getPJLookupsWithFallback>> | null>(null)
+    const [isLoadingPJ, setIsLoadingPJ] = React.useState(true)
+
+    React.useEffect(() => {
+        getPJLookupsWithFallback()
+            .then(setPjData)
+            .finally(() => setIsLoadingPJ(false))
+    }, [])
+
     const getTemplateMessage = (menuType: MenuType, namaPemesan: string, kementerian: string, pjNama: string): string => {
         switch (menuType) {
             case "desain_publikasi":
@@ -48,13 +61,13 @@ export function SuccessMessage({ onReset, submittedData }: SuccessMessageProps) 
     }
 
     const getWhatsAppContacts = () => {
-        if (!submittedData) return []
+        if (!submittedData || !pjData) return []
 
         const contacts: { label: string; nama: string; nomor: string; message: string }[] = []
 
         switch (submittedData.menu_type) {
             case "desain_publikasi": {
-                const pjDesain = PJ_DESAIN_GRAFIS[submittedData.kementerian]
+                const pjDesain = pjData.desainGrafis[submittedData.kementerian]
                 if (pjDesain?.nomor) {
                     contacts.push({
                         label: "PJ Desain Grafis",
@@ -68,21 +81,21 @@ export function SuccessMessage({ onReset, submittedData }: SuccessMessageProps) 
                 if (submittedData.platform_publikasi && submittedData.platform_publikasi.length > 0) {
                     const addedPJs = new Set<string>() // Prevent duplicates
 
-                    Object.entries(PJ_PLATFORM_KHUSUS).forEach(([key, pjData]) => {
-                        const hasMatchingPlatform = pjData.platforms.some(platform => 
+                    Object.entries(pjData.platformKhusus).forEach(([key, pjPlatform]) => {
+                        const hasMatchingPlatform = pjPlatform.platforms.some(platform => 
                             submittedData.platform_publikasi?.includes(platform)
                         )
                         
                         if (hasMatchingPlatform && !addedPJs.has(key)) {
                             addedPJs.add(key)
-                            const matchedPlatforms = pjData.platforms.filter(p => 
+                            const matchedPlatforms = pjPlatform.platforms.filter(p => 
                                 submittedData.platform_publikasi?.includes(p)
                             )
                             contacts.push({
                                 label: `PJ ${matchedPlatforms.join(" & ")}`,
-                                nama: pjData.nama,
-                                nomor: pjData.nomor,
-                                message: getPlatformMessage(submittedData.nama, submittedData.kementerian, pjData.nama, matchedPlatforms.join(" & "))
+                                nama: pjPlatform.nama,
+                                nomor: pjPlatform.nomor,
+                                message: getPlatformMessage(submittedData.nama, submittedData.kementerian, pjPlatform.nama, matchedPlatforms.join(" & "))
                             })
                         }
                     })
@@ -90,7 +103,7 @@ export function SuccessMessage({ onReset, submittedData }: SuccessMessageProps) 
                 break
             }
             case "website": {
-                const pjWebsite = PJ_WEBSITE[submittedData.kementerian]
+                const pjWebsite = pjData.website[submittedData.kementerian]
                 if (pjWebsite?.nomor) {
                     contacts.push({
                         label: "PJ Website",
@@ -105,7 +118,7 @@ export function SuccessMessage({ onReset, submittedData }: SuccessMessageProps) 
                 const pjKey = submittedData.jenis_bantuan 
                     ? getPJForBantuanTeknis(submittedData.jenis_bantuan) 
                     : "A"
-                const pjTeknis = PJ_BANTUAN_TEKNIS[pjKey]
+                const pjTeknis = pjData.bantuanTeknis[pjKey]
                 if (pjTeknis?.nomor) {
                     contacts.push({
                         label: "PJ Bantuan Teknis",
@@ -117,12 +130,12 @@ export function SuccessMessage({ onReset, submittedData }: SuccessMessageProps) 
                 break
             }
             case "survey": {
-                if (PJ_SURVEY?.nomor) {
+                if (pjData.survey?.nomor) {
                     contacts.push({
                         label: "PJ Survey",
-                        nama: PJ_SURVEY.nama,
-                        nomor: PJ_SURVEY.nomor,
-                        message: getTemplateMessage("survey", submittedData.nama, submittedData.kementerian, PJ_SURVEY.nama)
+                        nama: pjData.survey.nama,
+                        nomor: pjData.survey.nomor,
+                        message: getTemplateMessage("survey", submittedData.nama, submittedData.kementerian, pjData.survey.nama)
                     })
                 }
                 break
@@ -163,7 +176,11 @@ export function SuccessMessage({ onReset, submittedData }: SuccessMessageProps) 
                 </p>
             </div>
 
-            {contacts.length > 0 ? (
+            {isLoadingPJ ? (
+                <div className="flex justify-center py-4">
+                    <Loader2 className="w-6 h-6 animate-spin text-primary" />
+                </div>
+            ) : contacts.length > 0 ? (
                 <div className="space-y-3 max-w-md mx-auto">
                     <p className="text-sm text-gray-600 font-medium">Hubungi PJ via WhatsApp:</p>
                     <div className="grid gap-3">
