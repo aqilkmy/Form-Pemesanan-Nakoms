@@ -132,3 +132,13 @@ export const PJ_PLATFORM_KHUSUS: Record<string, { nama: string; nomor: string; p
     "spotify": { nama: "Nashwa", nomor: "6287722540756", platforms: ["Spotify"] },
     "youtube": { nama: "Shava", nomor: "6285727194418", platforms: ["YouTube"] },
 }
+
+// Periode Triwulan BEM Unsoed 2026
+export type TriwulanKey = "1_periode" | "triwulan_1" | "triwulan_2" | "triwulan_3"
+
+export const TRIWULAN_PERIODS: { key: TriwulanKey; label: string; shortLabel: string; startDate: string | null; endDate: string | null }[] = [
+    { key: "1_periode", label: "1 Periode", shortLabel: "1 Periode", startDate: null, endDate: null },
+    { key: "triwulan_1", label: "Triwulan 1", shortLabel: "TW 1", startDate: null, endDate: "2026-06-16" },
+    { key: "triwulan_2", label: "Triwulan 2", shortLabel: "TW 2", startDate: "2026-06-17", endDate: "2026-09-25" },
+    { key: "triwulan_3", label: "Triwulan 3", shortLabel: "TW 3", startDate: "2026-09-26", endDate: null },
+]

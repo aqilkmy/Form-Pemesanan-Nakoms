@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { Menu, Home, Calendar, LayoutDashboard, User } from "lucide-react";
+import { Menu, Home, Calendar, LayoutDashboard, BarChart3, User } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -32,6 +32,11 @@ const menuItems = [
     title: "Monitoring",
     url: "/monitoring",
     icon: <LayoutDashboard className="size-5 shrink-0" />,
+  },
+  {
+    title: "Statistik",
+    url: "/statistik",
+    icon: <BarChart3 className="size-5 shrink-0" />,
   },
 ];
 
