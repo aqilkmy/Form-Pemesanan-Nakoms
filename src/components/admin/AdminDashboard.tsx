@@ -252,6 +252,10 @@ export function AdminDashboard() {
     string[]
   >([]);
 
+  // Pagination states
+  const [currentPage, setCurrentPage] = React.useState(1);
+  const [itemsPerPage, setItemsPerPage] = React.useState("25");
+
   // PJ management states
   const [pjMappings, setPjMappings] = React.useState<PJMapping[]>([]);
   const [pjContacts, setPjContacts] = React.useState<PJContact[]>([]);
@@ -263,6 +267,10 @@ export function AdminDashboard() {
   const [contactNomor, setContactNomor] = React.useState("");
   const [contactRole, setContactRole] = React.useState<string | null>(null);
   const [contactSaving, setContactSaving] = React.useState(false);
+
+  React.useEffect(() => {
+    setCurrentPage(1);
+  }, [activeTab, filterKementerian, filterStatus, filterDate, filterPlatform, sortBy]);
 
   React.useEffect(() => {
     fetchOrders();
@@ -635,7 +643,21 @@ export function AdminDashboard() {
     sortBy,
   ]);
 
-  // Count orders per menu type
+  // Pagination logic
+  const paginatedOrders = React.useMemo(() => {
+    if (itemsPerPage === "all") return filteredOrders;
+    const limit = parseInt(itemsPerPage, 10);
+    const start = (currentPage - 1) * limit;
+    return filteredOrders.slice(start, start + limit);
+  }, [filteredOrders, currentPage, itemsPerPage]);
+
+  const totalPages = React.useMemo(() => {
+    if (itemsPerPage === "all") return 1;
+    const limit = parseInt(itemsPerPage, 10);
+    return Math.max(1, Math.ceil(filteredOrders.length / limit));
+  }, [filteredOrders.length, itemsPerPage]);
+
+  // Handle schedule collision for desain_publikasi type
   const menuCounts = React.useMemo(() => {
     return {
       desain_publikasi: orders.filter((o) => o.menu_type === "desain_publikasi")
@@ -871,7 +893,7 @@ export function AdminDashboard() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {filteredOrders.filter(isDesainPublikasi).map((order) => {
+              {paginatedOrders.filter(isDesainPublikasi).map((order) => {
                 const isExpanded = expandedDesainOrderIds.includes(order.id);
 
                 return (
@@ -1185,7 +1207,7 @@ export function AdminDashboard() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {filteredOrders.filter(isWebsite).map((order) => (
+              {paginatedOrders.filter(isWebsite).map((order) => (
                 <TableRow key={order.id}>
                   <TableCell className="font-medium whitespace-nowrap">
                     {helperDate(order.created_at)}
@@ -1303,7 +1325,7 @@ export function AdminDashboard() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {filteredOrders.filter(isBantuanTeknis).map((order) => (
+              {paginatedOrders.filter(isBantuanTeknis).map((order) => (
                 <TableRow key={order.id}>
                   <TableCell className="font-medium whitespace-nowrap">
                     {helperDate(order.created_at)}
@@ -1423,7 +1445,7 @@ export function AdminDashboard() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {filteredOrders.filter(isSurvey).map((order) => (
+              {paginatedOrders.filter(isSurvey).map((order) => (
                 <TableRow key={order.id}>
                   <TableCell className="font-medium whitespace-nowrap">
                     {helperDate(order.created_at)}
@@ -2282,6 +2304,50 @@ export function AdminDashboard() {
               <CardContent>
                 <div className="overflow-x-auto">
                   {renderTable()}
+                </div>
+
+                {/* Pagination Controls */}
+                <div className="flex flex-col sm:flex-row items-center justify-between gap-4 mt-6">
+                  <div className="flex items-center gap-2">
+                    <span className="text-sm text-muted-foreground">Baris per halaman:</span>
+                    <Select value={itemsPerPage} onValueChange={(val) => { setItemsPerPage(val); setCurrentPage(1); }}>
+                      <SelectTrigger className="h-8 w-[80px] text-xs">
+                        <SelectValue placeholder="25" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="25">25</SelectItem>
+                        <SelectItem value="50">50</SelectItem>
+                        <SelectItem value="100">100</SelectItem>
+                        <SelectItem value="all">Semua</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  
+                  {itemsPerPage !== "all" && totalPages > 1 && (
+                    <div className="flex items-center gap-4">
+                      <span className="text-sm text-muted-foreground">
+                        Halaman {currentPage} dari {totalPages}
+                      </span>
+                      <div className="flex gap-2">
+                        <Button 
+                          variant="outline" 
+                          size="sm" 
+                          onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+                          disabled={currentPage === 1}
+                        >
+                          Prev
+                        </Button>
+                        <Button 
+                          variant="outline" 
+                          size="sm" 
+                          onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+                          disabled={currentPage === totalPages}
+                        >
+                          Next
+                        </Button>
+                      </div>
+                    </div>
+                  )}
                 </div>
               </CardContent>
             </Card>
