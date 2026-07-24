@@ -46,8 +46,9 @@ create table orders (
   link_gdrive_brief text,
   hadiah_survey text check (hadiah_survey in ('ada', 'tidak') or hadiah_survey is null),
   
-  -- Internal Status
-  status text default 'new' check (status in ('new', 'in progress', 'under review', 'ready', 'pause', 'cancel'))
+  -- Internal Status & Visibility
+  status text default 'new' check (status in ('new', 'in progress', 'under review', 'ready', 'pause', 'cancel')),
+  is_hidden boolean default false
 );
 
 -- Enable Row Level Security (RLS)

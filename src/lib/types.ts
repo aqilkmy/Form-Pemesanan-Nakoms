@@ -14,6 +14,7 @@ export interface BaseOrder {
     kementerian: string
     nomor_whatsapp: string
     sudah_baca_sop: boolean
+    is_hidden?: boolean
 }
 
 // Desain & Publikasi order
@@ -85,4 +86,5 @@ export interface LegacyOrder {
     custom_shortlink?: string
     fitur_tambahan_web?: string
     link_desain_selesai?: string
+    is_hidden?: boolean
 }

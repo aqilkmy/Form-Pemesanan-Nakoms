@@ -167,7 +167,7 @@ export function StatistikDashboard() {
           .order("created_at", { ascending: false });
 
         if (error) throw error;
-        if (data) setOrders(data as Order[]);
+        if (data) setOrders((data as Order[]).filter((o) => !o.is_hidden));
       } catch (error) {
         console.error("Error fetching orders:", error);
       } finally {

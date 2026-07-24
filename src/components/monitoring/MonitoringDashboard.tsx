@@ -220,9 +220,13 @@ export function MonitoringDashboard() {
     return option?.label || jenis;
   };
 
+  const visibleOrders = React.useMemo(() => {
+    return orders.filter((o) => !o.is_hidden);
+  }, [orders]);
+
   // Check for schedule collisions (same date + time) for Desain & Publikasi
   const scheduleCollisions = React.useMemo(() => {
-    const desainOrders = orders
+    const desainOrders = visibleOrders
       .filter(isDesainPublikasi)
       .filter((o) => o.status !== "cancel")
       .filter((o) => !isPublicationChecklistCompleted(o))
@@ -246,7 +250,7 @@ export function MonitoringDashboard() {
     });
 
     return collisions;
-  }, [orders]);
+  }, [visibleOrders]);
 
   const hasCollision = (order: DesainPublikasiOrder) => {
     const key = `${order.tanggal_publikasi}_${order.waktu_publikasi}`;
@@ -255,7 +259,7 @@ export function MonitoringDashboard() {
 
   // Filter by menu type and other filters
   const filteredOrders = React.useMemo(() => {
-    let result = orders.filter((o) => o.menu_type === activeTab);
+    let result = visibleOrders.filter((o) => o.menu_type === activeTab);
 
     if (filterKementerian && filterKementerian !== "all-kementerian") {
       result = result.filter((o) => o.kementerian === filterKementerian);
@@ -334,7 +338,7 @@ export function MonitoringDashboard() {
 
     return result;
   }, [
-    orders,
+    visibleOrders,
     activeTab,
     filterKementerian,
     filterStatus,
@@ -360,14 +364,14 @@ export function MonitoringDashboard() {
   // Count orders per menu type
   const menuCounts = React.useMemo(() => {
     return {
-      desain_publikasi: orders.filter((o) => o.menu_type === "desain_publikasi")
+      desain_publikasi: visibleOrders.filter((o) => o.menu_type === "desain_publikasi")
         .length,
-      website: orders.filter((o) => o.menu_type === "website").length,
-      bantuan_teknis: orders.filter((o) => o.menu_type === "bantuan_teknis")
+      website: visibleOrders.filter((o) => o.menu_type === "website").length,
+      bantuan_teknis: visibleOrders.filter((o) => o.menu_type === "bantuan_teknis")
         .length,
-      survey: orders.filter((o) => o.menu_type === "survey").length,
+      survey: visibleOrders.filter((o) => o.menu_type === "survey").length,
     };
-  }, [orders]);
+  }, [visibleOrders]);
 
   const clearFilters = () => {
     setFilterKementerian("all-kementerian");

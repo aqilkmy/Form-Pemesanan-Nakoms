@@ -87,6 +87,8 @@ import {
   Save,
   X,
   Phone,
+  Eye,
+  EyeOff,
 } from "lucide-react";
 import { format } from "date-fns";
 
@@ -247,6 +249,8 @@ export function AdminDashboard() {
   const [filterDate, setFilterDate] = React.useState<string>("");
   const [filterPlatform, setFilterPlatform] =
     React.useState<string>("all-platform");
+  const [filterVisibility, setFilterVisibility] =
+    React.useState<string>("all-visibility");
   const [sortBy, setSortBy] = React.useState<SortOption>("waktu_pemesanan");
   const [expandedDesainOrderIds, setExpandedDesainOrderIds] = React.useState<
     string[]
@@ -270,7 +274,7 @@ export function AdminDashboard() {
 
   React.useEffect(() => {
     setCurrentPage(1);
-  }, [activeTab, filterKementerian, filterStatus, filterDate, filterPlatform, sortBy]);
+  }, [activeTab, filterKementerian, filterStatus, filterDate, filterPlatform, filterVisibility, sortBy]);
 
   React.useEffect(() => {
     fetchOrders();
@@ -480,6 +484,27 @@ export function AdminDashboard() {
     }
   };
 
+  const toggleHideOrder = async (orderId: string, currentIsHidden: boolean) => {
+    const nextState = !currentIsHidden;
+    try {
+      const { error } = await supabase
+        .from("orders")
+        .update({ is_hidden: nextState })
+        .eq("id", orderId);
+
+      if (error) throw error;
+
+      setOrders((prev) =>
+        prev.map((order) =>
+          order.id === orderId ? { ...order, is_hidden: nextState } : order,
+        ),
+      );
+    } catch (error) {
+      console.error("Error updating is_hidden:", error);
+      alert("Gagal mengubah status visibilitas pesanan");
+    }
+  };
+
   const deleteOrder = async (orderId: string) => {
     if (!window.confirm("Apakah Anda yakin ingin menghapus pesanan ini?")) {
       return;
@@ -632,6 +657,12 @@ export function AdminDashboard() {
       }
     }
 
+    if (filterVisibility === "visible") {
+      result = result.filter((o) => !o.is_hidden);
+    } else if (filterVisibility === "hidden") {
+      result = result.filter((o) => o.is_hidden === true);
+    }
+
     return result;
   }, [
     orders,
@@ -640,6 +671,7 @@ export function AdminDashboard() {
     filterStatus,
     filterDate,
     filterPlatform,
+    filterVisibility,
     sortBy,
   ]);
 
@@ -815,6 +847,7 @@ export function AdminDashboard() {
     setFilterStatus("all-status");
     setFilterDate("");
     setFilterPlatform("all-platform");
+    setFilterVisibility("all-visibility");
   };
 
   const toggleDesainOrderDetail = (orderId: string) => {
@@ -909,7 +942,15 @@ export function AdminDashboard() {
                         {helperDate(order.created_at)}
                       </TableCell>
                       <TableCell>
-                        <div className="font-semibold">{order.nama}</div>
+                        <div className="flex items-center gap-1.5 flex-wrap">
+                          <span className="font-semibold">{order.nama}</span>
+                          {order.is_hidden && (
+                            <span className="text-[9px] px-1.5 py-0.5 rounded bg-amber-100 text-amber-800 dark:bg-amber-900/40 dark:text-amber-300 font-medium whitespace-nowrap inline-flex items-center gap-0.5">
+                              <EyeOff className="w-2.5 h-2.5" />
+                              Tersembunyi
+                            </span>
+                          )}
+                        </div>
                         <div className="text-[10px] text-muted-foreground">
                           {order.kementerian}
                         </div>
@@ -1128,14 +1169,38 @@ export function AdminDashboard() {
                         </div>
                       </TableCell>
                       <TableCell>
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          className="h-7 w-7 text-red-500 hover:text-red-700 hover:bg-red-50"
-                          onClick={() => deleteOrder(order.id)}
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </Button>
+                        <div className="flex items-center gap-1">
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className={`h-7 w-7 transition-colors ${
+                              order.is_hidden
+                                ? "text-amber-600 bg-amber-50 hover:bg-amber-100 hover:text-amber-700 dark:bg-amber-950/40 dark:text-amber-400 dark:hover:bg-amber-900/60"
+                                : "text-muted-foreground hover:text-foreground hover:bg-muted"
+                            }`}
+                            title={
+                              order.is_hidden
+                                ? "Pesanan tersembunyi dari monitoring (Klik untuk tampilkan)"
+                                : "Sembunyikan dari monitoring non-admin"
+                            }
+                            onClick={() => toggleHideOrder(order.id, !!order.is_hidden)}
+                          >
+                            {order.is_hidden ? (
+                              <EyeOff className="w-4 h-4" />
+                            ) : (
+                              <Eye className="w-4 h-4" />
+                            )}
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-7 w-7 text-red-500 hover:text-red-700 hover:bg-red-50"
+                            onClick={() => deleteOrder(order.id)}
+                            title="Hapus pesanan"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </Button>
+                        </div>
                       </TableCell>
                     </TableRow>
 
@@ -1213,7 +1278,15 @@ export function AdminDashboard() {
                     {helperDate(order.created_at)}
                   </TableCell>
                   <TableCell>
-                    <div className="font-semibold">{order.nama}</div>
+                    <div className="flex items-center gap-1.5 flex-wrap">
+                      <span className="font-semibold">{order.nama}</span>
+                      {order.is_hidden && (
+                        <span className="text-[9px] px-1.5 py-0.5 rounded bg-amber-100 text-amber-800 dark:bg-amber-900/40 dark:text-amber-300 font-medium whitespace-nowrap inline-flex items-center gap-0.5">
+                          <EyeOff className="w-2.5 h-2.5" />
+                          Tersembunyi
+                        </span>
+                      )}
+                    </div>
                     <div className="text-[10px] text-muted-foreground">
                       {order.kementerian}
                     </div>
@@ -1295,14 +1368,38 @@ export function AdminDashboard() {
                     </Select>
                   </TableCell>
                   <TableCell>
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="h-7 w-7 text-red-500 hover:text-red-700 hover:bg-red-50"
-                      onClick={() => deleteOrder(order.id)}
-                    >
-                      <Trash2 className="w-4 h-4" />
-                    </Button>
+                    <div className="flex items-center gap-1">
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className={`h-7 w-7 transition-colors ${
+                          order.is_hidden
+                            ? "text-amber-600 bg-amber-50 hover:bg-amber-100 hover:text-amber-700 dark:bg-amber-950/40 dark:text-amber-400 dark:hover:bg-amber-900/60"
+                            : "text-muted-foreground hover:text-foreground hover:bg-muted"
+                        }`}
+                        title={
+                          order.is_hidden
+                            ? "Pesanan tersembunyi dari monitoring (Klik untuk tampilkan)"
+                            : "Sembunyikan dari monitoring non-admin"
+                        }
+                        onClick={() => toggleHideOrder(order.id, !!order.is_hidden)}
+                      >
+                        {order.is_hidden ? (
+                          <EyeOff className="w-4 h-4" />
+                        ) : (
+                          <Eye className="w-4 h-4" />
+                        )}
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-7 w-7 text-red-500 hover:text-red-700 hover:bg-red-50"
+                        onClick={() => deleteOrder(order.id)}
+                        title="Hapus pesanan"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </Button>
+                    </div>
                   </TableCell>
                 </TableRow>
               ))}
@@ -1331,7 +1428,15 @@ export function AdminDashboard() {
                     {helperDate(order.created_at)}
                   </TableCell>
                   <TableCell>
-                    <div className="font-semibold">{order.nama}</div>
+                    <div className="flex items-center gap-1.5 flex-wrap">
+                      <span className="font-semibold">{order.nama}</span>
+                      {order.is_hidden && (
+                        <span className="text-[9px] px-1.5 py-0.5 rounded bg-amber-100 text-amber-800 dark:bg-amber-900/40 dark:text-amber-300 font-medium whitespace-nowrap inline-flex items-center gap-0.5">
+                          <EyeOff className="w-2.5 h-2.5" />
+                          Tersembunyi
+                        </span>
+                      )}
+                    </div>
                     <div className="text-[10px] text-muted-foreground">
                       {order.kementerian}
                     </div>
@@ -1414,14 +1519,38 @@ export function AdminDashboard() {
                     </Select>
                   </TableCell>
                   <TableCell>
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="h-7 w-7 text-red-500 hover:text-red-700 hover:bg-red-50"
-                      onClick={() => deleteOrder(order.id)}
-                    >
-                      <Trash2 className="w-4 h-4" />
-                    </Button>
+                    <div className="flex items-center gap-1">
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className={`h-7 w-7 transition-colors ${
+                          order.is_hidden
+                            ? "text-amber-600 bg-amber-50 hover:bg-amber-100 hover:text-amber-700 dark:bg-amber-950/40 dark:text-amber-400 dark:hover:bg-amber-900/60"
+                            : "text-muted-foreground hover:text-foreground hover:bg-muted"
+                        }`}
+                        title={
+                          order.is_hidden
+                            ? "Pesanan tersembunyi dari monitoring (Klik untuk tampilkan)"
+                            : "Sembunyikan dari monitoring non-admin"
+                        }
+                        onClick={() => toggleHideOrder(order.id, !!order.is_hidden)}
+                      >
+                        {order.is_hidden ? (
+                          <EyeOff className="w-4 h-4" />
+                        ) : (
+                          <Eye className="w-4 h-4" />
+                        )}
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-7 w-7 text-red-500 hover:text-red-700 hover:bg-red-50"
+                        onClick={() => deleteOrder(order.id)}
+                        title="Hapus pesanan"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </Button>
+                    </div>
                   </TableCell>
                 </TableRow>
               ))}
@@ -1451,7 +1580,15 @@ export function AdminDashboard() {
                     {helperDate(order.created_at)}
                   </TableCell>
                   <TableCell>
-                    <div className="font-semibold">{order.nama}</div>
+                    <div className="flex items-center gap-1.5 flex-wrap">
+                      <span className="font-semibold">{order.nama}</span>
+                      {order.is_hidden && (
+                        <span className="text-[9px] px-1.5 py-0.5 rounded bg-amber-100 text-amber-800 dark:bg-amber-900/40 dark:text-amber-300 font-medium whitespace-nowrap inline-flex items-center gap-0.5">
+                          <EyeOff className="w-2.5 h-2.5" />
+                          Tersembunyi
+                        </span>
+                      )}
+                    </div>
                     <div className="text-[10px] text-muted-foreground">
                       {order.kementerian}
                     </div>
@@ -1526,14 +1663,38 @@ export function AdminDashboard() {
                     </Select>
                   </TableCell>
                   <TableCell>
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="h-7 w-7 text-red-500 hover:text-red-700 hover:bg-red-50"
-                      onClick={() => deleteOrder(order.id)}
-                    >
-                      <Trash2 className="w-4 h-4" />
-                    </Button>
+                    <div className="flex items-center gap-1">
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className={`h-7 w-7 transition-colors ${
+                          order.is_hidden
+                            ? "text-amber-600 bg-amber-50 hover:bg-amber-100 hover:text-amber-700 dark:bg-amber-950/40 dark:text-amber-400 dark:hover:bg-amber-900/60"
+                            : "text-muted-foreground hover:text-foreground hover:bg-muted"
+                        }`}
+                        title={
+                          order.is_hidden
+                            ? "Pesanan tersembunyi dari monitoring (Klik untuk tampilkan)"
+                            : "Sembunyikan dari monitoring non-admin"
+                        }
+                        onClick={() => toggleHideOrder(order.id, !!order.is_hidden)}
+                      >
+                        {order.is_hidden ? (
+                          <EyeOff className="w-4 h-4" />
+                        ) : (
+                          <Eye className="w-4 h-4" />
+                        )}
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-7 w-7 text-red-500 hover:text-red-700 hover:bg-red-50"
+                        onClick={() => deleteOrder(order.id)}
+                        title="Hapus pesanan"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </Button>
+                    </div>
                   </TableCell>
                 </TableRow>
               ))}
@@ -2260,6 +2421,24 @@ export function AdminDashboard() {
                             {s.label}
                           </SelectItem>
                         ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="space-y-1.5">
+                    <Label className="text-[10px] uppercase font-bold text-muted-foreground">
+                      Visibilitas
+                    </Label>
+                    <Select
+                      value={filterVisibility}
+                      onValueChange={setFilterVisibility}
+                    >
+                      <SelectTrigger className="h-9 text-xs w-full">
+                        <SelectValue placeholder="Semua" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="all-visibility">Semua Visibilitas</SelectItem>
+                        <SelectItem value="visible">Tampil Saja</SelectItem>
+                        <SelectItem value="hidden">Tersembunyi Saja</SelectItem>
                       </SelectContent>
                     </Select>
                   </div>
