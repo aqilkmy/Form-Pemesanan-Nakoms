@@ -1,7 +1,7 @@
 import { AdminLogin } from "@/components/admin/AdminLogin";
 
 export const metadata = {
-  title: "Admin Login - Order Content",
+  title: "Admin Login - Pemesanan Rizzmed",
 };
 
 export default function AdminPage() {

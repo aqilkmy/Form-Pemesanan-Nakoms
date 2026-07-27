@@ -1,7 +1,7 @@
 import { MonitoringDashboard } from "@/components/monitoring/MonitoringDashboard";
 
 export const metadata = {
-  title: "Monitoring Pesanan - Order Content",
+  title: "Monitoring Pesanan - Pemesanan Rizzmed",
 };
 
 export default function MonitoringPage() {

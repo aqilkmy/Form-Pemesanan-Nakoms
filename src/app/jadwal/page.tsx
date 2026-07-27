@@ -1,7 +1,7 @@
 import { ScheduleCalendar } from "@/components/schedule/ScheduleCalendar";
 
 export const metadata = {
-  title: "Jadwal Publikasi - Order Content",
+  title: "Jadwal Publikasi - Pemesanan Rizzmed",
 };
 
 export default function JadwalPage() {

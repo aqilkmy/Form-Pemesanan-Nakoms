@@ -1,7 +1,7 @@
 import { StatistikDashboard } from "@/components/statistik/StatistikDashboard";
 
 export const metadata = {
-  title: "Statistik Triwulan - Rizmed Order",
+  title: "Statistik Triwulan - Pemesanan Rizzmed",
   description: "Statistik pesanan per triwulan BEM Unsoed 2026",
 };
 

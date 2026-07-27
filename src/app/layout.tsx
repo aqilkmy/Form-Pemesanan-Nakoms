@@ -17,9 +17,17 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Form Pemesanan Konten - BEM Unsoed",
+  title: "Form Pemesanan Rizzmed - BEM Unsoed",
   description:
-    "Form pemesanan konten untuk kebutuhan media dan publikasi event BEM Unsoed. Isi formulir dengan lengkap untuk mengajukan pesanan desain grafis, video, dan kebutuhan media lainnya.",
+    "Form Pemesanan Rizzmed untuk kebutuhan media dan publikasi event BEM Unsoed. Isi formulir dengan lengkap untuk mengajukan pesanan desain grafis, video, dan kebutuhan media lainnya.",
+  openGraph: {
+    title: "Form Pemesanan Rizzmed - BEM Unsoed",
+    description:
+      "Form Pemesanan Rizzmed untuk kebutuhan media dan publikasi event BEM Unsoed.",
+    siteName: "Pemesanan Rizzmed",
+    locale: "id_ID",
+    type: "website",
+  },
 };
 
 import { ThemeProvider } from "@/components/layout/ThemeProvider";
