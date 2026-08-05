@@ -8,12 +8,14 @@ import {
   PJContact,
   PJCategory,
   PJ_CATEGORY_LABELS,
+  DAYS_OF_WEEK,
   fetchAllPJMappings,
   fetchPJContacts,
   createPJContact,
   updatePJContact,
   deletePJContact,
   updatePJMapping,
+  createPJMapping,
 } from "@/lib/pj";
 import {
   Order,
@@ -78,6 +80,7 @@ import {
   TrendingUp,
   Users2,
   CalendarRange,
+  CalendarDays,
   Flame,
   Activity,
   CheckCircle2,
@@ -89,6 +92,7 @@ import {
   Phone,
   Eye,
   EyeOff,
+  Check,
 } from "lucide-react";
 import { format } from "date-fns";
 
@@ -325,10 +329,26 @@ export function AdminDashboard() {
   const fetchPJs = async () => {
     setIsPjLoading(true);
     try {
-      const [mappings, contacts] = await Promise.all([
+      let [mappings, contacts] = await Promise.all([
         fetchAllPJMappings(),
         fetchPJContacts(),
       ]);
+
+      // Ensure default day mappings exist for 'publikasi' category
+      const existingPublikasiDays = new Set(
+        mappings.filter((m) => m.category === "publikasi").map((m) => m.lookup_key)
+      );
+      let createdAny = false;
+      for (const day of DAYS_OF_WEEK) {
+        if (!existingPublikasiDays.has(day)) {
+          await createPJMapping("publikasi", day);
+          createdAny = true;
+        }
+      }
+      if (createdAny) {
+        mappings = await fetchAllPJMappings();
+      }
+
       setPjMappings(mappings);
       setPjContacts(contacts);
     } catch (error) {
@@ -2025,6 +2045,7 @@ export function AdminDashboard() {
       "bantuan_teknis",
       "survey",
       "platform_khusus",
+      "publikasi",
     ];
 
     return (
@@ -2225,58 +2246,232 @@ export function AdminDashboard() {
                             </div>
                           </AccordionTrigger>
                           <AccordionContent className="pb-3">
-                            <div className="overflow-x-auto">
-                              <Table>
-                                <TableHeader>
-                                  <TableRow>
-                                    <TableHead className="w-[40%]">Identifier / Kementerian</TableHead>
-                                    <TableHead className="w-[60%]">Penugasan PJ</TableHead>
-                                  </TableRow>
-                                </TableHeader>
-                                <TableBody>
-                                  {pjs.length === 0 ? (
-                                    <TableRow>
-                                      <TableCell colSpan={2} className="text-center text-muted-foreground py-6">
-                                        Belum ada data penugasan untuk kategori ini.
-                                      </TableCell>
-                                    </TableRow>
+                            {cat === "publikasi" ? (
+                              <div className="space-y-4 pt-2">
+                                {/* Ringkasan Penugasan PJ Publikasi */}
+                                <div className="p-4 bg-background/60 rounded-lg border">
+                                  <h4 className="font-semibold text-sm flex items-center gap-2 mb-2">
+                                    <CalendarDays className="w-4 h-4 text-primary" />
+                                    Ringkasan Penugasan PJ Publikasi (Maks. 2 Hari / Orang)
+                                  </h4>
+                                  {pjContacts.filter((c) => c.role === "publikasi").length === 0 ? (
+                                    <p className="text-xs text-muted-foreground italic">
+                                      Belum ada Kontak PJ dengan Kategori &quot;PJ Publikasi&quot;. Silakan tambahkan Kontak PJ dengan role PJ Publikasi di Master Data PJ di atas.
+                                    </p>
                                   ) : (
-                                    pjs.map((pjMap) => (
-                                      <TableRow key={pjMap.id}>
-                                        <TableCell className="font-medium align-top">
-                                          <div className="mt-1.5">{pjMap.lookup_key}</div>
-                                          {cat === "platform_khusus" && pjMap.platforms && (
-                                            <div className="text-[10px] text-muted-foreground mt-1">
-                                              {pjMap.platforms.join(", ")}
+                                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
+                                      {pjContacts
+                                        .filter((c) => c.role === "publikasi")
+                                        .map((contact) => {
+                                          const assignedDays = pjMappings
+                                            .filter((m) => m.category === "publikasi" && m.pj_id === contact.id)
+                                            .map((m) => m.lookup_key);
+                                          const count = assignedDays.length;
+                                          const isMax = count >= 2;
+
+                                          return (
+                                            <div
+                                              key={contact.id}
+                                              className={`p-3 rounded-md border text-xs flex flex-col justify-between transition-all ${
+                                                isMax
+                                                  ? "bg-amber-500/10 border-amber-500/30"
+                                                  : count > 0
+                                                  ? "bg-emerald-500/10 border-emerald-500/30"
+                                                  : "bg-background border-border"
+                                              }`}
+                                            >
+                                              <div className="flex items-center justify-between font-semibold">
+                                                <span>{contact.nama}</span>
+                                                <span
+                                                  className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${
+                                                    isMax
+                                                      ? "bg-amber-500/20 text-amber-700 dark:text-amber-300"
+                                                      : count > 0
+                                                      ? "bg-emerald-500/20 text-emerald-700 dark:text-emerald-300"
+                                                      : "bg-muted text-muted-foreground"
+                                                  }`}
+                                                >
+                                                  {count}/2 Hari
+                                                </span>
+                                              </div>
+                                              <div className="mt-1.5 text-[11px] text-muted-foreground">
+                                                {count > 0 ? (
+                                                  <span>Hari: <strong>{assignedDays.join(", ")}</strong></span>
+                                                ) : (
+                                                  <span className="italic">Belum ada hari</span>
+                                                )}
+                                              </div>
                                             </div>
-                                          )}
-                                        </TableCell>
-                                        <TableCell>
-                                          <Select
-                                            value={pjMap.pj_id || "none"}
-                                            onValueChange={(val) => handleMappingChange(pjMap.id, val)}
-                                          >
-                                            <SelectTrigger className="h-9 text-xs sm:text-sm w-full min-w-[140px] max-w-[300px]">
-                                              <SelectValue placeholder="Pilih PJ..." />
-                                            </SelectTrigger>
-                                            <SelectContent>
-                                              <SelectItem value="none" className="text-muted-foreground italic">-- Tidak ada PJ --</SelectItem>
-                                              {pjContacts
-                                                .filter((contact) => contact.role === cat)
-                                                .map((contact) => (
-                                                  <SelectItem key={contact.id} value={contact.id}>
-                                                    {contact.nama} ({contact.nomor})
-                                                  </SelectItem>
-                                                ))}
-                                            </SelectContent>
-                                          </Select>
+                                          );
+                                        })}
+                                    </div>
+                                  )}
+                                </div>
+
+                                {/* Checklist Tabel per Hari */}
+                                <div className="overflow-x-auto border rounded-md bg-background">
+                                  <Table>
+                                    <TableHeader>
+                                      <TableRow>
+                                        <TableHead className="w-[140px]">Hari</TableHead>
+                                        <TableHead>Pilih PJ Publikasi (Checklist)</TableHead>
+                                        <TableHead className="w-[180px]">PJ Terpilih</TableHead>
+                                      </TableRow>
+                                    </TableHeader>
+                                    <TableBody>
+                                      {DAYS_OF_WEEK.map((day) => {
+                                        const mapping = pjMappings.find(
+                                          (m) => m.category === "publikasi" && m.lookup_key === day
+                                        );
+                                        const currentPjId = mapping?.pj_id || null;
+                                        const pubContacts = pjContacts.filter((c) => c.role === "publikasi");
+
+                                        return (
+                                          <TableRow key={day}>
+                                            <TableCell className="font-semibold text-sm">
+                                              <div className="flex items-center gap-2">
+                                                <CalendarDays className="w-4 h-4 text-primary" />
+                                                {day}
+                                              </div>
+                                            </TableCell>
+                                            <TableCell>
+                                              <div className="flex flex-wrap gap-2 items-center">
+                                                {pubContacts.length === 0 ? (
+                                                  <span className="text-xs text-muted-foreground italic">
+                                                    Belum ada kontak PJ Publikasi di Master Data
+                                                  </span>
+                                                ) : (
+                                                  pubContacts.map((contact) => {
+                                                    const isChecked = currentPjId === contact.id;
+                                                    const contactAssignedDays = pjMappings
+                                                      .filter(
+                                                        (m) =>
+                                                          m.category === "publikasi" && m.pj_id === contact.id
+                                                      )
+                                                      .map((m) => m.lookup_key);
+                                                    const count = contactAssignedDays.length;
+                                                    const isLimitReached = count >= 2 && !isChecked;
+
+                                                    return (
+                                                      <button
+                                                        key={contact.id}
+                                                        type="button"
+                                                        onClick={() => {
+                                                          if (!mapping) return;
+                                                          if (isChecked) {
+                                                            handleMappingChange(mapping.id, "none");
+                                                          } else {
+                                                            if (count >= 2) {
+                                                              alert(
+                                                                `PJ ${contact.nama} sudah mengambil 2 hari (${contactAssignedDays.join(
+                                                                  ", "
+                                                                )}). Maksimal 2 hari per 1 orang PJ Publikasi!`
+                                                              );
+                                                              return;
+                                                            }
+                                                            handleMappingChange(mapping.id, contact.id);
+                                                          }
+                                                        }}
+                                                        className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-medium border transition-all ${
+                                                          isChecked
+                                                            ? "bg-primary text-primary-foreground border-primary shadow-sm"
+                                                            : isLimitReached
+                                                            ? "bg-muted/50 text-muted-foreground/60 border-transparent hover:border-amber-500/30"
+                                                            : "bg-background hover:bg-accent hover:text-accent-foreground border-input"
+                                                        }`}
+                                                      >
+                                                        <div
+                                                          className={`w-4 h-4 rounded border flex items-center justify-center transition-colors ${
+                                                            isChecked
+                                                              ? "bg-primary-foreground text-primary border-primary-foreground"
+                                                              : "border-muted-foreground/60"
+                                                          }`}
+                                                        >
+                                                          {isChecked && <Check className="w-3 h-3 stroke-[3]" />}
+                                                        </div>
+                                                        <span>{contact.nama}</span>
+                                                        <span className="text-[10px] opacity-80 font-mono">
+                                                          ({count}/2)
+                                                        </span>
+                                                      </button>
+                                                    );
+                                                  })
+                                                )}
+                                              </div>
+                                            </TableCell>
+                                            <TableCell>
+                                              {mapping?.pj_contacts ? (
+                                                <div className="flex items-center gap-1.5 text-xs font-medium text-emerald-600 dark:text-emerald-400">
+                                                  <CheckCircle2 className="w-4 h-4" />
+                                                  {mapping.pj_contacts.nama}
+                                                </div>
+                                              ) : (
+                                                <span className="text-xs text-muted-foreground italic">
+                                                  Belum ditugaskan
+                                                </span>
+                                              )}
+                                            </TableCell>
+                                          </TableRow>
+                                        );
+                                      })}
+                                    </TableBody>
+                                  </Table>
+                                </div>
+                              </div>
+                            ) : (
+                              <div className="overflow-x-auto">
+                                <Table>
+                                  <TableHeader>
+                                    <TableRow>
+                                      <TableHead className="w-[40%]">Identifier / Kementerian</TableHead>
+                                      <TableHead className="w-[60%]">Penugasan PJ</TableHead>
+                                    </TableRow>
+                                  </TableHeader>
+                                  <TableBody>
+                                    {pjs.length === 0 ? (
+                                      <TableRow>
+                                        <TableCell colSpan={2} className="text-center text-muted-foreground py-6">
+                                          Belum ada data penugasan untuk kategori ini.
                                         </TableCell>
                                       </TableRow>
-                                    ))
-                                  )}
-                                </TableBody>
-                              </Table>
-                            </div>
+                                    ) : (
+                                      pjs.map((pjMap) => (
+                                        <TableRow key={pjMap.id}>
+                                          <TableCell className="font-medium align-top">
+                                            <div className="mt-1.5">{pjMap.lookup_key}</div>
+                                            {cat === "platform_khusus" && pjMap.platforms && (
+                                              <div className="text-[10px] text-muted-foreground mt-1">
+                                                {pjMap.platforms.join(", ")}
+                                              </div>
+                                            )}
+                                          </TableCell>
+                                          <TableCell>
+                                            <Select
+                                              value={pjMap.pj_id || "none"}
+                                              onValueChange={(val) => handleMappingChange(pjMap.id, val)}
+                                            >
+                                              <SelectTrigger className="h-9 text-xs sm:text-sm w-full min-w-[140px] max-w-[300px]">
+                                                <SelectValue placeholder="Pilih PJ..." />
+                                              </SelectTrigger>
+                                              <SelectContent>
+                                                <SelectItem value="none" className="text-muted-foreground italic">-- Tidak ada PJ --</SelectItem>
+                                                {pjContacts
+                                                  .filter((contact) => contact.role === cat)
+                                                  .map((contact) => (
+                                                    <SelectItem key={contact.id} value={contact.id}>
+                                                      {contact.nama} ({contact.nomor})
+                                                    </SelectItem>
+                                                  ))}
+                                              </SelectContent>
+                                            </Select>
+                                          </TableCell>
+                                        </TableRow>
+                                      ))
+                                    )}
+                                  </TableBody>
+                                </Table>
+                              </div>
+                            )}
                           </AccordionContent>
                         </AccordionItem>
                       );

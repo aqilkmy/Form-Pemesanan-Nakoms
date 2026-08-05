@@ -26,12 +26,23 @@ export interface PJMapping {
   pj_contacts?: PJContact | null;
 }
 
+export const DAYS_OF_WEEK = [
+  "Senin",
+  "Selasa",
+  "Rabu",
+  "Kamis",
+  "Jumat",
+  "Sabtu",
+  "Minggu",
+] as const;
+
 export type PJCategory =
   | "desain_grafis"
   | "website"
   | "bantuan_teknis"
   | "survey"
-  | "platform_khusus";
+  | "platform_khusus"
+  | "publikasi";
 
 export const PJ_CATEGORY_LABELS: Record<PJCategory, string> = {
   desain_grafis: "PJ Desain Grafis",
@@ -39,6 +50,7 @@ export const PJ_CATEGORY_LABELS: Record<PJCategory, string> = {
   bantuan_teknis: "PJ Bantuan Teknis",
   survey: "PJ Survey",
   platform_khusus: "PJ Platform Khusus",
+  publikasi: "PJ Publikasi",
 };
 
 // ─── Contacts CRUD ───
@@ -130,6 +142,26 @@ export async function updatePJMapping(
   return { success: true };
 }
 
+export async function createPJMapping(
+  category: string,
+  lookup_key: string,
+  pj_id: string | null = null,
+  platforms: string[] | null = null
+): Promise<{ success: boolean; data?: PJMapping; error?: string }> {
+  const { data, error } = await supabase
+    .from("pj_mappings")
+    .insert([{ category, lookup_key, pj_id, platforms }])
+    .select("*, pj_contacts(*)")
+    .single();
+
+  if (error) {
+    console.error("Error creating PJ mapping:", error);
+    return { success: false, error: error.message };
+  }
+
+  return { success: true, data: data as PJMapping };
+}
+
 // ─── Convert DB mappings to the same format as constants (for SuccessMessage) ───
 export function buildPJLookups(mappings: PJMapping[]) {
   const desainGrafis: Record<string, { nama: string; nomor: string }> = {};
@@ -140,6 +172,7 @@ export function buildPJLookups(mappings: PJMapping[]) {
     string,
     { nama: string; nomor: string; platforms: string[] }
   > = {};
+  const publikasi: Record<string, { nama: string; nomor: string }> = {};
 
   mappings.forEach((m) => {
     // Skip if no PJ is assigned
@@ -166,10 +199,13 @@ export function buildPJLookups(mappings: PJMapping[]) {
           platforms: m.platforms || [],
         };
         break;
+      case "publikasi":
+        publikasi[m.lookup_key] = contact;
+        break;
     }
   });
 
-  return { desainGrafis, website, bantuanTeknis, survey, platformKhusus };
+  return { desainGrafis, website, bantuanTeknis, survey, platformKhusus, publikasi };
 }
 
 // ─── Get PJ lookups with fallback to constants ───
@@ -187,6 +223,7 @@ export async function getPJLookupsWithFallback() {
       >,
       survey: PJ_SURVEY,
       platformKhusus: PJ_PLATFORM_KHUSUS,
+      publikasi: {},
     };
   }
 
