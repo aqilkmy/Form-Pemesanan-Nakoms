@@ -212,7 +212,7 @@ export function FormWebsite({ form, step, onOrderShortlink }: FormWebsiteProps) 
                                 <Label htmlFor="judul_kampanye">Judul Twibbon</Label>
                                 <Input
                                     id="judul_kampanye"
-                                    placeholder="Contoh: Hari Pendidikan Nasional 2026"
+                                    placeholder="Contoh: Soedirman Digital School"
                                     {...register("judul_kampanye")}
                                 />
                                 {errors.judul_kampanye && <p className="text-sm text-destructive">{errors.judul_kampanye.message}</p>}
@@ -226,7 +226,7 @@ export function FormWebsite({ form, step, onOrderShortlink }: FormWebsiteProps) 
                                     </span>
                                     <Input
                                         id="nama_url_twibbon"
-                                        placeholder="contoh: S3"
+                                        placeholder="SDS"
                                         className="rounded-l-none"
                                         {...register("nama_url_twibbon")}
                                     />
