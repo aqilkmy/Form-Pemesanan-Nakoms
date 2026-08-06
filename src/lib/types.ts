@@ -34,11 +34,20 @@ export interface DesainPublikasiOrder extends BaseOrder {
 // Website order
 export interface WebsiteOrder extends BaseOrder {
     menu_type: "website"
-    tujuan_pemesanan: string
+    website_sub_type?: "shortlink" | "laman_website" | "twibbon"
+    tujuan_pemesanan?: string
     link_original?: string
     custom_shortlink?: string
     link_pengajuan_fitur?: string
     link_pendaftaran_event?: string
+    // Twibbon fields
+    judul_kampanye?: string
+    nama_url_twibbon?: string
+    caption_twibbon?: string
+    format_twibbon?: "gambar" | "video"
+    warna_chroma_key?: string
+    tanggal_publikasi_twibbon?: string
+    link_asset_twibbon?: string
 }
 
 // Bantuan Teknis order

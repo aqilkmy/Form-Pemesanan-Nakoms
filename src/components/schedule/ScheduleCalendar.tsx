@@ -87,7 +87,9 @@ export function ScheduleCalendar() {
       case "survey":
         return `Survey: ${order.judul_survey}`;
       case "website":
-        return `Website: ${order.tujuan_pemesanan || order.nama}`;
+        return order.website_sub_type === "twibbon" 
+          ? `Twibbon: ${order.judul_kampanye || order.nama}`
+          : `Website: ${order.tujuan_pemesanan || order.nama}`;
     }
   };
 
@@ -174,7 +176,9 @@ export function ScheduleCalendar() {
       case "survey":
         return order.judul_survey;
       case "website":
-        return order.tujuan_pemesanan || "Website Request";
+        return order.website_sub_type === "twibbon"
+          ? (order.judul_kampanye || "Twibbon Request")
+          : (order.tujuan_pemesanan || "Website Request");
     }
   };
 

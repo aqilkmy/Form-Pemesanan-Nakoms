@@ -1316,8 +1316,20 @@ export function AdminDashboard() {
                   </TableCell>
                   <TableCell className="max-w-xs">
                     <span className="font-medium text-xs">
-                      {order.tujuan_pemesanan || "-"}
+                      {order.website_sub_type === "twibbon" ? (order.judul_kampanye || "-") : (order.tujuan_pemesanan || "-")}
                     </span>
+                    {order.website_sub_type && (
+                      <div className="mt-0.5">
+                        <span className={`inline-block text-[10px] px-1.5 py-0.5 rounded-full font-medium ${
+                          order.website_sub_type === "twibbon" ? "bg-purple-100 text-purple-700" :
+                          order.website_sub_type === "shortlink" ? "bg-amber-100 text-amber-700" :
+                          "bg-blue-100 text-blue-700"
+                        }`}>
+                          {order.website_sub_type === "twibbon" ? "Twibbon" :
+                           order.website_sub_type === "shortlink" ? "Shortlink" : "Laman"}
+                        </span>
+                      </div>
+                    )}
                   </TableCell>
                   <TableCell>
                     <div className="flex flex-col gap-1 text-[10px]">

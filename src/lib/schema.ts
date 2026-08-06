@@ -26,11 +26,56 @@ export const desainPublikasiSchema = identitySchema.extend({
 // Menu 2: Laman Website
 export const websiteSchema = identitySchema.extend({
     menu_type: z.literal("website"),
-    tujuan_pemesanan: z.string().min(3, "Tujuan pemesanan wajib diisi"),
+    website_sub_type: z.enum(["shortlink", "laman_website", "twibbon"]),
+    // Shortlink fields
+    tujuan_pemesanan: z.string().optional(),
     link_original: z.string().optional(),
     custom_shortlink: z.string().optional(),
+    // Laman Website fields
     link_pengajuan_fitur: z.string().optional(),
     link_pendaftaran_event: z.string().optional(),
+    // Twibbon fields
+    judul_kampanye: z.string().optional(),
+    nama_url_twibbon: z.string().optional(),
+    caption_twibbon: z.string().optional(),
+    format_twibbon: z.enum(["gambar", "video"]).optional(),
+    warna_chroma_key: z.string().optional(),
+    tanggal_publikasi_twibbon: z.string().optional(),
+    link_asset_twibbon: z.string().optional(),
+}).superRefine((data, ctx) => {
+    if (data.website_sub_type === "shortlink") {
+        if (!data.tujuan_pemesanan || data.tujuan_pemesanan.length < 3) {
+            ctx.addIssue({ code: z.ZodIssueCode.custom, message: "Tujuan pemesanan wajib diisi (min 3 karakter)", path: ["tujuan_pemesanan"] })
+        }
+    }
+    if (data.website_sub_type === "laman_website") {
+        if (!data.tujuan_pemesanan || data.tujuan_pemesanan.length < 3) {
+            ctx.addIssue({ code: z.ZodIssueCode.custom, message: "Tujuan pemesanan wajib diisi (min 3 karakter)", path: ["tujuan_pemesanan"] })
+        }
+    }
+    if (data.website_sub_type === "twibbon") {
+        if (!data.judul_kampanye || data.judul_kampanye.length < 3) {
+            ctx.addIssue({ code: z.ZodIssueCode.custom, message: "Judul kampanye wajib diisi (min 3 karakter)", path: ["judul_kampanye"] })
+        }
+        if (!data.nama_url_twibbon || data.nama_url_twibbon.length < 1) {
+            ctx.addIssue({ code: z.ZodIssueCode.custom, message: "Nama URL twibbon wajib diisi", path: ["nama_url_twibbon"] })
+        }
+        if (!data.caption_twibbon || data.caption_twibbon.length < 5) {
+            ctx.addIssue({ code: z.ZodIssueCode.custom, message: "Caption twibbon wajib diisi (min 5 karakter)", path: ["caption_twibbon"] })
+        }
+        if (!data.format_twibbon) {
+            ctx.addIssue({ code: z.ZodIssueCode.custom, message: "Format twibbon wajib dipilih", path: ["format_twibbon"] })
+        }
+        if (data.format_twibbon === "video" && (!data.warna_chroma_key || data.warna_chroma_key.length < 1)) {
+            ctx.addIssue({ code: z.ZodIssueCode.custom, message: "Warna Chroma Key wajib diisi untuk format video", path: ["warna_chroma_key"] })
+        }
+        if (!data.tanggal_publikasi_twibbon || data.tanggal_publikasi_twibbon.length < 1) {
+            ctx.addIssue({ code: z.ZodIssueCode.custom, message: "Tanggal publikasi twibbon wajib diisi", path: ["tanggal_publikasi_twibbon"] })
+        }
+        if (!data.link_asset_twibbon || data.link_asset_twibbon.length < 1) {
+            ctx.addIssue({ code: z.ZodIssueCode.custom, message: "Link asset twibbon wajib diisi", path: ["link_asset_twibbon"] })
+        }
+    }
 })
 
 // Menu 3: Bantuan Teknis

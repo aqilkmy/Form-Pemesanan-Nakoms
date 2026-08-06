@@ -45,6 +45,7 @@ interface SubmittedData {
   nama: string;
   jenis_bantuan?: "podcast" | "take_video" | "live_instagram" | "lainnya";
   platform_publikasi?: string[];
+  tanggal_publikasi?: string;
 }
 
 export function OrderForm() {
@@ -81,6 +82,8 @@ export function OrderForm() {
     mode: "onChange",
     defaultValues: {
       menu_type: "website",
+      website_sub_type: undefined as unknown as "shortlink" | "laman_website" | "twibbon",
+      format_twibbon: "gambar",
       sudah_baca_sop: undefined,
     },
   });
@@ -204,8 +207,20 @@ export function OrderForm() {
             "tanggal_publikasi",
             "waktu_publikasi",
           ]);
-        case "website":
-          return await websiteForm.trigger(["custom_shortlink"]);
+        case "website": {
+          const subType = websiteForm.getValues("website_sub_type");
+          if (!subType) return false;
+          if (subType === "shortlink") {
+            return await websiteForm.trigger(["website_sub_type", "tujuan_pemesanan"]);
+          }
+          if (subType === "laman_website") {
+            return await websiteForm.trigger(["website_sub_type", "tujuan_pemesanan"]);
+          }
+          if (subType === "twibbon") {
+            return await websiteForm.trigger(["website_sub_type", "judul_kampanye", "nama_url_twibbon", "caption_twibbon", "format_twibbon", "tanggal_publikasi_twibbon", "link_asset_twibbon"]);
+          }
+          return true;
+        }
         case "bantuan_teknis":
           return await bantuanTeknisForm.trigger([
             "nama_kegiatan",
@@ -347,6 +362,10 @@ export function OrderForm() {
         platform_publikasi:
           selectedMenu === "desain_publikasi"
             ? (data as any).platform_publikasi
+            : undefined,
+        tanggal_publikasi:
+          selectedMenu === "desain_publikasi"
+            ? (data as any).tanggal_publikasi
             : undefined,
       });
       setIsSuccess(true);

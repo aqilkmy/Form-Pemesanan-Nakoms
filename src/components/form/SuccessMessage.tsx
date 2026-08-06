@@ -5,7 +5,7 @@ import * as React from "react"
 import { CheckCircle2, MessageCircle, Loader2 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { MenuType, JENIS_BANTUAN_OPTIONS } from "@/lib/constants"
-import { getPJLookupsWithFallback } from "@/lib/pj"
+import { getPJLookupsWithFallback, DAYS_OF_WEEK } from "@/lib/pj"
 
 interface SubmittedData {
     menu_type: MenuType
@@ -13,6 +13,7 @@ interface SubmittedData {
     nama: string
     jenis_bantuan?: "podcast" | "take_video" | "live_instagram" | "lainnya"
     platform_publikasi?: string[]
+    tanggal_publikasi?: string
 }
 
 interface SuccessMessageProps {
@@ -67,17 +68,47 @@ export function SuccessMessage({ onReset, submittedData }: SuccessMessageProps) 
 
         switch (submittedData.menu_type) {
             case "desain_publikasi": {
-                const pjDesain = pjData.desainGrafis[submittedData.kementerian]
-                if (pjDesain?.nomor) {
-                    contacts.push({
-                        label: "PJ Desain Grafis",
-                        nama: pjDesain.nama,
-                        nomor: pjDesain.nomor,
-                        message: getTemplateMessage("desain_publikasi", submittedData.nama, submittedData.kementerian, pjDesain.nama)
-                    })
+                // Check if the only platform is "Repost" → use PJ Publikasi instead of PJ Desain
+                const platforms = submittedData.platform_publikasi || []
+                const isRepostOnly = platforms.length === 1 && platforms[0] === "Repost"
+                const hasRepost = platforms.includes("Repost")
+
+                if (hasRepost && submittedData.tanggal_publikasi) {
+                    // Convert tanggal_publikasi to Indonesian day name
+                    const date = new Date(submittedData.tanggal_publikasi)
+                    const dayIndex = date.getDay() // 0=Sunday
+                    // Map JS getDay() to Indonesian days
+                    const dayMap: Record<number, string> = {
+                        0: "Minggu", 1: "Senin", 2: "Selasa", 3: "Rabu",
+                        4: "Kamis", 5: "Jumat", 6: "Sabtu"
+                    }
+                    const dayName = dayMap[dayIndex]
+
+                    if (dayName && pjData.publikasi[dayName]) {
+                        const pjPub = pjData.publikasi[dayName]
+                        contacts.push({
+                            label: `PJ Publikasi (${dayName})`,
+                            nama: pjPub.nama,
+                            nomor: pjPub.nomor,
+                            message: `Halo Kak ${pjPub.nama}, saya ${submittedData.nama} dari ${submittedData.kementerian} izin konfirmasi pemesanan *Repost* hari ${dayName} yang sudah saya submit melalui form RISET & MEDIA. Mohon ditindaklanjuti ya kak. Terima kasih!`
+                        })
+                    }
                 }
 
-                // Check for special platform PJs
+                // If not repost-only, still show PJ Desain Grafis
+                if (!isRepostOnly) {
+                    const pjDesain = pjData.desainGrafis[submittedData.kementerian]
+                    if (pjDesain?.nomor) {
+                        contacts.push({
+                            label: "PJ Desain Grafis",
+                            nama: pjDesain.nama,
+                            nomor: pjDesain.nomor,
+                            message: getTemplateMessage("desain_publikasi", submittedData.nama, submittedData.kementerian, pjDesain.nama)
+                        })
+                    }
+                }
+
+                // Check for special platform PJs (exclude Repost from this check)
                 if (submittedData.platform_publikasi && submittedData.platform_publikasi.length > 0) {
                     const addedPJs = new Set<string>() // Prevent duplicates
 

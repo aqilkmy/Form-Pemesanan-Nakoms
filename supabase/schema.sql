@@ -29,6 +29,16 @@ create table orders (
   custom_shortlink text,
   link_pengajuan_fitur text,
   link_pendaftaran_event text,
+  website_sub_type text check (website_sub_type in ('shortlink', 'laman_website', 'twibbon') or website_sub_type is null),
+  
+  -- Twibbon fields
+  judul_kampanye text,
+  nama_url_twibbon text,
+  caption_twibbon text,
+  format_twibbon text check (format_twibbon in ('gambar', 'video') or format_twibbon is null),
+  warna_chroma_key text,
+  tanggal_publikasi_twibbon date,
+  link_asset_twibbon text,
   
   -- Bantuan Teknis fields  
   nama_kegiatan text,
