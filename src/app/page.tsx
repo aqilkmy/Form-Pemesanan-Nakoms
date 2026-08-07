@@ -1,10 +1,12 @@
 import { OrderForm } from "@/components/form/OrderForm";
 import Link from "next/link";
 import { Users2 } from "lucide-react";
+import { UpdatePopup } from "@/components/layout/UpdatePopup";
 
 export default function Home() {
   return (
     <main className="min-h-screen flex flex-col items-center">
+      <UpdatePopup />
       <div className="flex-1 container py-8 sm:py-12">
         <div className="max-w-2xl mx-auto text-center mb-8 space-y-2">
           <h1 className="text-3xl font-bold text-foreground tracking-tight">
@@ -12,7 +14,7 @@ export default function Home() {
           </h1>
           <p className="text-muted-foreground">
             Silakan isi formulir di bawah ini dengan sadar untuk mengajukan
-            pesanan desain, publikasi, website, bantuan teknis, atau survey.
+            pesanan desain dan publikasi, website, bantuan teknis, atau survey.
           </p>
           <div className="pt-3">
             <Link href="/pj">

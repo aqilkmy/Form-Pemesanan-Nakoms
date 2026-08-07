@@ -319,6 +319,17 @@ export function FormWebsite({ form, step, onOrderShortlink }: FormWebsiteProps) 
                                         <li>File twibbon utama</li>
                                         <li>Thumbnail twibbon</li>
                                     </ul>
+                                    <p className="text-xs text-blue-600 mt-2">
+                                        Contoh link asset:{" "}
+                                        <a
+                                            href="https://drive.google.com/drive/folders/1CD96578p_xpDB4h43ht7wHZV8wXhz5QK?usp=drive_link"
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            className="underline hover:text-blue-800 font-bold italic"
+                                        >
+                                            Lihat contoh folder asset
+                                        </a>
+                                    </p>
                                 </div>
                             </div>
                         </div>
