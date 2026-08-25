@@ -2075,6 +2075,46 @@ export function AdminDashboard() {
       "publikasi",
     ];
 
+    const toggleRole = (roleKey: string) => {
+      const currentRoles = contactRole
+        ? contactRole.split(",").map((r) => r.trim()).filter(Boolean)
+        : [];
+      if (currentRoles.includes(roleKey)) {
+        const updated = currentRoles.filter((r) => r !== roleKey);
+        setContactRole(updated.length > 0 ? updated.join(",") : null);
+      } else {
+        setContactRole([...currentRoles, roleKey].join(","));
+      }
+    };
+
+    const isContactEligibleForCategory = (contact: PJContact, targetCat: PJCategory) => {
+      if (!contact.role) return false;
+      const roles = contact.role.split(",").map((r) => r.trim());
+      if (roles.includes(targetCat)) return true;
+      // PJ Publikasi and PJ Twibbon can also serve each other
+      if (targetCat === "twibbon" && roles.includes("publikasi")) return true;
+      if (targetCat === "publikasi" && roles.includes("twibbon")) return true;
+      return false;
+    };
+
+    const renderRoleBadges = (roleStr: string | null) => {
+      if (!roleStr) return <span className="text-muted-foreground italic">Belum Diatur</span>;
+      const roles = roleStr.split(",").map((r) => r.trim()).filter(Boolean);
+      if (roles.length === 0) return <span className="text-muted-foreground italic">Belum Diatur</span>;
+      return (
+        <div className="flex flex-wrap gap-1">
+          {roles.map((r) => (
+            <span
+              key={r}
+              className="px-2 py-0.5 rounded-full text-[10px] font-medium bg-primary/10 text-primary border border-primary/20"
+            >
+              {PJ_CATEGORY_LABELS[r as PJCategory] || r}
+            </span>
+          ))}
+        </div>
+      );
+    };
+
     return (
       <div className="space-y-6">
         <div className="px-3 sm:px-6 pt-2 sm:pt-4 mb-2">
@@ -2121,21 +2161,37 @@ export function AdminDashboard() {
                         placeholder="Nomor WA (628...)"
                         className="h-8 text-xs"
                       />
-                      <Select
-                        value={contactRole || ""}
-                        onValueChange={(val) => setContactRole(val)}
-                      >
-                        <SelectTrigger className="h-8 text-xs w-full">
-                          <SelectValue placeholder="Pilih Kategori Role..." />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {categories.map((c) => (
-                            <SelectItem key={c} value={c}>
-                              {PJ_CATEGORY_LABELS[c]}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
+                      <div className="space-y-1.5">
+                        <div className="text-[11px] text-muted-foreground font-medium">Pilih Kategori Role (Bisa lebih dari 1):</div>
+                        <div className="flex flex-wrap gap-1.5">
+                          {categories.map((c) => {
+                            const selected = (contactRole ? contactRole.split(",").map((r) => r.trim()) : []).includes(c);
+                            return (
+                              <button
+                                key={c}
+                                type="button"
+                                onClick={() => toggleRole(c)}
+                                className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-md text-xs font-medium border transition-all ${
+                                  selected
+                                    ? "bg-primary text-primary-foreground border-primary shadow-xs"
+                                    : "bg-background hover:bg-muted text-muted-foreground border-input"
+                                }`}
+                              >
+                                <div
+                                  className={`w-3 h-3 rounded-xs border flex items-center justify-center transition-colors ${
+                                    selected
+                                      ? "bg-primary-foreground text-primary border-primary-foreground"
+                                      : "border-muted-foreground/60"
+                                  }`}
+                                >
+                                  {selected && <Check className="w-2 h-2 stroke-[3]" />}
+                                </div>
+                                {PJ_CATEGORY_LABELS[c]}
+                              </button>
+                            );
+                          })}
+                        </div>
+                      </div>
                       <div className="flex justify-end gap-2 pt-1">
                         <Button size="sm" variant="outline" className="h-8 text-xs px-3" onClick={cancelEditContact} disabled={contactSaving}>
                           Batal
@@ -2164,21 +2220,37 @@ export function AdminDashboard() {
                             placeholder="Nomor WA"
                             className="h-8 text-xs"
                           />
-                          <Select
-                            value={contactRole || ""}
-                            onValueChange={(val) => setContactRole(val)}
-                          >
-                            <SelectTrigger className="h-8 text-xs w-full">
-                              <SelectValue placeholder="Pilih Kategori..." />
-                            </SelectTrigger>
-                            <SelectContent>
-                              {categories.map((c) => (
-                                <SelectItem key={c} value={c}>
-                                  {PJ_CATEGORY_LABELS[c]}
-                                </SelectItem>
-                              ))}
-                            </SelectContent>
-                          </Select>
+                          <div className="space-y-1.5">
+                            <div className="text-[11px] text-muted-foreground font-medium">Pilih Kategori Role (Bisa lebih dari 1):</div>
+                            <div className="flex flex-wrap gap-1.5">
+                              {categories.map((c) => {
+                                const selected = (contactRole ? contactRole.split(",").map((r) => r.trim()) : []).includes(c);
+                                return (
+                                  <button
+                                    key={c}
+                                    type="button"
+                                    onClick={() => toggleRole(c)}
+                                    className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-md text-xs font-medium border transition-all ${
+                                      selected
+                                        ? "bg-primary text-primary-foreground border-primary shadow-xs"
+                                        : "bg-background hover:bg-muted text-muted-foreground border-input"
+                                    }`}
+                                  >
+                                    <div
+                                      className={`w-3 h-3 rounded-xs border flex items-center justify-center transition-colors ${
+                                        selected
+                                          ? "bg-primary-foreground text-primary border-primary-foreground"
+                                          : "border-muted-foreground/60"
+                                      }`}
+                                    >
+                                      {selected && <Check className="w-2 h-2 stroke-[3]" />}
+                                    </div>
+                                    {PJ_CATEGORY_LABELS[c]}
+                                  </button>
+                                );
+                              })}
+                            </div>
+                          </div>
                           <div className="flex justify-end gap-2 pt-1">
                             <Button size="sm" variant="outline" className="h-8 text-xs px-3" onClick={cancelEditContact} disabled={contactSaving}>
                               Batal
@@ -2192,9 +2264,7 @@ export function AdminDashboard() {
                         <>
                           <div className="flex items-start justify-between gap-2">
                             <div className="font-semibold text-sm">{contact.nama}</div>
-                            <span className="px-2 py-0.5 rounded-full text-[10px] font-medium bg-muted text-muted-foreground">
-                              {contact.role ? PJ_CATEGORY_LABELS[contact.role as PJCategory] || contact.role : "Belum Diatur"}
-                            </span>
+                            {renderRoleBadges(contact.role)}
                           </div>
                           <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
                             <Phone className="w-3.5 h-3.5 text-muted-foreground/70" />
@@ -2251,21 +2321,34 @@ export function AdminDashboard() {
                             />
                           </TableCell>
                           <TableCell>
-                            <Select
-                              value={contactRole || ""}
-                              onValueChange={(val) => setContactRole(val)}
-                            >
-                              <SelectTrigger className="h-8 text-xs w-full min-w-[140px]">
-                                <SelectValue placeholder="Pilih Kategori..." />
-                              </SelectTrigger>
-                              <SelectContent>
-                                {categories.map((c) => (
-                                  <SelectItem key={c} value={c}>
+                            <div className="flex flex-wrap gap-1 min-w-[220px]">
+                              {categories.map((c) => {
+                                const selected = (contactRole ? contactRole.split(",").map((r) => r.trim()) : []).includes(c);
+                                return (
+                                  <button
+                                    key={c}
+                                    type="button"
+                                    onClick={() => toggleRole(c)}
+                                    className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[11px] font-medium border transition-all ${
+                                      selected
+                                        ? "bg-primary text-primary-foreground border-primary shadow-xs"
+                                        : "bg-background hover:bg-muted text-muted-foreground border-input"
+                                    }`}
+                                  >
+                                    <div
+                                      className={`w-2.5 h-2.5 rounded-xs border flex items-center justify-center transition-colors ${
+                                        selected
+                                          ? "bg-primary-foreground text-primary border-primary-foreground"
+                                          : "border-muted-foreground/60"
+                                      }`}
+                                    >
+                                      {selected && <Check className="w-2 h-2 stroke-[3]" />}
+                                    </div>
                                     {PJ_CATEGORY_LABELS[c]}
-                                  </SelectItem>
-                                ))}
-                              </SelectContent>
-                            </Select>
+                                  </button>
+                                );
+                              })}
+                            </div>
                           </TableCell>
                           <TableCell className="text-right">
                             <div className="flex justify-end gap-2">
@@ -2308,27 +2391,36 @@ export function AdminDashboard() {
                           </TableCell>
                           <TableCell>
                             {editingContactId === contact.id ? (
-                              <Select
-                                value={contactRole || ""}
-                                onValueChange={(val) => setContactRole(val)}
-                              >
-                                <SelectTrigger className="h-8 text-xs w-full min-w-[140px]">
-                                  <SelectValue placeholder="Pilih Kategori..." />
-                                </SelectTrigger>
-                                <SelectContent>
-                                  {categories.map((c) => (
-                                    <SelectItem key={c} value={c}>
+                              <div className="flex flex-wrap gap-1 min-w-[220px]">
+                                {categories.map((c) => {
+                                  const selected = (contactRole ? contactRole.split(",").map((r) => r.trim()) : []).includes(c);
+                                  return (
+                                    <button
+                                      key={c}
+                                      type="button"
+                                      onClick={() => toggleRole(c)}
+                                      className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[11px] font-medium border transition-all ${
+                                        selected
+                                          ? "bg-primary text-primary-foreground border-primary shadow-xs"
+                                          : "bg-background hover:bg-muted text-muted-foreground border-input"
+                                      }`}
+                                    >
+                                      <div
+                                        className={`w-2.5 h-2.5 rounded-xs border flex items-center justify-center transition-colors ${
+                                          selected
+                                            ? "bg-primary-foreground text-primary border-primary-foreground"
+                                            : "border-muted-foreground/60"
+                                        }`}
+                                      >
+                                        {selected && <Check className="w-2 h-2 stroke-[3]" />}
+                                      </div>
                                       {PJ_CATEGORY_LABELS[c]}
-                                    </SelectItem>
-                                  ))}
-                                </SelectContent>
-                              </Select>
-                            ) : (
-                              <div className="text-xs">
-                                {contact.role
-                                  ? PJ_CATEGORY_LABELS[contact.role as PJCategory] || contact.role
-                                  : <span className="text-muted-foreground italic">Belum Diatur</span>}
+                                    </button>
+                                  );
+                                })}
                               </div>
+                            ) : (
+                              renderRoleBadges(contact.role)
                             )}
                           </TableCell>
                           <TableCell className="text-right">
@@ -2399,14 +2491,14 @@ export function AdminDashboard() {
                                     <CalendarDays className="w-4 h-4 text-primary" />
                                     Ringkasan Penugasan PJ Publikasi (Maks. 2 Hari / Orang)
                                   </h4>
-                                  {pjContacts.filter((c) => c.role === "publikasi").length === 0 ? (
+                                  {pjContacts.filter((c) => isContactEligibleForCategory(c, "publikasi")).length === 0 ? (
                                     <p className="text-xs text-muted-foreground italic">
-                                      Belum ada Kontak PJ dengan Kategori &quot;PJ Publikasi&quot;. Silakan tambahkan Kontak PJ dengan role PJ Publikasi di Master Data PJ di atas.
+                                      Belum ada Kontak PJ dengan Kategori &quot;PJ Publikasi&quot; atau &quot;PJ Twibbon&quot;. Silakan tambahkan Kontak PJ di Master Data PJ di atas.
                                     </p>
                                   ) : (
                                     <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2.5 sm:gap-3">
                                       {pjContacts
-                                        .filter((c) => c.role === "publikasi")
+                                        .filter((c) => isContactEligibleForCategory(c, "publikasi"))
                                         .map((contact) => {
                                           const assignedDays = pjMappings
                                             .filter((m) => m.category === "publikasi" && m.pj_id === contact.id)
@@ -2460,7 +2552,7 @@ export function AdminDashboard() {
                                       (m) => m.category === "publikasi" && m.lookup_key === day
                                     );
                                     const currentPjId = mapping?.pj_id || null;
-                                    const pubContacts = pjContacts.filter((c) => c.role === "publikasi");
+                                    const pubContacts = pjContacts.filter((c) => isContactEligibleForCategory(c, "publikasi"));
 
                                     return (
                                       <div key={day} className="p-3 border rounded-lg bg-background space-y-2.5">
@@ -2565,7 +2657,7 @@ export function AdminDashboard() {
                                           (m) => m.category === "publikasi" && m.lookup_key === day
                                         );
                                         const currentPjId = mapping?.pj_id || null;
-                                        const pubContacts = pjContacts.filter((c) => c.role === "publikasi");
+                                        const pubContacts = pjContacts.filter((c) => isContactEligibleForCategory(c, "publikasi"));
 
                                         return (
                                           <TableRow key={day}>
@@ -2693,7 +2785,7 @@ export function AdminDashboard() {
                                           <SelectContent>
                                             <SelectItem value="none" className="text-muted-foreground italic">-- Tidak ada PJ --</SelectItem>
                                             {pjContacts
-                                              .filter((contact) => contact.role === cat)
+                                              .filter((contact) => isContactEligibleForCategory(contact, cat))
                                               .map((contact) => (
                                                 <SelectItem key={contact.id} value={contact.id}>
                                                   {contact.nama} ({contact.nomor})
@@ -2751,7 +2843,7 @@ export function AdminDashboard() {
                                                 <SelectContent>
                                                   <SelectItem value="none" className="text-muted-foreground italic">-- Tidak ada PJ --</SelectItem>
                                                   {pjContacts
-                                                    .filter((contact) => contact.role === cat)
+                                                    .filter((contact) => isContactEligibleForCategory(contact, cat))
                                                     .map((contact) => (
                                                       <SelectItem key={contact.id} value={contact.id}>
                                                         {contact.nama} ({contact.nomor})
