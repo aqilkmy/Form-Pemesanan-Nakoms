@@ -2,6 +2,7 @@ import { supabase } from "./supabase";
 import {
   PJ_DESAIN_GRAFIS,
   PJ_WEBSITE,
+  PJ_TWIBBON,
   PJ_BANTUAN_TEKNIS,
   PJ_SURVEY,
   PJ_PLATFORM_KHUSUS,
@@ -39,6 +40,7 @@ export const DAYS_OF_WEEK = [
 export type PJCategory =
   | "desain_grafis"
   | "website"
+  | "twibbon"
   | "bantuan_teknis"
   | "survey"
   | "platform_khusus"
@@ -47,6 +49,7 @@ export type PJCategory =
 export const PJ_CATEGORY_LABELS: Record<PJCategory, string> = {
   desain_grafis: "PJ Desain Grafis",
   website: "PJ Website",
+  twibbon: "PJ Twibbon",
   bantuan_teknis: "PJ Bantuan Teknis",
   survey: "PJ Survey",
   platform_khusus: "PJ Platform Khusus",
@@ -166,6 +169,7 @@ export async function createPJMapping(
 export function buildPJLookups(mappings: PJMapping[]) {
   const desainGrafis: Record<string, { nama: string; nomor: string }> = {};
   const website: Record<string, { nama: string; nomor: string }> = {};
+  const twibbon: Record<string, { nama: string; nomor: string }> = {};
   const bantuanTeknis: Record<string, { nama: string; nomor: string }> = {};
   let survey: { nama: string; nomor: string } = { nama: "", nomor: "" };
   const platformKhusus: Record<
@@ -187,6 +191,9 @@ export function buildPJLookups(mappings: PJMapping[]) {
       case "website":
         website[m.lookup_key] = contact;
         break;
+      case "twibbon":
+        twibbon[m.lookup_key] = contact;
+        break;
       case "bantuan_teknis":
         bantuanTeknis[m.lookup_key] = contact;
         break;
@@ -205,7 +212,7 @@ export function buildPJLookups(mappings: PJMapping[]) {
     }
   });
 
-  return { desainGrafis, website, bantuanTeknis, survey, platformKhusus, publikasi };
+  return { desainGrafis, website, twibbon, bantuanTeknis, survey, platformKhusus, publikasi };
 }
 
 // ─── Get PJ lookups with fallback to constants ───
@@ -217,6 +224,7 @@ export async function getPJLookupsWithFallback() {
     return {
       desainGrafis: PJ_DESAIN_GRAFIS,
       website: PJ_WEBSITE,
+      twibbon: PJ_TWIBBON,
       bantuanTeknis: PJ_BANTUAN_TEKNIS as Record<
         string,
         { nama: string; nomor: string }

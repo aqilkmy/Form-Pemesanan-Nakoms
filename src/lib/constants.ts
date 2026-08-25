@@ -120,6 +120,112 @@ export const PJ_WEBSITE: Record<string, { nama: string; nomor: string }> = {
     "Kementerian Riset dan Data": { nama: "Bintang", nomor: "6285710205061" },
 }
 
+// ================================================================
+// Struktur Kemenkoan & Biro BEM Unsoed 2026
+// ================================================================
+export const KEMENKO_GROUPS = [
+    {
+        id: "spi",
+        name: "Satuan Pengawas Internal",
+        shortName: "SPI",
+        kementerian: [
+            "Biro Pengembangan Sumber Daya Anggota",
+            "Biro Pengendali & Penjamin Mutu"
+        ]
+    },
+    {
+        id: "sekjen",
+        name: "Sekretaris Jenderal",
+        shortName: "Sekjen",
+        kementerian: [
+            "Lingkar Presiden",
+            "Biro Kesekretariatan",
+            "Biro Keuangan"
+        ]
+    },
+    {
+        id: "polper",
+        name: "Kemenko Polper",
+        shortName: "Polper",
+        kementerian: [
+            "Kementerian Advokasi Kesejahteraan Mahasiswa",
+            "Kementerian Pemberdayaan Perempuan",
+            "Kementerian Aksi dan Propaganda",
+            "Kementerian Analisis Isu Strategis"
+        ]
+    },
+    {
+        id: "pm",
+        name: "Kemenko PM",
+        shortName: "PM",
+        kementerian: [
+            "Kementerian Pengembangan Sumber Daya Mahasiswa",
+            "Kementerian Prestasi dan Inovasi",
+            "Kementerian Seni dan Olahraga"
+        ]
+    },
+    {
+        id: "respub",
+        name: "Kemenko Respub",
+        shortName: "Respub",
+        kementerian: [
+            "Kementerian Pengabdian Masyarakat",
+            "Kementerian Dalam Negeri",
+            "Kementerian Luar Negeri"
+        ]
+    },
+    {
+        id: "rismed",
+        name: "Kemenko Rismed",
+        shortName: "Rismed",
+        kementerian: [
+            "Kementerian Media Komunikasi dan Informasi",
+            "Kementerian Media Kreatif dan Aplikatif",
+            "Kementerian Riset dan Data"
+        ]
+    }
+] as const
+
+export const KEMENKO_NAMES = [
+    "Satuan Pengawas Internal",
+    "Sekretaris Jenderal",
+    "Kemenko Polper",
+    "Kemenko PM",
+    "Kemenko Respub",
+    "Kemenko Rismed"
+] as const
+
+export const KEMENTERIAN_TO_KEMENKO: Record<string, string> = {
+    "Lingkar Presiden": "Sekretaris Jenderal",
+    "Biro Kesekretariatan": "Sekretaris Jenderal",
+    "Biro Keuangan": "Sekretaris Jenderal",
+    "Biro Pengembangan Sumber Daya Anggota": "Satuan Pengawas Internal",
+    "Biro Pengendali & Penjamin Mutu": "Satuan Pengawas Internal",
+    "Kementerian Pengembangan Sumber Daya Mahasiswa": "Kemenko PM",
+    "Kementerian Prestasi dan Inovasi": "Kemenko PM",
+    "Kementerian Seni dan Olahraga": "Kemenko PM",
+    "Kementerian Pengabdian Masyarakat": "Kemenko Respub",
+    "Kementerian Dalam Negeri": "Kemenko Respub",
+    "Kementerian Luar Negeri": "Kemenko Respub",
+    "Kementerian Advokasi Kesejahteraan Mahasiswa": "Kemenko Polper",
+    "Kementerian Pemberdayaan Perempuan": "Kemenko Polper",
+    "Kementerian Aksi dan Propaganda": "Kemenko Polper",
+    "Kementerian Analisis Isu Strategis": "Kemenko Polper",
+    "Kementerian Media Komunikasi dan Informasi": "Kemenko Rismed",
+    "Kementerian Media Kreatif dan Aplikatif": "Kemenko Rismed",
+    "Kementerian Riset dan Data": "Kemenko Rismed"
+}
+
+// PJ Twibbon berdasarkan Kemenko
+export const PJ_TWIBBON: Record<string, { nama: string; nomor: string }> = {
+    "Satuan Pengawas Internal": { nama: "Najmi", nomor: "62816400771" },
+    "Sekretaris Jenderal": { nama: "Aufa", nomor: "6285947647645" },
+    "Kemenko Polper": { nama: "Bintang", nomor: "6285710205061" },
+    "Kemenko PM": { nama: "Albert", nomor: "6281226895057" },
+    "Kemenko Respub": { nama: "Najmi", nomor: "62816400771" },
+    "Kemenko Rismed": { nama: "Bintang", nomor: "6285710205061" },
+}
+
 // PJ Bantuan Teknis
 export const PJ_BANTUAN_TEKNIS: Record<"A" | "B", { nama: string; nomor: string }> = {
     "A": { nama: "Feli", nomor: "6285640447440" },  // Podcast, Video, Lainnya

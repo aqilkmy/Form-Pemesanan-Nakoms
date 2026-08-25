@@ -41,6 +41,7 @@ type FlowStep = "identity" | "menu" | "detail" | "aset" | "review";
 
 interface SubmittedData {
   menu_type: MenuType;
+  website_sub_type?: "shortlink" | "laman_website" | "twibbon";
   kementerian: string;
   nama: string;
   jenis_bantuan?: "podcast" | "take_video" | "live_instagram" | "lainnya";
@@ -300,6 +301,7 @@ export function OrderForm() {
 
       setSubmittedData({
         menu_type: "website",
+        website_sub_type: "shortlink",
         kementerian: values.kementerian,
         nama: values.nama,
       });
@@ -356,6 +358,10 @@ export function OrderForm() {
 
       setSubmittedData({
         menu_type: selectedMenu,
+        website_sub_type:
+          selectedMenu === "website"
+            ? (data as any).website_sub_type
+            : undefined,
         kementerian: data.kementerian,
         nama: data.nama,
         jenis_bantuan: jenisBantuan,

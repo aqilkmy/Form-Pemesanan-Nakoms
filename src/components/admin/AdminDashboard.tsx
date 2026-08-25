@@ -28,6 +28,8 @@ import {
 import {
   STATUS_OPTIONS,
   KEMENTERIAN_OPTIONS,
+  KEMENKO_NAMES,
+  KEMENKO_GROUPS,
   PLATFORM_OPTIONS,
   WAKTU_PUBLIKASI_OPTIONS,
   MENU_OPTIONS,
@@ -345,6 +347,18 @@ export function AdminDashboard() {
           createdAny = true;
         }
       }
+
+      // Ensure default mappings exist for 'twibbon' category (per Kemenko)
+      const existingTwibbonKeys = new Set(
+        mappings.filter((m) => m.category === "twibbon").map((m) => m.lookup_key)
+      );
+      for (const kemenko of KEMENKO_NAMES) {
+        if (!existingTwibbonKeys.has(kemenko)) {
+          await createPJMapping("twibbon", kemenko);
+          createdAny = true;
+        }
+      }
+
       if (createdAny) {
         mappings = await fetchAllPJMappings();
       }
@@ -2054,6 +2068,7 @@ export function AdminDashboard() {
     const categories: PJCategory[] = [
       "desain_grafis",
       "website",
+      "twibbon",
       "bantuan_teknis",
       "survey",
       "platform_khusus",
@@ -2662,6 +2677,11 @@ export function AdminDashboard() {
                                               Platforms: {pjMap.platforms.join(", ")}
                                             </div>
                                           )}
+                                          {cat === "twibbon" && (
+                                            <div className="text-[10px] text-muted-foreground font-normal mt-0.5">
+                                              Menaungi: {KEMENKO_GROUPS.find((g) => g.name === pjMap.lookup_key)?.kementerian.map((k) => k.replace("Kementerian ", "").replace("Biro ", "")).join(", ")}
+                                            </div>
+                                          )}
                                         </div>
                                         <Select
                                           value={pjMap.pj_id || "none"}
@@ -2691,7 +2711,9 @@ export function AdminDashboard() {
                                   <Table>
                                     <TableHeader>
                                       <TableRow>
-                                        <TableHead className="w-[40%]">Identifier / Kementerian</TableHead>
+                                        <TableHead className="w-[40%]">
+                                          {cat === "twibbon" ? "Kemenko / Koordinator" : "Identifier / Kementerian"}
+                                        </TableHead>
                                         <TableHead className="w-[60%]">Penugasan PJ</TableHead>
                                       </TableRow>
                                     </TableHeader>
@@ -2710,6 +2732,11 @@ export function AdminDashboard() {
                                               {cat === "platform_khusus" && pjMap.platforms && (
                                                 <div className="text-[10px] text-muted-foreground mt-1">
                                                   {pjMap.platforms.join(", ")}
+                                                </div>
+                                              )}
+                                              {cat === "twibbon" && (
+                                                <div className="text-[11px] text-muted-foreground font-normal mt-1">
+                                                  Menaungi: {KEMENKO_GROUPS.find((g) => g.name === pjMap.lookup_key)?.kementerian.map((k) => k.replace("Kementerian ", "").replace("Biro ", "")).join(", ")}
                                                 </div>
                                               )}
                                             </TableCell>

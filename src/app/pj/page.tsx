@@ -9,6 +9,7 @@ import {
   Users2,
   Palette,
   Globe,
+  ImageIcon,
   Video,
   ClipboardList,
   MonitorSmartphone,
@@ -25,6 +26,7 @@ import {
   PJCategory,
   DAYS_OF_WEEK,
 } from "@/lib/pj";
+import { KEMENKO_GROUPS } from "@/lib/constants";
 
 // Category display config
 const CATEGORY_CONFIG: Record<
@@ -38,6 +40,10 @@ const CATEGORY_CONFIG: Record<
   website: {
     icon: <Globe className="w-5 h-5" />,
     description: "Pemesanan shortlink dan halaman website",
+  },
+  twibbon: {
+    icon: <ImageIcon className="w-5 h-5" />,
+    description: "Pemesanan platform twibbon",
   },
   bantuan_teknis: {
     icon: <Video className="w-5 h-5" />,
@@ -61,6 +67,7 @@ const CATEGORY_CONFIG: Record<
 const CATEGORY_ORDER: PJCategory[] = [
   "desain_grafis",
   "website",
+  "twibbon",
   "bantuan_teknis",
   "survey",
   "platform_khusus",
@@ -240,7 +247,14 @@ export default function LihatPJPage() {
                                   )
                                 : category === "survey"
                                   ? ["Semua kementerian"]
-                                  : keys
+                                  : category === "twibbon"
+                                    ? keys.map((k) => {
+                                        const group = KEMENKO_GROUPS.find((g) => g.name === k);
+                                        return group
+                                          ? `${k} (${group.kementerian.map((m) => m.replace("Kementerian ", "").replace("Biro ", "")).join(", ")})`
+                                          : k;
+                                      })
+                                    : keys
                               ).map((item) => (
                                 <li
                                   key={item}

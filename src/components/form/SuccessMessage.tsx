@@ -4,11 +4,12 @@
 import * as React from "react"
 import { CheckCircle2, MessageCircle, Loader2 } from "lucide-react"
 import { Button } from "@/components/ui/button"
-import { MenuType, JENIS_BANTUAN_OPTIONS } from "@/lib/constants"
+import { MenuType, JENIS_BANTUAN_OPTIONS, KEMENTERIAN_TO_KEMENKO } from "@/lib/constants"
 import { getPJLookupsWithFallback, DAYS_OF_WEEK } from "@/lib/pj"
 
 interface SubmittedData {
     menu_type: MenuType
+    website_sub_type?: "shortlink" | "laman_website" | "twibbon"
     kementerian: string
     nama: string
     jenis_bantuan?: "podcast" | "take_video" | "live_instagram" | "lainnya"
@@ -42,10 +43,17 @@ export function SuccessMessage({ onReset, submittedData }: SuccessMessageProps) 
             .finally(() => setIsLoadingPJ(false))
     }, [])
 
-    const getTemplateMessage = (menuType: MenuType, namaPemesan: string, kementerian: string, pjNama: string): string => {
+    const getTemplateMessage = (
+        menuType: MenuType | "twibbon",
+        namaPemesan: string,
+        kementerian: string,
+        pjNama: string
+    ): string => {
         switch (menuType) {
             case "desain_publikasi":
                 return `Halo Kak ${pjNama}, saya ${namaPemesan} dari ${kementerian} izin konfirmasi pemesanan *Desain & Publikasi* yang sudah saya submit melalui form RISET & MEDIA. Mohon ditindaklanjuti ya kak. Terima kasih!`
+            case "twibbon":
+                return `Halo Kak ${pjNama}, saya ${namaPemesan} dari ${kementerian} izin konfirmasi pemesanan *Twibbon* yang sudah saya submit melalui form RISET & MEDIA. Mohon ditindaklanjuti ya kak. Terima kasih!`
             case "website":
                 return `Halo Kak ${pjNama}, saya ${namaPemesan} dari ${kementerian} izin konfirmasi pemesanan *Laman Website* yang sudah saya submit melalui form RISET & MEDIA. Mohon ditindaklanjuti ya kak. Terima kasih!`
             case "bantuan_teknis":
@@ -134,14 +142,29 @@ export function SuccessMessage({ onReset, submittedData }: SuccessMessageProps) 
                 break
             }
             case "website": {
-                const pjWebsite = pjData.website[submittedData.kementerian]
-                if (pjWebsite?.nomor) {
-                    contacts.push({
-                        label: "PJ Website",
-                        nama: pjWebsite.nama,
-                        nomor: pjWebsite.nomor,
-                        message: getTemplateMessage("website", submittedData.nama, submittedData.kementerian, pjWebsite.nama)
-                    })
+                if (submittedData.website_sub_type === "twibbon") {
+                    const kemenko = KEMENTERIAN_TO_KEMENKO[submittedData.kementerian]
+                    const pjTwibbon = (kemenko && pjData.twibbon?.[kemenko])
+                        || pjData.twibbon?.[submittedData.kementerian]
+                        || pjData.website[submittedData.kementerian]
+                    if (pjTwibbon?.nomor) {
+                        contacts.push({
+                            label: `PJ Twibbon${kemenko ? ` (${kemenko})` : ""}`,
+                            nama: pjTwibbon.nama,
+                            nomor: pjTwibbon.nomor,
+                            message: getTemplateMessage("twibbon", submittedData.nama, submittedData.kementerian, pjTwibbon.nama)
+                        })
+                    }
+                } else {
+                    const pjWebsite = pjData.website[submittedData.kementerian]
+                    if (pjWebsite?.nomor) {
+                        contacts.push({
+                            label: "PJ Website",
+                            nama: pjWebsite.nama,
+                            nomor: pjWebsite.nomor,
+                            message: getTemplateMessage("website", submittedData.nama, submittedData.kementerian, pjWebsite.nama)
+                        })
+                    }
                 }
                 break
             }
@@ -179,6 +202,9 @@ export function SuccessMessage({ onReset, submittedData }: SuccessMessageProps) 
     const contacts = getWhatsAppContacts()
 
     const getMenuLabel = () => {
+        if (submittedData?.menu_type === "website" && submittedData.website_sub_type === "twibbon") {
+            return "Twibbon"
+        }
         switch (submittedData?.menu_type) {
             case "desain_publikasi": return "Desain & Publikasi"
             case "website": return "Laman Website"
