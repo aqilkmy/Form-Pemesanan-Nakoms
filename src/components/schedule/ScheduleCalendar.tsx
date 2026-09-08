@@ -66,11 +66,16 @@ export function ScheduleCalendar() {
     try {
       const { data, error } = await supabase
         .from("orders")
-        .select("*")
-        .neq("status", "cancel");
+        .select("*");
 
       if (error) throw error;
-      if (data) setOrders((data as Order[]).filter((o) => !o.is_hidden));
+      if (data) {
+        setOrders(
+          (data as Order[]).filter(
+            (order) => order.status !== "cancel" && !order.is_hidden,
+          ),
+        );
+      }
     } catch (error) {
       console.error("Error fetching orders:", error);
     } finally {
@@ -102,9 +107,11 @@ export function ScheduleCalendar() {
       case "survey":
         return order.deadline_survey;
       case "website":
-        return null; // Website orders don't have a date
+        return order.website_sub_type === "twibbon"
+          ? order.tanggal_publikasi_twibbon ?? null
+          : null;
       default:
-        return null;
+        return (order as { tanggal_publikasi?: string }).tanggal_publikasi ?? null;
     }
   };
 
@@ -522,7 +529,7 @@ export function ScheduleCalendar() {
                   minute: "2-digit",
                   hour12: false,
                 }}
-                dayMaxEvents={isMobile ? 2 : 4}
+                dayMaxEvents={false}
                 moreLinkText={(num) => `+${num}`}
                 fixedWeekCount={false}
               />

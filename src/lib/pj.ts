@@ -181,7 +181,7 @@ export function buildPJLookups(mappings: PJMapping[]) {
   mappings.forEach((m) => {
     // Skip if no PJ is assigned
     if (!m.pj_contacts) return;
-    
+
     const contact = { nama: m.pj_contacts.nama, nomor: m.pj_contacts.nomor };
 
     switch (m.category) {

@@ -57,7 +57,7 @@ export function FormWebsite({ form, step, onOrderShortlink }: FormWebsiteProps) 
                 await onOrderShortlink(values)
             }
 
-            window.open("https://bem-unsoed.com", "_blank")
+            window.open("https://unsoed.link/app", "_blank")
         } catch (error) {
             setShortlinkError("Terjadi kesalahan. Silakan coba lagi.")
             console.error(error)
