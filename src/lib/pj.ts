@@ -6,6 +6,9 @@ import {
   PJ_BANTUAN_TEKNIS,
   PJ_SURVEY,
   PJ_PLATFORM_KHUSUS,
+  PJ_PUBLIKASI,
+  PJ_INTERN_DESAIN,
+  PJ_INTERN_WEBSITE,
 } from "./constants";
 
 // ─── Types ───
@@ -244,7 +247,22 @@ export function buildPJLookups(mappings: PJMapping[]) {
     }
   });
 
-  return { desainGrafis, website, twibbon, bantuanTeknis, survey, platformKhusus, publikasi, internDesain, internWebsite };
+  // Fallback to constants if not yet populated in database
+  const resolvedInternDesain = Object.keys(internDesain).length > 0 ? internDesain : PJ_INTERN_DESAIN;
+  const resolvedInternWebsite = Object.keys(internWebsite).length > 0 ? internWebsite : PJ_INTERN_WEBSITE;
+  const resolvedPublikasi = Object.keys(publikasi).length > 0 ? publikasi : PJ_PUBLIKASI;
+
+  return {
+    desainGrafis,
+    website,
+    twibbon,
+    bantuanTeknis,
+    survey,
+    platformKhusus,
+    publikasi: resolvedPublikasi,
+    internDesain: resolvedInternDesain,
+    internWebsite: resolvedInternWebsite,
+  };
 }
 
 // ─── Get PJ lookups with fallback to constants ───
@@ -263,9 +281,9 @@ export async function getPJLookupsWithFallback() {
       >,
       survey: PJ_SURVEY,
       platformKhusus: PJ_PLATFORM_KHUSUS,
-      publikasi: {},
-      internDesain: {} as Record<string, InternPJEntry[]>,
-      internWebsite: {} as Record<string, InternPJEntry[]>,
+      publikasi: PJ_PUBLIKASI,
+      internDesain: PJ_INTERN_DESAIN,
+      internWebsite: PJ_INTERN_WEBSITE,
     };
   }
 

@@ -145,7 +145,7 @@ export function SuccessMessage({ onReset, submittedData }: SuccessMessageProps) 
                 if (internDesainPJs && internDesainPJs.length > 0) {
                     internDesainPJs.forEach((intern) => {
                         contacts.push({
-                            label: `PJ Desain Intern — ${intern.proker}`,
+                            label: "PJ Desain (Intern)",
                             nama: intern.nama,
                             nomor: intern.nomor,
                             message: getTemplateMessage("desain_publikasi", submittedData.nama, submittedData.kementerian, intern.nama),
@@ -187,7 +187,7 @@ export function SuccessMessage({ onReset, submittedData }: SuccessMessageProps) 
                 if (internWebPJs && internWebPJs.length > 0) {
                     internWebPJs.forEach((intern) => {
                         contacts.push({
-                            label: `PJ Website Intern — ${intern.proker}`,
+                            label: "PJ Website (Intern)",
                             nama: intern.nama,
                             nomor: intern.nomor,
                             message: getTemplateMessage(
@@ -284,17 +284,17 @@ export function SuccessMessage({ onReset, submittedData }: SuccessMessageProps) 
                             >
                                 <Button 
                                     type="button"
-                                    className={`w-5/6 justify-center gap-2 text-white py-6 text-base ${
+                                    className={`w-full justify-start gap-3 text-white py-6 px-4 text-base rounded-xl transition-all shadow-xs ${
                                         contact.isIntern
-                                            ? 'bg-amber-500 hover:bg-amber-600'
+                                            ? 'bg-amber-500 hover:bg-amber-600 border border-amber-600/30'
                                             : 'bg-green-600 hover:bg-green-700'
                                     }`}
                                 >
-                                    <MessageCircle className="w-5 h-5" />
-                                    <div className="flex flex-col items-start">
-                                        <span>Chat {contact.nama} - {contact.label}</span>
+                                    <MessageCircle className="w-5 h-5 shrink-0" />
+                                    <div className="flex flex-col items-start text-left min-w-0">
+                                        <span className="font-semibold text-sm sm:text-base leading-tight">Chat {contact.nama} - {contact.label}</span>
                                         {contact.isIntern && contact.prokerLabel && (
-                                            <span className="text-xs opacity-90 font-normal">Proker: {contact.prokerLabel}</span>
+                                            <span className="text-xs text-amber-100 font-medium mt-0.5">Khusus Proker: {contact.prokerLabel}</span>
                                         )}
                                     </div>
                                 </Button>

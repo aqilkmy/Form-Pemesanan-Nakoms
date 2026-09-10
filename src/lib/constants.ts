@@ -245,6 +245,48 @@ export const PJ_PLATFORM_KHUSUS: Record<string, { nama: string; nomor: string; p
     "youtube": { nama: "Shava", nomor: "6285727194418", platforms: ["YouTube"] },
 }
 
+// PJ Publikasi (per hari)
+export const PJ_PUBLIKASI: Record<string, { nama: string; nomor: string }> = {
+    "Senin": { nama: "Dimas", nomor: "6289529284887" },
+    "Selasa": { nama: "Calista", nomor: "6281388800395" },
+}
+
+// PJ Intern Desain Grafis (per kementerian & proker)
+export const PJ_INTERN_DESAIN: Record<string, { nama: string; nomor: string; proker: string }[]> = {
+    "Kementerian Media Kreatif dan Aplikatif": [
+        { nama: "Maura", nomor: "62895396055600", proker: "Nulispedia" },
+        { nama: "Racha", nomor: "6281226767725", proker: "Malaka" },
+    ],
+    "Kementerian Luar Negeri": [
+        { nama: "Maura", nomor: "62895396055600", proker: "Media Partner" },
+    ],
+    "Kementerian Seni dan Olahraga": [
+        { nama: "Racha", nomor: "6281226767725", proker: "Seniora Mengapresiasi" },
+    ],
+}
+
+// PJ Intern Website (per kementerian & proker)
+export const PJ_INTERN_WEBSITE: Record<string, { nama: string; nomor: string; proker: string }[]> = {
+    "Kementerian Pengembangan Sumber Daya Mahasiswa": [
+        { nama: "Ayisha", nomor: "628112022020", proker: "S.O.L.O" },
+    ],
+    "Kementerian Seni dan Olahraga": [
+        { nama: "Ayisha", nomor: "628112022020", proker: "PORSOED" },
+    ],
+    "Kementerian Aksi dan Propaganda": [
+        { nama: "Ayisha", nomor: "628112022020", proker: "Sekolah Politik Pergerakan" },
+    ],
+    "Kementerian Pengabdian Masyarakat": [
+        { nama: "Naila Rona", nomor: "6282298233138", proker: "Desa Cita & Pesta Rakyat Soedirman" },
+    ],
+    "Biro Pengembangan Sumber Daya Anggota": [
+        { nama: "Naila Rona", nomor: "6282298233138", proker: "Internship BEM Unsoed" },
+    ],
+    "Kementerian Pemberdayaan Perempuan": [
+        { nama: "Naila Rona", nomor: "6282298233138", proker: "ALERTA: PEKA" },
+    ],
+}
+
 // Periode Triwulan BEM Unsoed 2026
 export type TriwulanKey = "1_periode" | "triwulan_1" | "triwulan_2" | "triwulan_3"
 
