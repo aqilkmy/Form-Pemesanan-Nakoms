@@ -314,13 +314,30 @@ export function AdminDashboard() {
 
   const fetchOrders = async () => {
     try {
-      const { data, error } = await supabase
-        .from("orders")
-        .select("*")
-        .order("created_at", { ascending: false });
+      // Supabase returns max 1000 rows by default, so paginate to get all
+      const PAGE_SIZE = 1000;
+      let allData: Order[] = [];
+      let from = 0;
+      let hasMore = true;
 
-      if (error) throw error;
-      if (data) setOrders(data as Order[]);
+      while (hasMore) {
+        const { data, error } = await supabase
+          .from("orders")
+          .select("*")
+          .order("created_at", { ascending: false })
+          .range(from, from + PAGE_SIZE - 1);
+
+        if (error) throw error;
+        if (data && data.length > 0) {
+          allData = allData.concat(data as Order[]);
+          from += PAGE_SIZE;
+          hasMore = data.length === PAGE_SIZE;
+        } else {
+          hasMore = false;
+        }
+      }
+
+      setOrders(allData);
     } catch (error) {
       console.error("Error fetching orders:", error);
     } finally {

@@ -61,6 +61,14 @@ const CATEGORY_CONFIG: Record<
     icon: <Megaphone className="w-5 h-5" />,
     description: "Penugasan harian publikasi konten",
   },
+  intern_desain: {
+    icon: <Palette className="w-5 h-5" />,
+    description: "PJ Desain Intern (per proker)",
+  },
+  intern_website: {
+    icon: <Globe className="w-5 h-5" />,
+    description: "PJ Website Intern (per proker)",
+  },
 };
 
 // Order categories for display
@@ -72,6 +80,8 @@ const CATEGORY_ORDER: PJCategory[] = [
   "survey",
   "platform_khusus",
   "publikasi",
+  "intern_desain",
+  "intern_website",
 ];
 
 interface PJAssignment {

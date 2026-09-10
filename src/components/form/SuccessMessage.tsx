@@ -72,7 +72,7 @@ export function SuccessMessage({ onReset, submittedData }: SuccessMessageProps) 
     const getWhatsAppContacts = () => {
         if (!submittedData || !pjData) return []
 
-        const contacts: { label: string; nama: string; nomor: string; message: string }[] = []
+    const contacts: { label: string; nama: string; nomor: string; message: string; isIntern?: boolean; prokerLabel?: string }[] = []
 
         switch (submittedData.menu_type) {
             case "desain_publikasi": {
@@ -139,6 +139,21 @@ export function SuccessMessage({ onReset, submittedData }: SuccessMessageProps) 
                         }
                     })
                 }
+
+                // Add intern desain PJs (if kementerian matches)
+                const internDesainPJs = pjData.internDesain[submittedData.kementerian]
+                if (internDesainPJs && internDesainPJs.length > 0) {
+                    internDesainPJs.forEach((intern) => {
+                        contacts.push({
+                            label: `PJ Desain Intern — ${intern.proker}`,
+                            nama: intern.nama,
+                            nomor: intern.nomor,
+                            message: getTemplateMessage("desain_publikasi", submittedData.nama, submittedData.kementerian, intern.nama),
+                            isIntern: true,
+                            prokerLabel: intern.proker,
+                        })
+                    })
+                }
                 break
             }
             case "website": {
@@ -165,6 +180,24 @@ export function SuccessMessage({ onReset, submittedData }: SuccessMessageProps) 
                             message: getTemplateMessage("website", submittedData.nama, submittedData.kementerian, pjWebsite.nama)
                         })
                     }
+                }
+
+                // Add intern website PJs (if kementerian matches)
+                const internWebPJs = pjData.internWebsite[submittedData.kementerian]
+                if (internWebPJs && internWebPJs.length > 0) {
+                    internWebPJs.forEach((intern) => {
+                        contacts.push({
+                            label: `PJ Website Intern — ${intern.proker}`,
+                            nama: intern.nama,
+                            nomor: intern.nomor,
+                            message: getTemplateMessage(
+                                submittedData.website_sub_type === "twibbon" ? "twibbon" : "website",
+                                submittedData.nama, submittedData.kementerian, intern.nama
+                            ),
+                            isIntern: true,
+                            prokerLabel: intern.proker,
+                        })
+                    })
                 }
                 break
             }
@@ -251,10 +284,19 @@ export function SuccessMessage({ onReset, submittedData }: SuccessMessageProps) 
                             >
                                 <Button 
                                     type="button"
-                                    className="w-5/6 justify-center gap-2 bg-green-600 hover:bg-green-700 text-white py-6 text-base"
+                                    className={`w-5/6 justify-center gap-2 text-white py-6 text-base ${
+                                        contact.isIntern
+                                            ? 'bg-amber-500 hover:bg-amber-600'
+                                            : 'bg-green-600 hover:bg-green-700'
+                                    }`}
                                 >
                                     <MessageCircle className="w-5 h-5" />
-                                    <span>Chat {contact.nama} - {contact.label}</span>
+                                    <div className="flex flex-col items-start">
+                                        <span>Chat {contact.nama} - {contact.label}</span>
+                                        {contact.isIntern && contact.prokerLabel && (
+                                            <span className="text-xs opacity-90 font-normal">Proker: {contact.prokerLabel}</span>
+                                        )}
+                                    </div>
                                 </Button>
                             </a>
                         ))}

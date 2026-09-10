@@ -64,18 +64,33 @@ export function ScheduleCalendar() {
 
   const fetchOrders = async () => {
     try {
-      const { data, error } = await supabase
-        .from("orders")
-        .select("*");
+      // Supabase returns max 1000 rows by default, so paginate to get all
+      const PAGE_SIZE = 1000;
+      let allData: Order[] = [];
+      let from = 0;
+      let hasMore = true;
 
-      if (error) throw error;
-      if (data) {
-        setOrders(
-          (data as Order[]).filter(
-            (order) => order.status !== "cancel" && !order.is_hidden,
-          ),
-        );
+      while (hasMore) {
+        const { data, error } = await supabase
+          .from("orders")
+          .select("*")
+          .range(from, from + PAGE_SIZE - 1);
+
+        if (error) throw error;
+        if (data && data.length > 0) {
+          allData = allData.concat(data as Order[]);
+          from += PAGE_SIZE;
+          hasMore = data.length === PAGE_SIZE;
+        } else {
+          hasMore = false;
+        }
       }
+
+      setOrders(
+        allData.filter(
+          (order) => order.status !== "cancel" && !order.is_hidden,
+        ),
+      );
     } catch (error) {
       console.error("Error fetching orders:", error);
     } finally {
@@ -101,11 +116,11 @@ export function ScheduleCalendar() {
   const getEventDate = (order: Order): string | null => {
     switch (order.menu_type) {
       case "desain_publikasi":
-        return order.tanggal_publikasi;
+        return order.tanggal_publikasi ?? null;
       case "bantuan_teknis":
-        return order.tanggal_kegiatan;
+        return order.tanggal_kegiatan ?? null;
       case "survey":
-        return order.deadline_survey;
+        return order.deadline_survey ?? null;
       case "website":
         return order.website_sub_type === "twibbon"
           ? order.tanggal_publikasi_twibbon ?? null

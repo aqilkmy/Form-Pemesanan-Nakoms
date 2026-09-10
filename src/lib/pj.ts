@@ -44,7 +44,9 @@ export type PJCategory =
   | "bantuan_teknis"
   | "survey"
   | "platform_khusus"
-  | "publikasi";
+  | "publikasi"
+  | "intern_desain"
+  | "intern_website";
 
 export const PJ_CATEGORY_LABELS: Record<PJCategory, string> = {
   desain_grafis: "PJ Desain Grafis",
@@ -54,7 +56,16 @@ export const PJ_CATEGORY_LABELS: Record<PJCategory, string> = {
   survey: "PJ Survey",
   platform_khusus: "PJ Platform Khusus",
   publikasi: "PJ Publikasi",
+  intern_desain: "PJ Desain (Intern)",
+  intern_website: "PJ Website (Intern)",
 };
+
+// Intern PJ entry — includes proker label for display
+export interface InternPJEntry {
+  nama: string;
+  nomor: string;
+  proker: string;
+}
 
 // ─── Contacts CRUD ───
 export async function fetchPJContacts(): Promise<PJContact[]> {
@@ -178,6 +189,10 @@ export function buildPJLookups(mappings: PJMapping[]) {
   > = {};
   const publikasi: Record<string, { nama: string; nomor: string }> = {};
 
+  // Intern lookups: key = kementerian, value = array of intern PJs with proker labels
+  const internDesain: Record<string, InternPJEntry[]> = {};
+  const internWebsite: Record<string, InternPJEntry[]> = {};
+
   mappings.forEach((m) => {
     // Skip if no PJ is assigned
     if (!m.pj_contacts) return;
@@ -209,10 +224,27 @@ export function buildPJLookups(mappings: PJMapping[]) {
       case "publikasi":
         publikasi[m.lookup_key] = contact;
         break;
+      case "intern_desain":
+        // platforms stores kementerian list, lookup_key stores proker name
+        if (m.platforms) {
+          m.platforms.forEach((kem) => {
+            if (!internDesain[kem]) internDesain[kem] = [];
+            internDesain[kem].push({ ...contact, proker: m.lookup_key });
+          });
+        }
+        break;
+      case "intern_website":
+        if (m.platforms) {
+          m.platforms.forEach((kem) => {
+            if (!internWebsite[kem]) internWebsite[kem] = [];
+            internWebsite[kem].push({ ...contact, proker: m.lookup_key });
+          });
+        }
+        break;
     }
   });
 
-  return { desainGrafis, website, twibbon, bantuanTeknis, survey, platformKhusus, publikasi };
+  return { desainGrafis, website, twibbon, bantuanTeknis, survey, platformKhusus, publikasi, internDesain, internWebsite };
 }
 
 // ─── Get PJ lookups with fallback to constants ───
@@ -232,6 +264,8 @@ export async function getPJLookupsWithFallback() {
       survey: PJ_SURVEY,
       platformKhusus: PJ_PLATFORM_KHUSUS,
       publikasi: {},
+      internDesain: {} as Record<string, InternPJEntry[]>,
+      internWebsite: {} as Record<string, InternPJEntry[]>,
     };
   }
 
