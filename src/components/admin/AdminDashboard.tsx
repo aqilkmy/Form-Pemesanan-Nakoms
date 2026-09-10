@@ -2090,6 +2090,8 @@ export function AdminDashboard() {
       "survey",
       "platform_khusus",
       "publikasi",
+      "intern_desain",
+      "intern_website",
     ];
 
     const toggleRole = (roleKey: string) => {
