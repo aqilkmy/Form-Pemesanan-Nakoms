@@ -1,5 +1,6 @@
 "use client";
 
+import * as React from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { Menu, Home, Calendar, LayoutDashboard, BarChart3, User } from "lucide-react";
@@ -41,6 +42,29 @@ const menuItems = [
 ];
 
 export function Navbar() {
+  const [isAdmin, setIsAdmin] = React.useState(false);
+
+  React.useEffect(() => {
+    const checkAuth = () => {
+      const auth =
+        typeof window !== "undefined" &&
+        (sessionStorage.getItem("adminAuth") === "true" ||
+          localStorage.getItem("adminAuth") === "true");
+      setIsAdmin(Boolean(auth));
+    };
+
+    checkAuth();
+    window.addEventListener("adminAuthChange", checkAuth);
+    window.addEventListener("storage", checkAuth);
+
+    return () => {
+      window.removeEventListener("adminAuthChange", checkAuth);
+      window.removeEventListener("storage", checkAuth);
+    };
+  }, []);
+
+  const adminUrl = isAdmin ? "/admin/dashboard" : "/admin";
+
   return (
     <nav className="sticky top-0 z-50 w-full shadow-sm  bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 py-2">
       <div className="container mx-auto px-4">
@@ -82,7 +106,7 @@ export function Navbar() {
           </div>
           <div className="flex items-center gap-2">
             <ThemeSwitcher />
-            <Link href="/admin">
+            <Link href={adminUrl}>
               <Button className="rounded-full px-2 font-semibold shadow-sm">
                 <User className="size-4 mr-1" /> Admin
               </Button>
@@ -151,7 +175,7 @@ export function Navbar() {
                     </div>
 
                     <div className="flex flex-col gap-3 pt-4 border-t">
-                      <Link href="/admin">
+                      <Link href={adminUrl}>
                         <Button className="w-full justify-start font-semibold rounded-lg shadow-sm">
                           <User className="size-5 mr-3" /> Admin
                         </Button>

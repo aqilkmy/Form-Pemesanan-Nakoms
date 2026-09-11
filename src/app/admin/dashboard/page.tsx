@@ -3,7 +3,8 @@
 import * as React from "react";
 import { useRouter } from "next/navigation";
 import { AdminDashboard } from "@/components/admin/AdminDashboard";
-import { Loader2 } from "lucide-react";
+import { Loader2, LogOut } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
 export default function AdminDashboardPage() {
   const router = useRouter();
@@ -12,9 +13,13 @@ export default function AdminDashboardPage() {
 
   React.useEffect(() => {
     // Check if user is authenticated
-    const auth = sessionStorage.getItem("adminAuth");
-    if (auth === "true") {
+    const auth =
+      sessionStorage.getItem("adminAuth") === "true" ||
+      localStorage.getItem("adminAuth") === "true";
+    if (auth) {
       setIsAuthenticated(true);
+      sessionStorage.setItem("adminAuth", "true");
+      localStorage.setItem("adminAuth", "true");
     } else {
       router.push("/admin");
     }
@@ -23,6 +28,8 @@ export default function AdminDashboardPage() {
 
   const handleLogout = () => {
     sessionStorage.removeItem("adminAuth");
+    localStorage.removeItem("adminAuth");
+    window.dispatchEvent(new Event("adminAuthChange"));
     router.push("/admin");
   };
 
@@ -44,17 +51,18 @@ export default function AdminDashboardPage() {
     <main className="min-h-screen flex flex-col items-center">
       <div className="flex-1 container py-8">
         <div className="flex items-center justify-between mb-6">
-          <h1 className="text-2xl font-bold tracking-tight mx-auto text-foreground">
+          <h1 className="text-2xl font-bold tracking-tight text-foreground">
             Admin Dashboard
           </h1>
-          {/* <div className="flex items-center gap-4">
-                        <button
-                            onClick={handleLogout}
-                            className="text-sm text-red-600 hover:underline"
-                        >
-                            Logout
-                        </button>
-                    </div> */}
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={handleLogout}
+            className="text-xs text-red-600 hover:text-red-700 hover:bg-red-50 border-red-200"
+          >
+            <LogOut className="w-3.5 h-3.5 mr-1.5" />
+            Logout
+          </Button>
         </div>
         <AdminDashboard />
       </div>

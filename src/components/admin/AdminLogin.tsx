@@ -19,6 +19,19 @@ export function AdminLogin() {
   const [error, setError] = React.useState("");
   const [isLoading, setIsLoading] = React.useState(false);
 
+  const [isCheckingAuth, setIsCheckingAuth] = React.useState(true);
+
+  React.useEffect(() => {
+    const auth =
+      sessionStorage.getItem("adminAuth") === "true" ||
+      localStorage.getItem("adminAuth") === "true";
+    if (auth) {
+      router.replace("/admin/dashboard");
+    } else {
+      setIsCheckingAuth(false);
+    }
+  }, [router]);
+
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
@@ -26,15 +39,24 @@ export function AdminLogin() {
 
     // Simple credential check
     if (username === ADMIN_USERNAME && password === ADMIN_PASSWORD) {
-      // Store login state in sessionStorage
+      // Store login state in both sessionStorage and localStorage
       sessionStorage.setItem("adminAuth", "true");
+      localStorage.setItem("adminAuth", "true");
+      window.dispatchEvent(new Event("adminAuthChange"));
       router.push("/admin/dashboard");
     } else {
       setError("Username atau password salah");
+      setIsLoading(false);
     }
-
-    setIsLoading(false);
   };
+
+  if (isCheckingAuth) {
+    return (
+      <div className="flex items-center justify-center min-h-[60vh]">
+        <Loader2 className="w-8 h-8 animate-spin text-primary" />
+      </div>
+    );
+  }
 
   return (
     <div className="flex items-center justify-center min-h-[60vh]">
