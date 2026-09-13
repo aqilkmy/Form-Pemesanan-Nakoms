@@ -1,8 +1,12 @@
 "use client";
 
 import * as React from "react";
-import { supabase } from "@/lib/supabase";
-import { PostgrestError } from "@supabase/supabase-js";
+import {
+  getOrders,
+  updateOrderStatus,
+  updateOrder as updateOrderAction,
+  deleteOrder as deleteOrderAction,
+} from "@/lib/actions/orders";
 import {
   PJMapping,
   PJContact,
@@ -291,64 +295,29 @@ export function AdminDashboard() {
     fetchOrders();
     fetchPJs();
 
-    const channel = supabase
-      .channel("orders_realtime")
-      .on(
-        "postgres_changes",
-        { event: "*", schema: "public", table: "orders" },
-        (payload) => {
-          if (payload.eventType === "INSERT") {
-            setOrders((prev) => [payload.new as Order, ...prev]);
-          } else if (payload.eventType === "UPDATE") {
-            setOrders((prev) =>
-              prev.map((order) =>
-                order.id === (payload.new as Order).id
-                  ? (payload.new as Order)
-                  : order,
-              ),
-            );
-          }
-        },
-      )
-      .subscribe();
+    // Smart polling every 8 seconds for realtime sync
+    const interval = setInterval(() => {
+      fetchOrders(true);
+    }, 8000);
 
     return () => {
-      supabase.removeChannel(channel);
+      clearInterval(interval);
     };
   }, []);
 
-  const fetchOrders = async () => {
+  const fetchOrders = async (silent = false) => {
     try {
-      // Supabase returns max 1000 rows by default, so paginate to get all
-      const PAGE_SIZE = 1000;
-      let allData: Order[] = [];
-      let from = 0;
-      let hasMore = true;
-
-      while (hasMore) {
-        const { data, error } = await supabase
-          .from("orders")
-          .select("*")
-          .order("created_at", { ascending: false })
-          .range(from, from + PAGE_SIZE - 1);
-
-        if (error) throw error;
-        if (data && data.length > 0) {
-          allData = allData.concat(data as Order[]);
-          from += PAGE_SIZE;
-          hasMore = data.length === PAGE_SIZE;
-        } else {
-          hasMore = false;
-        }
-      }
-
-      setOrders(allData);
+      if (!silent) setIsLoading(true);
+      const { data, error } = await getOrders();
+      if (error) throw new Error(error);
+      if (data) setOrders(data);
     } catch (error) {
       console.error("Error fetching orders:", error);
     } finally {
-      setIsLoading(false);
+      if (!silent) setIsLoading(false);
     }
   };
+
 
   const fetchPJs = async () => {
     setIsPjLoading(true);
@@ -502,12 +471,8 @@ export function AdminDashboard() {
 
   const updateStatus = async (orderId: string, newStatus: OrderStatus) => {
     try {
-      const { error } = await supabase
-        .from("orders")
-        .update({ status: newStatus })
-        .eq("id", orderId);
-
-      if (error) throw error;
+      const res = await updateOrderStatus(orderId, newStatus);
+      if (!res.success) throw new Error(res.error);
 
       setOrders((prev) =>
         prev.map((order) =>
@@ -522,12 +487,8 @@ export function AdminDashboard() {
 
   const updateField = async (orderId: string, field: string, value: string) => {
     try {
-      const { error } = await supabase
-        .from("orders")
-        .update({ [field]: value })
-        .eq("id", orderId);
-
-      if (error) throw error;
+      const res = await updateOrderAction(orderId, { [field]: value });
+      if (!res.success) throw new Error(res.error);
 
       setOrders((prev) =>
         prev.map((order) =>
@@ -543,12 +504,8 @@ export function AdminDashboard() {
   const toggleHideOrder = async (orderId: string, currentIsHidden: boolean) => {
     const nextState = !currentIsHidden;
     try {
-      const { error } = await supabase
-        .from("orders")
-        .update({ is_hidden: nextState })
-        .eq("id", orderId);
-
-      if (error) throw error;
+      const res = await updateOrderAction(orderId, { is_hidden: nextState });
+      if (!res.success) throw new Error(res.error);
 
       setOrders((prev) =>
         prev.map((order) =>
@@ -567,27 +524,14 @@ export function AdminDashboard() {
     }
 
     try {
-      const { data, error, status } = await supabase
-        .from("orders")
-        .delete()
-        .eq("id", orderId)
-        .select();
-
-      if (error) throw error;
-
-      if (!data || data.length === 0) {
-        console.error("No rows deleted. Status:", status);
-        alert(
-          "Gagal menghapus: Data tidak ditemukan atau izin ditolak (RLS). Pastikan SQL Policy DELETE sudah diaktifkan di Supabase Dashboard.",
-        );
-        return;
-      }
+      const res = await deleteOrderAction(orderId);
+      if (!res.success) throw new Error(res.error);
 
       setOrders((prev) => prev.filter((order) => order.id !== orderId));
+      alert("Pesanan berhasil dihapus");
     } catch (error) {
-      const postgrestError = error as PostgrestError;
-      console.error("Error deleting order:", postgrestError);
-      alert(`Error: ${postgrestError.message || "Terjadi kesalahan saat menghapus"}`);
+      console.error("Error deleting order:", error);
+      alert("Gagal menghapus pesanan");
     }
   };
 
@@ -1183,13 +1127,10 @@ export function AdminDashboard() {
                                       [platform]: checked === true,
                                     };
                                     try {
-                                      const { error } = await supabase
-                                        .from("orders")
-                                        .update({
-                                          status_publikasi: newStatusPublikasi,
-                                        })
-                                        .eq("id", order.id);
-                                      if (error) throw error;
+                                      const res = await updateOrderAction(order.id, {
+                                        status_publikasi: newStatusPublikasi,
+                                      });
+                                      if (!res.success) throw new Error(res.error);
                                       setOrders((prev) =>
                                         prev.map((o) =>
                                           o.id === order.id

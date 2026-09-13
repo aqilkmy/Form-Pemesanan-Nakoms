@@ -18,7 +18,7 @@ import {
   OrderFormValues,
 } from "@/lib/schema";
 import { MenuType, JENIS_BANTUAN_OPTIONS } from "@/lib/constants";
-import { supabase } from "@/lib/supabase";
+import { createOrder } from "@/lib/actions/orders";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -293,10 +293,10 @@ export function OrderForm() {
 
   const handleOrderShortlink = async (values: WebsiteFormValues) => {
     try {
-      const { error } = await supabase.from("orders").insert([values]);
+      const res = await createOrder(values);
 
-      if (error) {
-        throw error;
+      if (!res.success) {
+        throw new Error(res.error || "Gagal menyimpan pesanan shortlink");
       }
 
       setSubmittedData({
@@ -350,11 +350,12 @@ export function OrderForm() {
           throw new Error("Invalid menu type");
       }
 
-      const { error } = await supabase.from("orders").insert([data]);
+      const res = await createOrder(data);
 
-      if (error) {
-        throw error;
+      if (!res.success) {
+        throw new Error(res.error || "Gagal menyimpan pesanan");
       }
+
 
       setSubmittedData({
         menu_type: selectedMenu,

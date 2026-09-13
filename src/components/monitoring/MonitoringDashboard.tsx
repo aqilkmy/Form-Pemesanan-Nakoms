@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { supabase } from "@/lib/supabase";
+import { getOrders } from "@/lib/actions/orders";
 import {
   Order,
   DesainPublikasiOrder,
@@ -143,64 +143,31 @@ export function MonitoringDashboard() {
   React.useEffect(() => {
     fetchOrders();
 
-    const channel = supabase
-      .channel("orders_realtime_monitoring")
-      .on(
-        "postgres_changes",
-        { event: "*", schema: "public", table: "orders" },
-        (payload) => {
-          if (payload.eventType === "INSERT") {
-            setOrders((prev) => [payload.new as Order, ...prev]);
-          } else if (payload.eventType === "UPDATE") {
-            setOrders((prev) =>
-              prev.map((order) =>
-                order.id === (payload.new as Order).id
-                  ? (payload.new as Order)
-                  : order,
-              ),
-            );
-          }
-        },
-      )
-      .subscribe();
+    // Auto refresh data every 8 seconds (Smart Polling)
+    const interval = setInterval(() => {
+      fetchOrders(true);
+    }, 8000);
 
     return () => {
-      supabase.removeChannel(channel);
+      clearInterval(interval);
     };
   }, []);
 
-  const fetchOrders = async () => {
+  const fetchOrders = async (silent = false) => {
     try {
-      // Supabase returns max 1000 rows by default, so paginate to get all
-      const PAGE_SIZE = 1000;
-      let allData: Order[] = [];
-      let from = 0;
-      let hasMore = true;
-
-      while (hasMore) {
-        const { data, error } = await supabase
-          .from("orders")
-          .select("*")
-          .order("created_at", { ascending: false })
-          .range(from, from + PAGE_SIZE - 1);
-
-        if (error) throw error;
-        if (data && data.length > 0) {
-          allData = allData.concat(data as Order[]);
-          from += PAGE_SIZE;
-          hasMore = data.length === PAGE_SIZE;
-        } else {
-          hasMore = false;
-        }
+      if (!silent) setIsLoading(true);
+      const { data, error } = await getOrders();
+      if (error) throw new Error(error);
+      if (data) {
+        setOrders(data);
       }
-
-      setOrders(allData);
     } catch (error) {
       console.error("Error fetching orders:", error);
     } finally {
-      setIsLoading(false);
+      if (!silent) setIsLoading(false);
     }
   };
+
 
   const helperDate = (d: string) => {
     try {

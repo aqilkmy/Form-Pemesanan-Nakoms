@@ -1,4 +1,4 @@
-import { supabase } from "./supabase";
+import * as pjActions from "./actions/pj";
 import {
   PJ_DESAIN_GRAFIS,
   PJ_WEBSITE,
@@ -72,26 +72,16 @@ export interface InternPJEntry {
 
 // ─── Contacts CRUD ───
 export async function fetchPJContacts(): Promise<PJContact[]> {
-  const { data, error } = await supabase
-    .from("pj_contacts")
-    .select("*")
-    .order("nama");
-  if (error) {
-    console.error("Error fetching PJ contacts:", error);
-    return [];
-  }
+  const data = await pjActions.fetchPJContacts();
   return data as PJContact[];
 }
 
-export async function createPJContact(nama: string, nomor: string, role: string | null): Promise<{ success: boolean; error?: string }> {
-  const { error } = await supabase
-    .from("pj_contacts")
-    .insert([{ nama, nomor, role }]);
-  if (error) {
-    console.error("Error creating PJ contact:", error);
-    return { success: false, error: error.message };
-  }
-  return { success: true };
+export async function createPJContact(
+  nama: string,
+  nomor: string,
+  role: string | null
+): Promise<{ success: boolean; error?: string }> {
+  return await pjActions.createPJContact(nama, nomor, role);
 }
 
 export async function updatePJContact(
@@ -100,42 +90,16 @@ export async function updatePJContact(
   nomor: string,
   role: string | null
 ): Promise<{ success: boolean; error?: string }> {
-  const { error } = await supabase
-    .from("pj_contacts")
-    .update({ nama, nomor, role })
-    .eq("id", id);
-  if (error) {
-    console.error("Error updating PJ contact:", error);
-    return { success: false, error: error.message };
-  }
-  return { success: true };
+  return await pjActions.updatePJContact(id, nama, nomor, role);
 }
 
 export async function deletePJContact(id: string): Promise<{ success: boolean; error?: string }> {
-  const { error } = await supabase
-    .from("pj_contacts")
-    .delete()
-    .eq("id", id);
-  if (error) {
-    console.error("Error deleting PJ contact:", error);
-    return { success: false, error: error.message };
-  }
-  return { success: true };
+  return await pjActions.deletePJContact(id);
 }
 
 // ─── Mappings ───
 export async function fetchAllPJMappings(): Promise<PJMapping[]> {
-  const { data, error } = await supabase
-    .from("pj_mappings")
-    .select("*, pj_contacts(*)")
-    .order("category")
-    .order("lookup_key");
-
-  if (error) {
-    console.error("Error fetching PJ mappings:", error);
-    return [];
-  }
-
+  const data = await pjActions.fetchAllPJMappings();
   return data as PJMapping[];
 }
 
@@ -143,20 +107,7 @@ export async function updatePJMapping(
   id: string,
   pj_id: string | null,
 ): Promise<{ success: boolean; error?: string }> {
-  const { error } = await supabase
-    .from("pj_mappings")
-    .update({
-      pj_id,
-      updated_at: new Date().toISOString(),
-    })
-    .eq("id", id);
-
-  if (error) {
-    console.error("Error updating PJ mapping:", error);
-    return { success: false, error: error.message };
-  }
-
-  return { success: true };
+  return await pjActions.updatePJMapping(id, pj_id);
 }
 
 export async function createPJMapping(
@@ -165,19 +116,10 @@ export async function createPJMapping(
   pj_id: string | null = null,
   platforms: string[] | null = null
 ): Promise<{ success: boolean; data?: PJMapping; error?: string }> {
-  const { data, error } = await supabase
-    .from("pj_mappings")
-    .insert([{ category, lookup_key, pj_id, platforms }])
-    .select("*, pj_contacts(*)")
-    .single();
-
-  if (error) {
-    console.error("Error creating PJ mapping:", error);
-    return { success: false, error: error.message };
-  }
-
-  return { success: true, data: data as PJMapping };
+  const res = await pjActions.createPJMapping(category, lookup_key, pj_id, platforms);
+  return { success: res.success, data: res.data as PJMapping, error: res.error };
 }
+
 
 // ─── Convert DB mappings to the same format as constants (for SuccessMessage) ───
 export function buildPJLookups(mappings: PJMapping[]) {

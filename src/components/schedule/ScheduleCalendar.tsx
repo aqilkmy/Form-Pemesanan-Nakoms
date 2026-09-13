@@ -5,7 +5,7 @@ import FullCalendar from "@fullcalendar/react";
 import dayGridPlugin from "@fullcalendar/daygrid";
 import interactionPlugin from "@fullcalendar/interaction";
 import { EventClickArg } from "@fullcalendar/core";
-import { supabase } from "@/lib/supabase";
+import { getOrders } from "@/lib/actions/orders";
 import {
   Order,
   DesainPublikasiOrder,
@@ -46,57 +46,34 @@ export function ScheduleCalendar() {
   React.useEffect(() => {
     fetchOrders();
 
-    const channel = supabase
-      .channel("orders_calendar_realtime")
-      .on(
-        "postgres_changes",
-        { event: "*", schema: "public", table: "orders" },
-        () => {
-          fetchOrders();
-        },
-      )
-      .subscribe();
+    // Auto refresh data every 15 seconds
+    const interval = setInterval(() => {
+      fetchOrders(true);
+    }, 15000);
 
-    return () => {
-      supabase.removeChannel(channel);
-    };
+    return () => clearInterval(interval);
   }, []);
 
-  const fetchOrders = async () => {
+  const fetchOrders = async (silent = false) => {
     try {
-      // Supabase returns max 1000 rows by default, so paginate to get all
-      const PAGE_SIZE = 1000;
-      let allData: Order[] = [];
-      let from = 0;
-      let hasMore = true;
+      if (!silent) setIsLoading(true);
+      const { data, error } = await getOrders();
+      if (error) throw new Error(error);
 
-      while (hasMore) {
-        const { data, error } = await supabase
-          .from("orders")
-          .select("*")
-          .range(from, from + PAGE_SIZE - 1);
-
-        if (error) throw error;
-        if (data && data.length > 0) {
-          allData = allData.concat(data as Order[]);
-          from += PAGE_SIZE;
-          hasMore = data.length === PAGE_SIZE;
-        } else {
-          hasMore = false;
-        }
+      if (data) {
+        setOrders(
+          data.filter(
+            (order) => order.status !== "cancel" && !order.is_hidden,
+          ),
+        );
       }
-
-      setOrders(
-        allData.filter(
-          (order) => order.status !== "cancel" && !order.is_hidden,
-        ),
-      );
     } catch (error) {
       console.error("Error fetching orders:", error);
     } finally {
-      setIsLoading(false);
+      if (!silent) setIsLoading(false);
     }
   };
+
 
   const getEventTitle = (order: Order): string => {
     switch (order.menu_type) {

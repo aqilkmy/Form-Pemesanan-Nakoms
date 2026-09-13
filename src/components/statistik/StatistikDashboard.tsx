@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { supabase } from "@/lib/supabase";
+import { getOrders } from "@/lib/actions/orders";
 import { Order } from "@/lib/types";
 import {
   TRIWULAN_PERIODS,
@@ -161,30 +161,11 @@ export function StatistikDashboard() {
   React.useEffect(() => {
     const fetchOrders = async () => {
       try {
-        // Supabase returns max 1000 rows by default, so paginate to get all
-        const PAGE_SIZE = 1000;
-        let allData: Order[] = [];
-        let from = 0;
-        let hasMore = true;
-
-        while (hasMore) {
-          const { data, error } = await supabase
-            .from("orders")
-            .select("*")
-            .order("created_at", { ascending: false })
-            .range(from, from + PAGE_SIZE - 1);
-
-          if (error) throw error;
-          if (data && data.length > 0) {
-            allData = allData.concat(data as Order[]);
-            from += PAGE_SIZE;
-            hasMore = data.length === PAGE_SIZE;
-          } else {
-            hasMore = false;
-          }
+        const { data, error } = await getOrders();
+        if (error) throw new Error(error);
+        if (data) {
+          setOrders(data.filter((o) => !o.is_hidden));
         }
-
-        setOrders(allData.filter((o) => !o.is_hidden));
       } catch (error) {
         console.error("Error fetching orders:", error);
       } finally {
@@ -194,6 +175,7 @@ export function StatistikDashboard() {
 
     fetchOrders();
   }, []);
+
 
   // Filtered orders for the active triwulan
   const filteredOrders = React.useMemo(
