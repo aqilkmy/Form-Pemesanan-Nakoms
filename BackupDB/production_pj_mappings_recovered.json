@@ -1,0 +1,449 @@
+[
+  {
+    "id": "029e29ae-b65b-4e7c-9499-4a2f047e39a1",
+    "category": "website",
+    "lookup_key": "Biro Keuangan",
+    "pj_id": "3132604f-6c86-4896-b64e-fff437c760cb",
+    "platforms": null,
+    "updated_at": "2026-07-12T13:44:29.439289+00:00"
+  },
+  {
+    "id": "10752ef5-e37a-46e2-9ebc-f9304f75d383",
+    "category": "platform_khusus",
+    "lookup_key": "spotify",
+    "pj_id": "1dc3f2ac-b661-4af6-8436-b4b66f7955e0",
+    "platforms": [
+      "Spotify"
+    ],
+    "updated_at": "2026-07-12T13:44:29.439289+00:00"
+  },
+  {
+    "id": "13e6b484-6230-458b-af3e-80b993bf813d",
+    "category": "website",
+    "lookup_key": "Kementerian Analisis Isu Strategis",
+    "pj_id": "850ae8f6-b70a-4db6-958c-8f75dabd761f",
+    "platforms": null,
+    "updated_at": "2026-07-12T13:44:29.439289+00:00"
+  },
+  {
+    "id": "1b9cf72a-3293-4ac8-8a81-b74e10c6c12c",
+    "category": "twibbon",
+    "lookup_key": "Kemenko Polper",
+    "pj_id": null,
+    "platforms": null,
+    "updated_at": "2026-08-25T03:00:59.20182+00:00"
+  },
+  {
+    "id": "2202c0a1-a035-4016-97c8-7bb233d13267",
+    "category": "website",
+    "lookup_key": "Kementerian Pengabdian Masyarakat",
+    "pj_id": "8f896271-9607-4766-a14d-b3624c15abbe",
+    "platforms": null,
+    "updated_at": "2026-07-12T13:44:29.439289+00:00"
+  },
+  {
+    "id": "224af557-d8db-48e5-994d-20cf0918ceda",
+    "category": "website",
+    "lookup_key": "Biro Pengendali & Penjamin Mutu",
+    "pj_id": "8f896271-9607-4766-a14d-b3624c15abbe",
+    "platforms": null,
+    "updated_at": "2026-07-12T13:44:29.439289+00:00"
+  },
+  {
+    "id": "2b990080-1574-4dd6-8a51-4200af9fca75",
+    "category": "platform_khusus",
+    "lookup_key": "youtube",
+    "pj_id": "8bbba890-1ce8-4098-b090-4deb8497f5f5",
+    "platforms": [
+      "YouTube"
+    ],
+    "updated_at": "2026-07-12T13:44:29.439289+00:00"
+  },
+  {
+    "id": "3d554b3e-709d-4487-a3de-9aa560222fbe",
+    "category": "website",
+    "lookup_key": "Kementerian Prestasi dan Inovasi",
+    "pj_id": "649f1261-d233-4113-8688-139c692e7871",
+    "platforms": null,
+    "updated_at": "2026-07-12T13:44:29.439289+00:00"
+  },
+  {
+    "id": "418c1008-bfd7-4d0d-a3ec-9ae2e0f7b6a0",
+    "category": "twibbon",
+    "lookup_key": "Kemenko Respub",
+    "pj_id": "5503beb8-6d61-498f-b451-58b1e204a934",
+    "platforms": null,
+    "updated_at": "2026-08-25T03:09:50.995+00:00"
+  },
+  {
+    "id": "5c589e43-b250-469c-8497-82f3b68693d0",
+    "category": "platform_khusus",
+    "lookup_key": "reels_tiktok",
+    "pj_id": "15e6826d-ed36-405c-90f3-2278c2619613",
+    "platforms": [
+      "Instagram Reels",
+      "TikTok"
+    ],
+    "updated_at": "2026-07-12T13:44:29.439289+00:00"
+  },
+  {
+    "id": "730c3754-20b8-495c-9ea3-08c9121d156f",
+    "category": "bantuan_teknis",
+    "lookup_key": "B",
+    "pj_id": "035357fb-ae01-46d2-84a8-8c6bb6fb0dfd",
+    "platforms": null,
+    "updated_at": "2026-07-12T13:44:29.439289+00:00"
+  },
+  {
+    "id": "7fee4ec6-97b6-4a7d-859d-4fc286083376",
+    "category": "twibbon",
+    "lookup_key": "Kemenko PM",
+    "pj_id": "02c5b88f-8b2b-4c5e-b654-f75c1d4a6ed3",
+    "platforms": null,
+    "updated_at": "2026-08-25T03:09:38.41+00:00"
+  },
+  {
+    "id": "8cc38014-0dbf-4d9c-adfd-2f5ceda06e0f",
+    "category": "website",
+    "lookup_key": "Kementerian Seni dan Olahraga",
+    "pj_id": "649f1261-d233-4113-8688-139c692e7871",
+    "platforms": null,
+    "updated_at": "2026-07-12T13:44:29.439289+00:00"
+  },
+  {
+    "id": "9a13aa17-e9cd-44e6-a9f7-3601a5f35a08",
+    "category": "website",
+    "lookup_key": "Kementerian Pemberdayaan Perempuan",
+    "pj_id": "850ae8f6-b70a-4db6-958c-8f75dabd761f",
+    "platforms": null,
+    "updated_at": "2026-07-12T13:44:29.439289+00:00"
+  },
+  {
+    "id": "a17992b0-828e-454d-bcd3-7028b511e51a",
+    "category": "website",
+    "lookup_key": "Kementerian Riset dan Data",
+    "pj_id": "850ae8f6-b70a-4db6-958c-8f75dabd761f",
+    "platforms": null,
+    "updated_at": "2026-07-12T13:44:29.439289+00:00"
+  },
+  {
+    "id": "a75d7fc8-7bfc-4000-9cb0-74ce34180912",
+    "category": "twibbon",
+    "lookup_key": "Kemenko Rismed",
+    "pj_id": "71b28387-d2de-4e8c-ba78-dcbea8316033",
+    "platforms": null,
+    "updated_at": "2026-08-25T03:09:59.475+00:00"
+  },
+  {
+    "id": "b33799c8-1eb5-44c0-a851-75d2b7e8c85b",
+    "category": "twibbon",
+    "lookup_key": "Sekretaris Jenderal",
+    "pj_id": null,
+    "platforms": null,
+    "updated_at": "2026-08-25T03:00:59.20182+00:00"
+  },
+  {
+    "id": "b6510412-4b78-430a-977f-20aa1dd71cd5",
+    "category": "website",
+    "lookup_key": "Lingkar Presiden",
+    "pj_id": "3132604f-6c86-4896-b64e-fff437c760cb",
+    "platforms": null,
+    "updated_at": "2026-07-12T13:44:29.439289+00:00"
+  },
+  {
+    "id": "bbbc682c-00e6-4722-bad9-8c1b186fefad",
+    "category": "website",
+    "lookup_key": "Biro Kesekretariatan",
+    "pj_id": "3132604f-6c86-4896-b64e-fff437c760cb",
+    "platforms": null,
+    "updated_at": "2026-07-12T13:44:29.439289+00:00"
+  },
+  {
+    "id": "be26486b-6701-471b-b358-c8d28220a187",
+    "category": "survey",
+    "lookup_key": "all",
+    "pj_id": "208b4a77-e601-4c4a-b5fa-dcec8d086fcf",
+    "platforms": null,
+    "updated_at": "2026-07-12T13:44:29.439289+00:00"
+  },
+  {
+    "id": "cbf16764-5aff-43fa-9d24-a91d5207550e",
+    "category": "website",
+    "lookup_key": "Kementerian Aksi dan Propaganda",
+    "pj_id": "850ae8f6-b70a-4db6-958c-8f75dabd761f",
+    "platforms": null,
+    "updated_at": "2026-07-12T13:44:29.439289+00:00"
+  },
+  {
+    "id": "d0ee86a4-ae4f-4fba-b18d-736b0524cf49",
+    "category": "bantuan_teknis",
+    "lookup_key": "A",
+    "pj_id": "ebc12bac-1f2d-4d03-bdb7-abda2027d62f",
+    "platforms": null,
+    "updated_at": "2026-07-12T13:44:29.439289+00:00"
+  },
+  {
+    "id": "d3a500f3-4b09-4fc6-a601-1d2680e02e3f",
+    "category": "website",
+    "lookup_key": "Kementerian Advokasi Kesejahteraan Mahasiswa",
+    "pj_id": "850ae8f6-b70a-4db6-958c-8f75dabd761f",
+    "platforms": null,
+    "updated_at": "2026-07-12T13:44:29.439289+00:00"
+  },
+  {
+    "id": "d413fcb8-c706-4c89-8a5c-53f047efb2d9",
+    "category": "website",
+    "lookup_key": "Kementerian Dalam Negeri",
+    "pj_id": "8f896271-9607-4766-a14d-b3624c15abbe",
+    "platforms": null,
+    "updated_at": "2026-07-12T13:44:29.439289+00:00"
+  },
+  {
+    "id": "dff14e17-73eb-4684-81ef-1c7903d87db2",
+    "category": "website",
+    "lookup_key": "Kementerian Media Komunikasi dan Informasi",
+    "pj_id": "850ae8f6-b70a-4db6-958c-8f75dabd761f",
+    "platforms": null,
+    "updated_at": "2026-07-12T13:44:29.439289+00:00"
+  },
+  {
+    "id": "e75e05b7-504e-4c3c-bfad-f4e28e0348c2",
+    "category": "website",
+    "lookup_key": "Biro Pengembangan Sumber Daya Anggota",
+    "pj_id": "8f896271-9607-4766-a14d-b3624c15abbe",
+    "platforms": null,
+    "updated_at": "2026-07-12T13:44:29.439289+00:00"
+  },
+  {
+    "id": "ee550890-8759-490b-9e1f-6a9de29f6541",
+    "category": "website",
+    "lookup_key": "Kementerian Luar Negeri",
+    "pj_id": "8f896271-9607-4766-a14d-b3624c15abbe",
+    "platforms": null,
+    "updated_at": "2026-07-12T13:44:29.439289+00:00"
+  },
+  {
+    "id": "fa8633ba-32e0-48a7-ae87-da92941121bd",
+    "category": "website",
+    "lookup_key": "Kementerian Pengembangan Sumber Daya Mahasiswa",
+    "pj_id": "649f1261-d233-4113-8688-139c692e7871",
+    "platforms": null,
+    "updated_at": "2026-07-12T13:44:29.439289+00:00"
+  },
+  {
+    "id": "fb4be8ab-ae8a-4c2f-8c39-4d2ee4713590",
+    "category": "website",
+    "lookup_key": "Kementerian Media Kreatif dan Aplikatif",
+    "pj_id": "850ae8f6-b70a-4db6-958c-8f75dabd761f",
+    "platforms": null,
+    "updated_at": "2026-07-12T13:44:29.439289+00:00"
+  },
+  {
+    "id": "fe7d14c4-069a-4e72-9b8d-bf873f11a4e5",
+    "category": "twibbon",
+    "lookup_key": "Satuan Pengawas Internal",
+    "pj_id": "a91fcd94-2d51-43c7-8ebd-7fb2e5c31a97",
+    "platforms": null,
+    "updated_at": "2026-08-25T03:10:09.627+00:00"
+  },
+  {
+    "id": "bf4d39d9-e367-4ead-95c7-e18d40c6762e",
+    "category": "desain_grafis",
+    "lookup_key": "Biro Pengembangan Sumber Daya Anggota",
+    "pj_id": "2f720d5d-c349-47c9-818a-4be14b7a386d",
+    "platforms": null,
+    "updated_at": "2026-08-31T17:05:52.514+00:00"
+  },
+  {
+    "id": "a63d2f06-7801-4a40-ad31-1508b9ed86c3",
+    "category": "desain_grafis",
+    "lookup_key": "Kementerian Advokasi Kesejahteraan Mahasiswa",
+    "pj_id": "2f720d5d-c349-47c9-818a-4be14b7a386d",
+    "platforms": null,
+    "updated_at": "2026-08-31T17:06:05.546+00:00"
+  },
+  {
+    "id": "402861ab-786c-421b-9efb-c657584ee3ef",
+    "category": "desain_grafis",
+    "lookup_key": "Biro Kesekretariatan",
+    "pj_id": "911a6ce3-a0ad-4bd7-bbb5-e2a9cbeb3ffa",
+    "platforms": null,
+    "updated_at": "2026-08-31T17:10:02.663+00:00"
+  },
+  {
+    "id": "5aee09d8-b0fd-461d-ad3f-333d766a5eb3",
+    "category": "desain_grafis",
+    "lookup_key": "Biro Keuangan",
+    "pj_id": "dc887427-dd94-417c-b763-799c9870b9d4",
+    "platforms": null,
+    "updated_at": "2026-08-31T17:10:22.226+00:00"
+  },
+  {
+    "id": "e3bd823f-be34-4fbc-99f0-b6782569d8c8",
+    "category": "desain_grafis",
+    "lookup_key": "Biro Pengendali & Penjamin Mutu",
+    "pj_id": "019311e5-d295-4277-98a8-ff773a8a121c",
+    "platforms": null,
+    "updated_at": "2026-08-31T17:10:36.025+00:00"
+  },
+  {
+    "id": "e3c29b19-7699-495d-93ab-f23dfc26de41",
+    "category": "desain_grafis",
+    "lookup_key": "Kementerian Aksi dan Propaganda",
+    "pj_id": "2f720d5d-c349-47c9-818a-4be14b7a386d",
+    "platforms": null,
+    "updated_at": "2026-08-31T17:10:45.991+00:00"
+  },
+  {
+    "id": "20d2a5a2-9578-47c6-b78c-cecbf0ecf2e9",
+    "category": "desain_grafis",
+    "lookup_key": "Kementerian Analisis Isu Strategis",
+    "pj_id": "3272321b-430a-4418-93d4-9360cbc79f28",
+    "platforms": null,
+    "updated_at": "2026-08-31T17:10:56.641+00:00"
+  },
+  {
+    "id": "21cbfdc3-5258-497a-8303-fdb25191a878",
+    "category": "desain_grafis",
+    "lookup_key": "Kementerian Dalam Negeri",
+    "pj_id": "23c34bae-ce06-4352-8afd-03bc4d841c91",
+    "platforms": null,
+    "updated_at": "2026-08-31T17:11:06.81+00:00"
+  },
+  {
+    "id": "38e518f6-89e3-49bc-ab0e-f9bdd2d05e8e",
+    "category": "desain_grafis",
+    "lookup_key": "Kementerian Luar Negeri",
+    "pj_id": "dc887427-dd94-417c-b763-799c9870b9d4",
+    "platforms": null,
+    "updated_at": "2026-08-31T17:11:21.198+00:00"
+  },
+  {
+    "id": "b1277904-5948-4f16-ad5b-e71e89b5a6b9",
+    "category": "desain_grafis",
+    "lookup_key": "Kementerian Media Komunikasi dan Informasi",
+    "pj_id": "fb615d49-06b1-42bb-a425-44e797fe82be",
+    "platforms": null,
+    "updated_at": "2026-08-31T17:11:34.371+00:00"
+  },
+  {
+    "id": "0efe3aa9-4db1-496a-b460-334f706a0f18",
+    "category": "desain_grafis",
+    "lookup_key": "Kementerian Media Kreatif dan Aplikatif",
+    "pj_id": "9d71fb08-65da-406e-8db2-ae10c9b4beae",
+    "platforms": null,
+    "updated_at": "2026-08-31T17:11:43.574+00:00"
+  },
+  {
+    "id": "88826b58-51c9-4b0c-8716-975ae764bfe7",
+    "category": "desain_grafis",
+    "lookup_key": "Kementerian Pemberdayaan Perempuan",
+    "pj_id": "dc887427-dd94-417c-b763-799c9870b9d4",
+    "platforms": null,
+    "updated_at": "2026-08-31T17:11:57.704+00:00"
+  },
+  {
+    "id": "2651bedf-9e91-4c98-af6e-cac515e0b53c",
+    "category": "desain_grafis",
+    "lookup_key": "Kementerian Pengabdian Masyarakat",
+    "pj_id": "fb615d49-06b1-42bb-a425-44e797fe82be",
+    "platforms": null,
+    "updated_at": "2026-08-31T17:12:11.478+00:00"
+  },
+  {
+    "id": "a13d16a1-6758-429a-b1b7-df07b4a3f4ca",
+    "category": "desain_grafis",
+    "lookup_key": "Kementerian Pengembangan Sumber Daya Mahasiswa",
+    "pj_id": "019311e5-d295-4277-98a8-ff773a8a121c",
+    "platforms": null,
+    "updated_at": "2026-08-31T17:12:24.772+00:00"
+  },
+  {
+    "id": "66d606fd-ad37-4bdf-b699-93c2a227881e",
+    "category": "desain_grafis",
+    "lookup_key": "Kementerian Prestasi dan Inovasi",
+    "pj_id": "3272321b-430a-4418-93d4-9360cbc79f28",
+    "platforms": null,
+    "updated_at": "2026-08-31T17:12:36.698+00:00"
+  },
+  {
+    "id": "1ca71f60-151d-4f70-a4af-5e1cbf8e3815",
+    "category": "desain_grafis",
+    "lookup_key": "Kementerian Riset dan Data",
+    "pj_id": "23c34bae-ce06-4352-8afd-03bc4d841c91",
+    "platforms": null,
+    "updated_at": "2026-08-31T17:13:05.043+00:00"
+  },
+  {
+    "id": "cf23f970-8d37-4022-992d-24527e97ba16",
+    "category": "desain_grafis",
+    "lookup_key": "Kementerian Seni dan Olahraga",
+    "pj_id": "911a6ce3-a0ad-4bd7-bbb5-e2a9cbeb3ffa",
+    "platforms": null,
+    "updated_at": "2026-08-31T17:13:15.917+00:00"
+  },
+  {
+    "id": "e1148de3-c761-424b-b44d-501255bf7e2c",
+    "category": "desain_grafis",
+    "lookup_key": "Lingkar Presiden",
+    "pj_id": "9d71fb08-65da-406e-8db2-ae10c9b4beae",
+    "platforms": null,
+    "updated_at": "2026-08-31T17:13:28.949+00:00"
+  },
+  {
+    "id": "9577c1c3-244a-4ffc-b5f4-041754283dea",
+    "category": "publikasi",
+    "lookup_key": "Senin",
+    "pj_id": "00ee9326-77b4-4536-aca7-58e981bfdd06",
+    "platforms": null,
+    "updated_at": "2026-09-07T17:21:12.596+00:00"
+  },
+  {
+    "id": "c2b1e130-f1c4-44fe-9280-61fbb6e39894",
+    "category": "publikasi",
+    "lookup_key": "Selasa",
+    "pj_id": "783b1334-020b-4a40-8ef7-669d603fc60f",
+    "platforms": null,
+    "updated_at": "2026-09-07T17:21:56.326+00:00"
+  },
+  {
+    "id": "b19a0e86-5287-4aac-8247-b72e725342f6",
+    "category": "publikasi",
+    "lookup_key": "Rabu",
+    "pj_id": "5503beb8-6d61-498f-b451-58b1e204a934",
+    "platforms": null,
+    "updated_at": "2026-09-07T17:21:56.757+00:00"
+  },
+  {
+    "id": "8026b3b6-fe4b-4ec7-b6ef-dca6e2c9d3fe",
+    "category": "publikasi",
+    "lookup_key": "Kamis",
+    "pj_id": "02c5b88f-8b2b-4c5e-b654-f75c1d4a6ed3",
+    "platforms": null,
+    "updated_at": "2026-09-07T17:22:56.043+00:00"
+  },
+  {
+    "id": "1d5e6e21-3a8a-45fa-bafd-a463fe0ce57f",
+    "category": "publikasi",
+    "lookup_key": "Jumat",
+    "pj_id": "a91fcd94-2d51-43c7-8ebd-7fb2e5c31a97",
+    "platforms": null,
+    "updated_at": "2026-09-07T17:23:32.815+00:00"
+  },
+  {
+    "id": "b6789001-3ded-4f20-978e-ea24bbbba507",
+    "category": "publikasi",
+    "lookup_key": "Sabtu",
+    "pj_id": "a91fcd94-2d51-43c7-8ebd-7fb2e5c31a97",
+    "platforms": null,
+    "updated_at": "2026-09-07T17:23:32.936+00:00"
+  },
+  {
+    "id": "8476848d-1a38-4f11-9dbe-247fe5bcad55",
+    "category": "publikasi",
+    "lookup_key": "Minggu",
+    "pj_id": "71b28387-d2de-4e8c-ba78-dcbea8316033",
+    "platforms": null,
+    "updated_at": "2026-09-07T17:23:38.545+00:00"
+  }
+]

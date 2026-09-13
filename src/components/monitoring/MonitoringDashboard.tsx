@@ -109,9 +109,13 @@ function isCollisionExempt(order: DesainPublikasiOrder): boolean {
   return COLLISION_EXEMPT_WAKTU_PUBLIKASI.has(order.waktu_publikasi);
 }
 
-export function MonitoringDashboard() {
-  const [orders, setOrders] = React.useState<Order[]>([]);
-  const [isLoading, setIsLoading] = React.useState(true);
+interface MonitoringDashboardProps {
+  initialOrders?: Order[];
+}
+
+export function MonitoringDashboard({ initialOrders = [] }: MonitoringDashboardProps) {
+  const [orders, setOrders] = React.useState<Order[]>(initialOrders);
+  const [isLoading, setIsLoading] = React.useState(initialOrders.length === 0);
   const [activeTab, setActiveTab] =
     React.useState<MenuType>("desain_publikasi");
 
@@ -139,7 +143,9 @@ export function MonitoringDashboard() {
   }, [activeTab, filterKementerian, filterStatus, filterDate, filterPlatform, sortBy]);
 
   React.useEffect(() => {
-    fetchOrders();
+    if (initialOrders.length === 0) {
+      fetchOrders();
+    }
 
     // Auto refresh data every 8 seconds (Smart Polling)
     const interval = setInterval(() => {
@@ -149,7 +155,7 @@ export function MonitoringDashboard() {
     return () => {
       clearInterval(interval);
     };
-  }, []);
+  }, [initialOrders.length]);
 
   const fetchOrders = async (silent = false) => {
     try {
@@ -458,7 +464,7 @@ export function MonitoringDashboard() {
                           : ""
                       }
                     >
-                      <TableCell className="font-medium whitespace-nowrap">
+                      <TableCell className="font-medium whitespace-nowrap" suppressHydrationWarning>
                         {helperDate(order.created_at)}
                       </TableCell>
                       <TableCell>
@@ -597,7 +603,7 @@ export function MonitoringDashboard() {
                 return (
                   <React.Fragment key={order.id}>
                     <TableRow>
-                      <TableCell className="font-medium whitespace-nowrap">
+                      <TableCell className="font-medium whitespace-nowrap" suppressHydrationWarning>
                     {helperDate(order.created_at)}
                   </TableCell>
                   <TableCell>
@@ -721,7 +727,7 @@ export function MonitoringDashboard() {
             <TableBody>
               {paginatedOrders.filter(isBantuanTeknis).map((order) => (
                 <TableRow key={order.id}>
-                  <TableCell className="font-medium whitespace-nowrap">
+                  <TableCell className="font-medium whitespace-nowrap" suppressHydrationWarning>
                     {helperDate(order.created_at)}
                   </TableCell>
                   <TableCell>
@@ -785,7 +791,7 @@ export function MonitoringDashboard() {
             <TableBody>
               {paginatedOrders.filter(isSurvey).map((order) => (
                 <TableRow key={order.id}>
-                  <TableCell className="font-medium whitespace-nowrap">
+                  <TableCell className="font-medium whitespace-nowrap" suppressHydrationWarning>
                     {helperDate(order.created_at)}
                   </TableCell>
                   <TableCell>

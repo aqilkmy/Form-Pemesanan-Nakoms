@@ -1,0 +1,177 @@
+[
+  {
+    "id": "019311e5-d295-4277-98a8-ff773a8a121c",
+    "nama": "Isa",
+    "nomor": "6285727631992",
+    "created_at": "2026-07-12T13:44:29.439289+00:00",
+    "role": "desain_grafis"
+  },
+  {
+    "id": "02c5b88f-8b2b-4c5e-b654-f75c1d4a6ed3",
+    "nama": "Nesya",
+    "nomor": "6282225061788",
+    "created_at": "2026-08-05T03:10:44.423392+00:00",
+    "role": "publikasi"
+  },
+  {
+    "id": "035357fb-ae01-46d2-84a8-8c6bb6fb0dfd",
+    "nama": "Wulan",
+    "nomor": "6287758922681",
+    "created_at": "2026-07-12T13:44:29.439289+00:00",
+    "role": "bantuan_teknis"
+  },
+  {
+    "id": "15e6826d-ed36-405c-90f3-2278c2619613",
+    "nama": "Zahran",
+    "nomor": "6285880125168",
+    "created_at": "2026-07-12T13:44:29.439289+00:00",
+    "role": "platform_khusus"
+  },
+  {
+    "id": "1a941dd6-574d-4434-90a9-c76696e9dd80",
+    "nama": "Kynaa",
+    "nomor": "6289526269980",
+    "created_at": "2026-07-12T13:44:29.439289+00:00",
+    "role": "desain_grafis"
+  },
+  {
+    "id": "1dc3f2ac-b661-4af6-8436-b4b66f7955e0",
+    "nama": "Nashwa",
+    "nomor": "6287722540756",
+    "created_at": "2026-07-12T13:44:29.439289+00:00",
+    "role": "platform_khusus"
+  },
+  {
+    "id": "208b4a77-e601-4c4a-b5fa-dcec8d086fcf",
+    "nama": "Erga",
+    "nomor": "6285878335352",
+    "created_at": "2026-07-12T13:44:29.439289+00:00",
+    "role": "survey"
+  },
+  {
+    "id": "23c34bae-ce06-4352-8afd-03bc4d841c91",
+    "nama": "Rahma",
+    "nomor": "6281392626815",
+    "created_at": "2026-07-12T13:44:29.439289+00:00",
+    "role": "desain_grafis"
+  },
+  {
+    "id": "2f720d5d-c349-47c9-818a-4be14b7a386d",
+    "nama": "Fira",
+    "nomor": "6288706691442",
+    "created_at": "2026-07-12T13:44:29.439289+00:00",
+    "role": "desain_grafis"
+  },
+  {
+    "id": "3132604f-6c86-4896-b64e-fff437c760cb",
+    "nama": "Aufa",
+    "nomor": "6285947647645",
+    "created_at": "2026-07-12T13:44:29.439289+00:00",
+    "role": "website"
+  },
+  {
+    "id": "3272321b-430a-4418-93d4-9360cbc79f28",
+    "nama": "Rissa",
+    "nomor": "6281393665862",
+    "created_at": "2026-07-12T13:44:29.439289+00:00",
+    "role": "desain_grafis"
+  },
+  {
+    "id": "5503beb8-6d61-498f-b451-58b1e204a934",
+    "nama": "Jasmine",
+    "nomor": "6281326790367",
+    "created_at": "2026-08-05T03:06:39.52946+00:00",
+    "role": "publikasi"
+  },
+  {
+    "id": "649f1261-d233-4113-8688-139c692e7871",
+    "nama": "Albert",
+    "nomor": "6281226895057",
+    "created_at": "2026-07-12T13:44:29.439289+00:00",
+    "role": "website"
+  },
+  {
+    "id": "71b28387-d2de-4e8c-ba78-dcbea8316033",
+    "nama": "Nana",
+    "nomor": "6285156164027",
+    "created_at": "2026-08-05T03:09:30.787907+00:00",
+    "role": "publikasi"
+  },
+  {
+    "id": "850ae8f6-b70a-4db6-958c-8f75dabd761f",
+    "nama": "Bintang",
+    "nomor": "6285710205061",
+    "created_at": "2026-07-12T13:44:29.439289+00:00",
+    "role": "website"
+  },
+  {
+    "id": "8bbba890-1ce8-4098-b090-4deb8497f5f5",
+    "nama": "Shava",
+    "nomor": "6285727194418",
+    "created_at": "2026-07-12T13:44:29.439289+00:00",
+    "role": "platform_khusus"
+  },
+  {
+    "id": "8f896271-9607-4766-a14d-b3624c15abbe",
+    "nama": "Najmi",
+    "nomor": "62816400771",
+    "created_at": "2026-07-12T13:44:29.439289+00:00",
+    "role": "website"
+  },
+  {
+    "id": "911a6ce3-a0ad-4bd7-bbb5-e2a9cbeb3ffa",
+    "nama": "Dhina",
+    "nomor": "6285691140342",
+    "created_at": "2026-07-12T13:44:29.439289+00:00",
+    "role": "desain_grafis"
+  },
+  {
+    "id": "9d71fb08-65da-406e-8db2-ae10c9b4beae",
+    "nama": "Kes",
+    "nomor": "62895362396200",
+    "created_at": "2026-07-12T13:44:29.439289+00:00",
+    "role": "desain_grafis"
+  },
+  {
+    "id": "a91fcd94-2d51-43c7-8ebd-7fb2e5c31a97",
+    "nama": "Alwan",
+    "nomor": "6285150004241",
+    "created_at": "2026-08-05T03:07:50.934586+00:00",
+    "role": "publikasi"
+  },
+  {
+    "id": "dc887427-dd94-417c-b763-799c9870b9d4",
+    "nama": "Rosyid",
+    "nomor": "6289516552616",
+    "created_at": "2026-07-12T13:44:29.439289+00:00",
+    "role": "desain_grafis"
+  },
+  {
+    "id": "ebc12bac-1f2d-4d03-bdb7-abda2027d62f",
+    "nama": "Feli",
+    "nomor": "6285640447440",
+    "created_at": "2026-07-12T13:44:29.439289+00:00",
+    "role": "bantuan_teknis"
+  },
+  {
+    "id": "fb615d49-06b1-42bb-a425-44e797fe82be",
+    "nama": "Livia",
+    "nomor": "6289504858150",
+    "created_at": "2026-07-12T13:44:29.439289+00:00",
+    "role": "desain_grafis"
+  },
+  {
+    "id": "00ee9326-77b4-4536-aca7-58e981bfdd06",
+    "nama": "Dimas",
+    "nomor": "6289529284887",
+    "created_at": "2026-09-07T17:18:55.701236+00:00",
+    "role": "twibbon"
+  },
+  {
+    "id": "783b1334-020b-4a40-8ef7-669d603fc60f",
+    "nama": "Calista",
+    "nomor": "6281388800395",
+    "created_at": "2026-09-07T17:20:05.563487+00:00",
+    "role": "publikasi"
+  }
+]

@@ -22,9 +22,15 @@ interface CalendarEvent {
   borderColor: string;
 }
 
-export function ScheduleCalendar() {
-  const [orders, setOrders] = React.useState<Order[]>([]);
-  const [isLoading, setIsLoading] = React.useState(true);
+interface ScheduleCalendarProps {
+  initialOrders?: Order[];
+}
+
+export function ScheduleCalendar({ initialOrders = [] }: ScheduleCalendarProps) {
+  const [orders, setOrders] = React.useState<Order[]>(() =>
+    initialOrders.filter((order) => order.status !== "cancel" && !order.is_hidden),
+  );
+  const [isLoading, setIsLoading] = React.useState(initialOrders.length === 0);
   const [selectedOrder, setSelectedOrder] = React.useState<Order | null>(null);
   const [isMobile, setIsMobile] = React.useState(false);
   const [showMobileDetail, setShowMobileDetail] = React.useState(false);
@@ -39,7 +45,9 @@ export function ScheduleCalendar() {
   }, []);
 
   React.useEffect(() => {
-    fetchOrders();
+    if (initialOrders.length === 0) {
+      fetchOrders();
+    }
 
     // Auto refresh data every 15 seconds
     const interval = setInterval(() => {
@@ -47,7 +55,7 @@ export function ScheduleCalendar() {
     }, 15000);
 
     return () => clearInterval(interval);
-  }, []);
+  }, [initialOrders.length]);
 
   const fetchOrders = async (silent = false) => {
     try {

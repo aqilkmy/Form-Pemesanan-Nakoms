@@ -1,10 +1,15 @@
 import { MonitoringDashboard } from "@/components/monitoring/MonitoringDashboard";
+import { getOrders } from "@/lib/actions/orders";
+
+export const dynamic = "force-dynamic";
 
 export const metadata = {
   title: "Monitoring Pesanan - Pemesanan Rizzmed",
 };
 
-export default function MonitoringPage() {
+export default async function MonitoringPage() {
+  const { data } = await getOrders();
+
   return (
     <main className="min-h-screen flex flex-col items-center">
       <div className="flex-1 container py-8">
@@ -13,7 +18,7 @@ export default function MonitoringPage() {
             Monitoring Pesanan
           </h1>
         </div>
-        <MonitoringDashboard />
+        <MonitoringDashboard initialOrders={data || []} />
       </div>
     </main>
   );

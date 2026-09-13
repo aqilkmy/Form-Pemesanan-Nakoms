@@ -1,10 +1,15 @@
 import { ScheduleCalendar } from "@/components/schedule/ScheduleCalendar";
+import { getOrders } from "@/lib/actions/orders";
+
+export const dynamic = "force-dynamic";
 
 export const metadata = {
   title: "Jadwal Publikasi - Pemesanan Rizzmed",
 };
 
-export default function JadwalPage() {
+export default async function JadwalPage() {
+  const { data } = await getOrders();
+
   return (
     <main className="min-h-screen flex flex-col items-center">
       <div className="flex-1 container py-8">
@@ -13,7 +18,7 @@ export default function JadwalPage() {
             Jadwal Publikasi
           </h1>
         </div>
-        <ScheduleCalendar />
+        <ScheduleCalendar initialOrders={data || []} />
       </div>
     </main>
   );
