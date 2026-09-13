@@ -21,6 +21,7 @@ import {
 } from "@/components/ui/sheet";
 
 import { ThemeSwitcher } from "./ThemeSwitcher";
+import { checkAdminAuth } from "@/lib/actions/auth";
 
 const menuItems = [
   { title: "Home", url: "/", icon: <Home className="size-5 shrink-0" /> },
@@ -45,23 +46,25 @@ export function Navbar() {
   const [isAdmin, setIsAdmin] = React.useState(false);
 
   React.useEffect(() => {
-    const checkAuth = () => {
-      const auth =
-        typeof window !== "undefined" &&
-        (sessionStorage.getItem("adminAuth") === "true" ||
-          localStorage.getItem("adminAuth") === "true");
-      setIsAdmin(Boolean(auth));
+    const checkAuth = async () => {
+      // Check client cookie hint first
+      if (typeof document !== "undefined") {
+        const hasCookieHint = document.cookie.includes("admin_logged_in=true");
+        setIsAdmin(hasCookieHint);
+      }
+      // Verify with server action
+      const verified = await checkAdminAuth();
+      setIsAdmin(verified);
     };
 
     checkAuth();
     window.addEventListener("adminAuthChange", checkAuth);
-    window.addEventListener("storage", checkAuth);
 
     return () => {
       window.removeEventListener("adminAuthChange", checkAuth);
-      window.removeEventListener("storage", checkAuth);
     };
   }, []);
+
 
   const adminUrl = isAdmin ? "/admin/dashboard" : "/admin";
 

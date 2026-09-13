@@ -1,6 +1,6 @@
 
-import { OrderFormValues, DesainPublikasiFormValues, WebsiteFormValues, BantuanTeknisFormValues, SurveyFormValues } from "./schema"
-import { MenuType } from "./constants"
+import { MenuType } from "./constants";
+export type { MenuType };
 
 export type OrderStatus = 'new' | 'in progress' | 'under review' | 'ready' | 'pause' | 'cancel'
 

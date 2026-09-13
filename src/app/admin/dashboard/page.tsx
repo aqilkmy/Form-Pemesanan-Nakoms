@@ -6,32 +6,32 @@ import { AdminDashboard } from "@/components/admin/AdminDashboard";
 import { Loader2, LogOut } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
+import { checkAdminAuth, logoutAdmin } from "@/lib/actions/auth";
+
 export default function AdminDashboardPage() {
   const router = useRouter();
   const [isAuthenticated, setIsAuthenticated] = React.useState(false);
   const [isLoading, setIsLoading] = React.useState(true);
 
   React.useEffect(() => {
-    // Check if user is authenticated
-    const auth =
-      sessionStorage.getItem("adminAuth") === "true" ||
-      localStorage.getItem("adminAuth") === "true";
-    if (auth) {
-      setIsAuthenticated(true);
-      sessionStorage.setItem("adminAuth", "true");
-      localStorage.setItem("adminAuth", "true");
-    } else {
-      router.push("/admin");
+    async function verify() {
+      const isAuthed = await checkAdminAuth();
+      if (isAuthed) {
+        setIsAuthenticated(true);
+      } else {
+        router.push("/admin");
+      }
+      setIsLoading(false);
     }
-    setIsLoading(false);
+    verify();
   }, [router]);
 
-  const handleLogout = () => {
-    sessionStorage.removeItem("adminAuth");
-    localStorage.removeItem("adminAuth");
+  const handleLogout = async () => {
+    await logoutAdmin();
     window.dispatchEvent(new Event("adminAuthChange"));
     router.push("/admin");
   };
+
 
   if (isLoading) {
     return (

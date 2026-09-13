@@ -3,16 +3,13 @@
 import * as React from "react";
 import { ThemeProvider as NextThemesProvider } from "next-themes";
 
-interface ThemeProviderProps {
-  children: React.ReactNode;
-  disableTransitionOnChange?: boolean;
-}
+type ThemeProviderProps = React.ComponentProps<typeof NextThemesProvider>;
 
 export function ThemeProvider({
   children,
   disableTransitionOnChange = false,
   ...props
-}: ThemeProviderProps & any) {
+}: ThemeProviderProps) {
   return (
     <NextThemesProvider
       attribute="class"

@@ -3,6 +3,11 @@
 import { prisma } from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
 
+function getErrorMessage(error: unknown): string {
+  if (error instanceof Error) return error.message;
+  return String(error);
+}
+
 export interface PJContactData {
   id: string;
   nama: string;
@@ -33,8 +38,8 @@ export async function fetchPJContacts(): Promise<PJContactData[]> {
       role: c.role,
       created_at: c.createdAt ? new Date(c.createdAt).toISOString() : new Date().toISOString(),
     }));
-  } catch (error: any) {
-    console.error("Error fetching PJ contacts:", error);
+  } catch (error: unknown) {
+    console.error("Error fetching PJ contacts:", getErrorMessage(error));
     return [];
   }
 }
@@ -55,9 +60,10 @@ export async function createPJContact(
     revalidatePath("/admin");
     revalidatePath("/pj");
     return { success: true };
-  } catch (error: any) {
-    console.error("Error creating PJ contact:", error);
-    return { success: false, error: error.message };
+  } catch (error: unknown) {
+    const msg = getErrorMessage(error);
+    console.error("Error creating PJ contact:", msg);
+    return { success: false, error: msg };
   }
 }
 
@@ -79,9 +85,10 @@ export async function updatePJContact(
     revalidatePath("/admin");
     revalidatePath("/pj");
     return { success: true };
-  } catch (error: any) {
-    console.error("Error updating PJ contact:", error);
-    return { success: false, error: error.message };
+  } catch (error: unknown) {
+    const msg = getErrorMessage(error);
+    console.error("Error updating PJ contact:", msg);
+    return { success: false, error: msg };
   }
 }
 
@@ -93,9 +100,10 @@ export async function deletePJContact(id: string): Promise<{ success: boolean; e
     revalidatePath("/admin");
     revalidatePath("/pj");
     return { success: true };
-  } catch (error: any) {
-    console.error("Error deleting PJ contact:", error);
-    return { success: false, error: error.message };
+  } catch (error: unknown) {
+    const msg = getErrorMessage(error);
+    console.error("Error deleting PJ contact:", msg);
+    return { success: false, error: msg };
   }
 }
 
@@ -117,7 +125,7 @@ export async function fetchAllPJMappings(): Promise<PJMappingData[]> {
       lookup_key: m.lookupKey,
       pj_id: m.pjId,
       platforms: Array.isArray(m.platforms) 
-        ? m.platforms as string[] 
+        ? (m.platforms as string[])
         : (typeof m.platforms === 'string' ? JSON.parse(m.platforms) : null),
       updated_at: m.updatedAt ? new Date(m.updatedAt).toISOString() : new Date().toISOString(),
       pj_contacts: m.pjContact ? {
@@ -128,8 +136,8 @@ export async function fetchAllPJMappings(): Promise<PJMappingData[]> {
         created_at: m.pjContact.createdAt ? new Date(m.pjContact.createdAt).toISOString() : new Date().toISOString(),
       } : null,
     }));
-  } catch (error: any) {
-    console.error("Error fetching PJ mappings:", error);
+  } catch (error: unknown) {
+    console.error("Error fetching PJ mappings:", getErrorMessage(error));
     return [];
   }
 }
@@ -148,9 +156,10 @@ export async function updatePJMapping(
     revalidatePath("/admin");
     revalidatePath("/pj");
     return { success: true };
-  } catch (error: any) {
-    console.error("Error updating PJ mapping:", error);
-    return { success: false, error: error.message };
+  } catch (error: unknown) {
+    const msg = getErrorMessage(error);
+    console.error("Error updating PJ mapping:", msg);
+    return { success: false, error: msg };
   }
 }
 
@@ -182,7 +191,7 @@ export async function createPJMapping(
         lookup_key: created.lookupKey,
         pj_id: created.pjId,
         platforms: Array.isArray(created.platforms) 
-          ? created.platforms as string[] 
+          ? (created.platforms as string[])
           : (typeof created.platforms === 'string' ? JSON.parse(created.platforms) : null),
         updated_at: created.updatedAt ? new Date(created.updatedAt).toISOString() : new Date().toISOString(),
         pj_contacts: created.pjContact ? {
@@ -194,8 +203,9 @@ export async function createPJMapping(
         } : null,
       },
     };
-  } catch (error: any) {
-    console.error("Error creating PJ mapping:", error);
-    return { success: false, error: error.message };
+  } catch (error: unknown) {
+    const msg = getErrorMessage(error);
+    console.error("Error creating PJ mapping:", msg);
+    return { success: false, error: msg };
   }
 }

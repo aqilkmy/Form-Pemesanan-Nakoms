@@ -8,9 +8,7 @@ import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Loader2 } from "lucide-react";
 
-// Simple admin credentials - in production use proper auth
-const ADMIN_USERNAME = "admin";
-const ADMIN_PASSWORD = "rizzmed2026";
+import { loginAdmin, checkAdminAuth } from "@/lib/actions/auth";
 
 export function AdminLogin() {
   const router = useRouter();
@@ -22,14 +20,15 @@ export function AdminLogin() {
   const [isCheckingAuth, setIsCheckingAuth] = React.useState(true);
 
   React.useEffect(() => {
-    const auth =
-      sessionStorage.getItem("adminAuth") === "true" ||
-      localStorage.getItem("adminAuth") === "true";
-    if (auth) {
-      router.replace("/admin/dashboard");
-    } else {
-      setIsCheckingAuth(false);
+    async function verify() {
+      const isAuthed = await checkAdminAuth();
+      if (isAuthed) {
+        router.replace("/admin/dashboard");
+      } else {
+        setIsCheckingAuth(false);
+      }
     }
+    verify();
   }, [router]);
 
   const handleLogin = async (e: React.FormEvent) => {
@@ -37,18 +36,21 @@ export function AdminLogin() {
     setError("");
     setIsLoading(true);
 
-    // Simple credential check
-    if (username === ADMIN_USERNAME && password === ADMIN_PASSWORD) {
-      // Store login state in both sessionStorage and localStorage
-      sessionStorage.setItem("adminAuth", "true");
-      localStorage.setItem("adminAuth", "true");
-      window.dispatchEvent(new Event("adminAuthChange"));
-      router.push("/admin/dashboard");
-    } else {
-      setError("Username atau password salah");
+    try {
+      const res = await loginAdmin(username, password);
+      if (res.success) {
+        window.dispatchEvent(new Event("adminAuthChange"));
+        router.push("/admin/dashboard");
+      } else {
+        setError(res.error || "Username atau password salah");
+        setIsLoading(false);
+      }
+    } catch {
+      setError("Terjadi kesalahan saat login");
       setIsLoading(false);
     }
   };
+
 
   if (isCheckingAuth) {
     return (

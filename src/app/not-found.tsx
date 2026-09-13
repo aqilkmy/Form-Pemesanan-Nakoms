@@ -92,12 +92,19 @@ export default function NotFound({
           </motion.p>
 
           <motion.div variants={fadeUp}>
-            <Link href="/">
-              <Button className="gap-2 hover:scale-105 transition-all duration-500 cursor-pointer">
+            {onBack ? (
+              <Button onClick={onBack} className="gap-2 hover:scale-105 transition-all duration-500 cursor-pointer">
                 <ArrowLeftIcon className="w-5 h-5" />
                 {backText}
               </Button>
-            </Link>
+            ) : (
+              <Link href="/">
+                <Button className="gap-2 hover:scale-105 transition-all duration-500 cursor-pointer">
+                  <ArrowLeftIcon className="w-5 h-5" />
+                  {backText}
+                </Button>
+              </Link>
+            )}
           </motion.div>
         </motion.div>
       </AnimatePresence>

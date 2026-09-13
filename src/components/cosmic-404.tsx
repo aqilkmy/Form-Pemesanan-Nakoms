@@ -1,7 +1,7 @@
 "use client";
 
 import createGlobe, { type COBEOptions } from "cobe";
-import { useCallback, useEffect, useRef } from "react";
+import { useEffect, useRef } from "react";
 import { cn } from "@/lib/utils";
 
 const GLOBE_CONFIG: COBEOptions = {
@@ -32,7 +32,6 @@ export interface GlobeProps {
 
 export function Globe({ className, config = GLOBE_CONFIG }: GlobeProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const phiRef = useRef(0);
   const widthRef = useRef(0);
 
   useEffect(() => {

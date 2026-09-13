@@ -6,12 +6,7 @@ import dayGridPlugin from "@fullcalendar/daygrid";
 import interactionPlugin from "@fullcalendar/interaction";
 import { EventClickArg } from "@fullcalendar/core";
 import { getOrders } from "@/lib/actions/orders";
-import {
-  Order,
-  DesainPublikasiOrder,
-  BantuanTeknisOrder,
-  SurveyOrder,
-} from "@/lib/types";
+import { Order } from "@/lib/types";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Loader2, Calendar, X } from "lucide-react";
 import { STATUS_OPTIONS } from "@/lib/constants";

@@ -184,7 +184,7 @@ export function FormDesainPublikasi({ form, step }: FormDesainProps) {
                 .
               </p>
               <p className="mt-1">
-                Isi <strong>"-"</strong> jika tidak ada file yang perlu
+                Isi <strong>&quot;-&quot;</strong> jika tidak ada file yang perlu
                 dilampirkan.
               </p>
               <p className="mt-2">

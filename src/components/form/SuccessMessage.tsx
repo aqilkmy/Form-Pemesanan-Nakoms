@@ -5,7 +5,7 @@ import * as React from "react"
 import { CheckCircle2, MessageCircle, Loader2 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { MenuType, JENIS_BANTUAN_OPTIONS, KEMENTERIAN_TO_KEMENKO } from "@/lib/constants"
-import { getPJLookupsWithFallback, DAYS_OF_WEEK } from "@/lib/pj"
+import { getPJLookupsWithFallback } from "@/lib/pj"
 
 interface SubmittedData {
     menu_type: MenuType

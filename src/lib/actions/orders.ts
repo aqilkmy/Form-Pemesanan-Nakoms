@@ -1,11 +1,66 @@
 "use server";
 
 import { prisma } from "@/lib/prisma";
+import { Prisma } from "@prisma/client";
 import { revalidatePath } from "next/cache";
 import { Order, OrderStatus } from "@/lib/types";
 
+function getErrorMessage(error: unknown): string {
+  if (error instanceof Error) return error.message;
+  return String(error);
+}
+
+interface PrismaOrderRecord {
+  id: string;
+  createdAt: Date;
+  status: string;
+  menuType: string;
+  nama: string;
+  kementerian: string;
+  nomorWhatsapp: string;
+  sudahBacaSop: boolean;
+  isHidden: boolean;
+  judulDesain: string | null;
+  platformPublikasi: unknown;
+  tanggalPublikasi: Date | null;
+  waktuPublikasi: string | null;
+  linkThumbnail: string | null;
+  linkFileKonten: string | null;
+  linkCaptionDocs: string | null;
+  requestLagu: string | null;
+  customShortlink: string | null;
+  fiturTambahanWeb: string | null;
+  linkDesainSelesai: string | null;
+  statusPublikasi: unknown;
+  websiteSubType: string | null;
+  catatanWebsite: string | null;
+  tujuanPemesanan: string | null;
+  linkOriginal: string | null;
+  linkPengajuanFitur: string | null;
+  linkPendaftaranEvent: string | null;
+  judulKampanye: string | null;
+  namaUrlTwibbon: string | null;
+  captionTwibbon: string | null;
+  formatTwibbon: string | null;
+  warnaChromaKey: string | null;
+  tanggalPublikasiTwibbon: Date | null;
+  linkAssetTwibbon: string | null;
+  namaKegiatan: string | null;
+  tanggalKegiatan: Date | null;
+  waktuKegiatan: string | null;
+  tempatKegiatan: string | null;
+  jenisBantuan: string | null;
+  jenisBantuanLainnya: string | null;
+  judulSurvey: string | null;
+  deskripsiSurvey: string | null;
+  targetResponden: string | null;
+  deadlineSurvey: Date | null;
+  linkGdriveBrief: string | null;
+  hadiahSurvey: string | null;
+}
+
 // Helper to format Prisma Order model back to the application's Order type (snake_case)
-function formatOrder(dbOrder: any): Order {
+function formatOrder(dbOrder: PrismaOrderRecord): Order {
   return {
     id: dbOrder.id,
     created_at: dbOrder.createdAt ? new Date(dbOrder.createdAt).toISOString() : new Date().toISOString(),
@@ -20,9 +75,9 @@ function formatOrder(dbOrder: any): Order {
     // Desain & Publikasi
     judul_desain: dbOrder.judulDesain || "",
     platform_publikasi: Array.isArray(dbOrder.platformPublikasi) 
-      ? dbOrder.platformPublikasi 
+      ? (dbOrder.platformPublikasi as string[])
       : (typeof dbOrder.platformPublikasi === 'string' ? JSON.parse(dbOrder.platformPublikasi) : []),
-    tanggal_publikasi: dbOrder.tanggalPublikasi ? (dbOrder.tanggalPublikasi instanceof Date ? dbOrder.tanggalPublikasi.toISOString().split("T")[0] : String(dbOrder.tanggalPublikasi).split("T")[0]) : "",
+    tanggal_publikasi: dbOrder.tanggalPublikasi ? dbOrder.tanggalPublikasi.toISOString().split("T")[0] : "",
     waktu_publikasi: dbOrder.waktuPublikasi || "",
     link_thumbnail: dbOrder.linkThumbnail || "",
     link_file_konten: dbOrder.linkFileKonten || "",
@@ -32,11 +87,11 @@ function formatOrder(dbOrder: any): Order {
     fitur_tambahan_web: dbOrder.fiturTambahanWeb || "",
     link_desain_selesai: dbOrder.linkDesainSelesai || "",
     status_publikasi: typeof dbOrder.statusPublikasi === "object" && dbOrder.statusPublikasi !== null 
-      ? dbOrder.statusPublikasi 
+      ? (dbOrder.statusPublikasi as Record<string, boolean>)
       : (typeof dbOrder.statusPublikasi === "string" ? JSON.parse(dbOrder.statusPublikasi || "{}") : {}),
 
     // Website & Twibbon
-    website_sub_type: dbOrder.websiteSubType,
+    website_sub_type: dbOrder.websiteSubType as "shortlink" | "laman_website" | "twibbon" | undefined,
     catatan_website: dbOrder.catatanWebsite || "",
     tujuan_pemesanan: dbOrder.tujuanPemesanan || "",
     link_original: dbOrder.linkOriginal || "",
@@ -45,26 +100,26 @@ function formatOrder(dbOrder: any): Order {
     judul_kampanye: dbOrder.judulKampanye || "",
     nama_url_twibbon: dbOrder.namaUrlTwibbon || "",
     caption_twibbon: dbOrder.captionTwibbon || "",
-    format_twibbon: dbOrder.formatTwibbon,
+    format_twibbon: dbOrder.formatTwibbon as "gambar" | "video" | undefined,
     warna_chroma_key: dbOrder.warnaChromaKey || "",
-    tanggal_publikasi_twibbon: dbOrder.tanggalPublikasiTwibbon ? (dbOrder.tanggalPublikasiTwibbon instanceof Date ? dbOrder.tanggalPublikasiTwibbon.toISOString().split("T")[0] : String(dbOrder.tanggalPublikasiTwibbon).split("T")[0]) : "",
+    tanggal_publikasi_twibbon: dbOrder.tanggalPublikasiTwibbon ? dbOrder.tanggalPublikasiTwibbon.toISOString().split("T")[0] : "",
     link_asset_twibbon: dbOrder.linkAssetTwibbon || "",
 
     // Bantuan Teknis
     nama_kegiatan: dbOrder.namaKegiatan || "",
-    tanggal_kegiatan: dbOrder.tanggalKegiatan ? (dbOrder.tanggalKegiatan instanceof Date ? dbOrder.tanggalKegiatan.toISOString().split("T")[0] : String(dbOrder.tanggalKegiatan).split("T")[0]) : "",
+    tanggal_kegiatan: dbOrder.tanggalKegiatan ? dbOrder.tanggalKegiatan.toISOString().split("T")[0] : "",
     waktu_kegiatan: dbOrder.waktuKegiatan || "",
     tempat_kegiatan: dbOrder.tempatKegiatan || "",
-    jenis_bantuan: dbOrder.jenisBantuan,
+    jenis_bantuan: dbOrder.jenisBantuan as "podcast" | "take_video" | "live_instagram" | "lainnya",
     jenis_bantuan_lainnya: dbOrder.jenisBantuanLainnya || "",
 
     // Survey
     judul_survey: dbOrder.judulSurvey || "",
     deskripsi_survey: dbOrder.deskripsiSurvey || "",
     target_responden: dbOrder.targetResponden || "",
-    deadline_survey: dbOrder.deadlineSurvey ? (dbOrder.deadlineSurvey instanceof Date ? dbOrder.deadlineSurvey.toISOString().split("T")[0] : String(dbOrder.deadlineSurvey).split("T")[0]) : "",
+    deadline_survey: dbOrder.deadlineSurvey ? dbOrder.deadlineSurvey.toISOString().split("T")[0] : "",
     link_gdrive_brief: dbOrder.linkGdriveBrief || "",
-    hadiah_survey: dbOrder.hadiahSurvey,
+    hadiah_survey: dbOrder.hadiahSurvey as "ada" | "tidak",
   } as Order;
 }
 
@@ -74,88 +129,89 @@ export async function getOrders(): Promise<{ data: Order[] | null; error: string
     const orders = await prisma.order.findMany({
       orderBy: { createdAt: "desc" },
     });
-    return { data: orders.map(formatOrder), error: null };
-  } catch (error: any) {
-    console.error("Error fetching orders from MySQL:", error);
-    return { data: null, error: error.message || "Failed to fetch orders" };
+    return { data: (orders as unknown as PrismaOrderRecord[]).map(formatOrder), error: null };
+  } catch (error: unknown) {
+    const msg = getErrorMessage(error);
+    console.error("Error fetching orders from MySQL:", msg);
+    return { data: null, error: msg || "Failed to fetch orders" };
   }
 }
 
 // Create new order from client form
-export async function createOrder(data: any): Promise<{ success: boolean; data?: Order; error?: string }> {
+export async function createOrder(data: Record<string, unknown>): Promise<{ success: boolean; data?: Order; error?: string }> {
   try {
-    const dbData: any = {
-      nama: data.nama,
-      kementerian: data.kementerian,
-      nomorWhatsapp: data.nomor_whatsapp,
+    const dbData: Record<string, unknown> = {
+      nama: String(data.nama || ""),
+      kementerian: String(data.kementerian || ""),
+      nomorWhatsapp: String(data.nomor_whatsapp || ""),
       sudahBacaSop: Boolean(data.sudah_baca_sop),
-      menuType: data.menu_type,
+      menuType: String(data.menu_type || ""),
       status: "new",
       isHidden: false,
     };
 
     // Desain & Publikasi fields
     if (data.menu_type === "desain_publikasi") {
-      dbData.judulDesain = data.judul_desain;
-      dbData.platformPublikasi = data.platform_publikasi || [];
+      dbData.judulDesain = String(data.judul_desain || "");
+      dbData.platformPublikasi = Array.isArray(data.platform_publikasi) ? data.platform_publikasi : [];
       if (data.tanggal_publikasi) {
-        dbData.tanggalPublikasi = new Date(data.tanggal_publikasi);
+        dbData.tanggalPublikasi = new Date(String(data.tanggal_publikasi));
       }
-      dbData.waktuPublikasi = data.waktu_publikasi;
-      dbData.linkFileKonten = data.link_file_konten;
-      dbData.linkCaptionDocs = data.link_caption_docs;
-      dbData.requestLagu = data.request_lagu || null;
+      dbData.waktuPublikasi = String(data.waktu_publikasi || "");
+      dbData.linkFileKonten = String(data.link_file_konten || "");
+      dbData.linkCaptionDocs = String(data.link_caption_docs || "");
+      dbData.requestLagu = data.request_lagu ? String(data.request_lagu) : null;
       dbData.statusPublikasi = {};
     }
 
     // Website fields
     if (data.menu_type === "website") {
-      dbData.websiteSubType = data.website_sub_type;
-      dbData.tujuanPemesanan = data.tujuan_pemesanan || null;
-      dbData.linkOriginal = data.link_original || null;
-      dbData.customShortlink = data.custom_shortlink || null;
-      dbData.linkPengajuanFitur = data.link_pengajuan_fitur || null;
-      dbData.linkPendaftaranEvent = data.link_pendaftaran_event || null;
-      dbData.catatanWebsite = data.catatan_website || null;
+      dbData.websiteSubType = data.website_sub_type ? String(data.website_sub_type) : null;
+      dbData.tujuanPemesanan = data.tujuan_pemesanan ? String(data.tujuan_pemesanan) : null;
+      dbData.linkOriginal = data.link_original ? String(data.link_original) : null;
+      dbData.customShortlink = data.custom_shortlink ? String(data.custom_shortlink) : null;
+      dbData.linkPengajuanFitur = data.link_pengajuan_fitur ? String(data.link_pengajuan_fitur) : null;
+      dbData.linkPendaftaranEvent = data.link_pendaftaran_event ? String(data.link_pendaftaran_event) : null;
+      dbData.catatanWebsite = data.catatan_website ? String(data.catatan_website) : null;
 
       // Twibbon specific fields
-      dbData.judulKampanye = data.judul_kampanye || null;
-      dbData.namaUrlTwibbon = data.nama_url_twibbon || null;
-      dbData.captionTwibbon = data.caption_twibbon || null;
-      dbData.formatTwibbon = data.format_twibbon || null;
-      dbData.warnaChromaKey = data.warna_chroma_key || null;
+      dbData.judulKampanye = data.judul_kampanye ? String(data.judul_kampanye) : null;
+      dbData.namaUrlTwibbon = data.nama_url_twibbon ? String(data.nama_url_twibbon) : null;
+      dbData.captionTwibbon = data.caption_twibbon ? String(data.caption_twibbon) : null;
+      dbData.formatTwibbon = data.format_twibbon ? String(data.format_twibbon) : null;
+      dbData.warnaChromaKey = data.warna_chroma_key ? String(data.warna_chroma_key) : null;
       if (data.tanggal_publikasi_twibbon) {
-        dbData.tanggalPublikasiTwibbon = new Date(data.tanggal_publikasi_twibbon);
+        dbData.tanggalPublikasiTwibbon = new Date(String(data.tanggal_publikasi_twibbon));
       }
-      dbData.linkAssetTwibbon = data.link_asset_twibbon || null;
+      dbData.linkAssetTwibbon = data.link_asset_twibbon ? String(data.link_asset_twibbon) : null;
     }
 
     // Bantuan Teknis fields
     if (data.menu_type === "bantuan_teknis") {
-      dbData.namaKegiatan = data.nama_kegiatan;
+      dbData.namaKegiatan = String(data.nama_kegiatan || "");
       if (data.tanggal_kegiatan) {
-        dbData.tanggalKegiatan = new Date(data.tanggal_kegiatan);
+        dbData.tanggalKegiatan = new Date(String(data.tanggal_kegiatan));
       }
-      dbData.waktuKegiatan = data.waktu_kegiatan;
-      dbData.tempatKegiatan = data.tempat_kegiatan;
-      dbData.jenisBantuan = data.jenis_bantuan;
-      dbData.jenisBantuanLainnya = data.jenis_bantuan_lainnya || null;
+      dbData.waktuKegiatan = String(data.waktu_kegiatan || "");
+      dbData.tempatKegiatan = String(data.tempat_kegiatan || "");
+      dbData.jenisBantuan = String(data.jenis_bantuan || "");
+      dbData.jenisBantuanLainnya = data.jenis_bantuan_lainnya ? String(data.jenis_bantuan_lainnya) : null;
     }
 
     // Survey fields
     if (data.menu_type === "survey") {
-      dbData.judulSurvey = data.judul_survey;
-      dbData.deskripsiSurvey = data.deskripsi_survey;
-      dbData.targetResponden = data.target_responden;
+      dbData.judulSurvey = String(data.judul_survey || "");
+      dbData.deskripsiSurvey = String(data.deskripsi_survey || "");
+      dbData.targetResponden = String(data.target_responden || "");
       if (data.deadline_survey) {
-        dbData.deadlineSurvey = new Date(data.deadline_survey);
+        dbData.deadlineSurvey = new Date(String(data.deadline_survey));
       }
-      dbData.linkGdriveBrief = data.link_gdrive_brief;
-      dbData.hadiahSurvey = data.hadiah_survey;
+      dbData.linkGdriveBrief = String(data.link_gdrive_brief || "");
+      dbData.hadiahSurvey = String(data.hadiah_survey || "");
     }
 
     const created = await prisma.order.create({
-      data: dbData,
+      data: dbData as unknown as Prisma.OrderUncheckedCreateInput,
     });
 
     revalidatePath("/monitoring");
@@ -163,10 +219,11 @@ export async function createOrder(data: any): Promise<{ success: boolean; data?:
     revalidatePath("/jadwal");
     revalidatePath("/statistik");
 
-    return { success: true, data: formatOrder(created) };
-  } catch (error: any) {
-    console.error("Error creating order in MySQL:", error);
-    return { success: false, error: error.message || "Failed to create order" };
+    return { success: true, data: formatOrder(created as unknown as PrismaOrderRecord) };
+  } catch (error: unknown) {
+    const msg = getErrorMessage(error);
+    console.error("Error creating order in MySQL:", msg);
+    return { success: false, error: msg || "Failed to create order" };
   }
 }
 
@@ -181,38 +238,40 @@ export async function updateOrderStatus(orderId: string, status: OrderStatus): P
     revalidatePath("/monitoring");
     revalidatePath("/jadwal");
     return { success: true };
-  } catch (error: any) {
-    console.error("Error updating order status:", error);
-    return { success: false, error: error.message };
+  } catch (error: unknown) {
+    const msg = getErrorMessage(error);
+    console.error("Error updating order status:", msg);
+    return { success: false, error: msg };
   }
 }
 
 // Update arbitrary fields (e.g. link_desain_selesai, status_publikasi, is_hidden)
-export async function updateOrder(orderId: string, fields: Record<string, any>): Promise<{ success: boolean; error?: string }> {
+export async function updateOrder(orderId: string, fields: Record<string, unknown>): Promise<{ success: boolean; error?: string }> {
   try {
-    const updateData: any = {};
+    const updateData: Record<string, unknown> = {};
     
     if (fields.status !== undefined) updateData.status = fields.status;
     if (fields.link_desain_selesai !== undefined) updateData.linkDesainSelesai = fields.link_desain_selesai;
     if (fields.status_publikasi !== undefined) updateData.statusPublikasi = fields.status_publikasi;
     if (fields.is_hidden !== undefined) updateData.isHidden = Boolean(fields.is_hidden);
     if (fields.tanggal_publikasi !== undefined) {
-      updateData.tanggalPublikasi = fields.tanggal_publikasi ? new Date(fields.tanggal_publikasi) : null;
+      updateData.tanggalPublikasi = fields.tanggal_publikasi ? new Date(String(fields.tanggal_publikasi)) : null;
     }
     if (fields.waktu_publikasi !== undefined) updateData.waktuPublikasi = fields.waktu_publikasi;
 
     await prisma.order.update({
       where: { id: orderId },
-      data: updateData,
+      data: updateData as unknown as Prisma.OrderUpdateInput,
     });
 
     revalidatePath("/admin");
     revalidatePath("/monitoring");
     revalidatePath("/jadwal");
     return { success: true };
-  } catch (error: any) {
-    console.error("Error updating order:", error);
-    return { success: false, error: error.message };
+  } catch (error: unknown) {
+    const msg = getErrorMessage(error);
+    console.error("Error updating order:", msg);
+    return { success: false, error: msg };
   }
 }
 
@@ -226,8 +285,9 @@ export async function deleteOrder(orderId: string): Promise<{ success: boolean; 
     revalidatePath("/monitoring");
     revalidatePath("/jadwal");
     return { success: true };
-  } catch (error: any) {
-    console.error("Error deleting order:", error);
-    return { success: false, error: error.message };
+  } catch (error: unknown) {
+    const msg = getErrorMessage(error);
+    console.error("Error deleting order:", msg);
+    return { success: false, error: msg };
   }
 }

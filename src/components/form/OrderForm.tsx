@@ -1,7 +1,6 @@
 "use client";
 
 import * as React from "react";
-import Image from "next/image";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
@@ -17,7 +16,7 @@ import {
   SurveyFormValues,
   OrderFormValues,
 } from "@/lib/schema";
-import { MenuType, JENIS_BANTUAN_OPTIONS } from "@/lib/constants";
+import { MenuType } from "@/lib/constants";
 import { createOrder } from "@/lib/actions/orders";
 import { Button } from "@/components/ui/button";
 import {
@@ -311,8 +310,8 @@ export function OrderForm() {
       websiteForm.reset();
 
       topRef.current?.scrollIntoView({ behavior: "smooth" });
-    } catch (error: any) {
-      const errorMsg = error?.message || error?.code || "Unknown error";
+    } catch (error: unknown) {
+      const errorMsg = error instanceof Error ? error.message : "Unknown error";
       console.error("Error submitting shortlink order:", errorMsg);
       throw new Error(errorMsg);
     }
@@ -331,21 +330,34 @@ export function OrderForm() {
         | "live_instagram"
         | "lainnya"
         | undefined;
+      let websiteSubType: "shortlink" | "laman_website" | "twibbon" | undefined;
+      let platformPublikasi: string[] | undefined;
+      let tanggalPublikasi: string | undefined;
 
       switch (selectedMenu) {
-        case "desain_publikasi":
-          data = desainForm.getValues();
+        case "desain_publikasi": {
+          const desainData = desainForm.getValues();
+          data = desainData;
+          platformPublikasi = desainData.platform_publikasi;
+          tanggalPublikasi = desainData.tanggal_publikasi;
           break;
-        case "website":
-          data = websiteForm.getValues();
+        }
+        case "website": {
+          const websiteData = websiteForm.getValues();
+          data = websiteData;
+          websiteSubType = websiteData.website_sub_type;
           break;
-        case "bantuan_teknis":
-          data = bantuanTeknisForm.getValues();
-          jenisBantuan = data.jenis_bantuan;
+        }
+        case "bantuan_teknis": {
+          const bantuanData = bantuanTeknisForm.getValues();
+          data = bantuanData;
+          jenisBantuan = bantuanData.jenis_bantuan;
           break;
-        case "survey":
+        }
+        case "survey": {
           data = surveyForm.getValues();
           break;
+        }
         default:
           throw new Error("Invalid menu type");
       }
@@ -356,24 +368,14 @@ export function OrderForm() {
         throw new Error(res.error || "Gagal menyimpan pesanan");
       }
 
-
       setSubmittedData({
         menu_type: selectedMenu,
-        website_sub_type:
-          selectedMenu === "website"
-            ? (data as any).website_sub_type
-            : undefined,
+        website_sub_type: websiteSubType,
         kementerian: data.kementerian,
         nama: data.nama,
         jenis_bantuan: jenisBantuan,
-        platform_publikasi:
-          selectedMenu === "desain_publikasi"
-            ? (data as any).platform_publikasi
-            : undefined,
-        tanggal_publikasi:
-          selectedMenu === "desain_publikasi"
-            ? (data as any).tanggal_publikasi
-            : undefined,
+        platform_publikasi: platformPublikasi,
+        tanggal_publikasi: tanggalPublikasi,
       });
       setIsSuccess(true);
 
@@ -385,8 +387,8 @@ export function OrderForm() {
       surveyForm.reset();
 
       topRef.current?.scrollIntoView({ behavior: "smooth" });
-    } catch (error: any) {
-      const errorMsg = error?.message || error?.code || "Unknown error";
+    } catch (error: unknown) {
+      const errorMsg = error instanceof Error ? error.message : "Unknown error";
       console.error("Error submitting order:", errorMsg);
       alert(`Terjadi kesalahan: ${errorMsg}`);
     } finally {
@@ -413,7 +415,7 @@ export function OrderForm() {
   const renderStepContent = () => {
     switch (currentStep) {
       case "identity":
-        return <StepIdentity form={identityForm as any} />;
+        return <StepIdentity form={identityForm} />;
       case "menu":
         return (
           <MenuSelector
