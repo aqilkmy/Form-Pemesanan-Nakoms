@@ -38,6 +38,8 @@ import {
   AlertTriangle,
   Eye,
   EyeOff,
+  Loader2,
+  Check,
 } from "lucide-react";
 
 interface DesainPublikasiTableProps {
@@ -292,36 +294,11 @@ export function DesainPublikasiTable({
                   </div>
                 </TableCell>
                 <TableCell>
-                  <div className="flex items-center gap-1">
-                    <Input
-                      type="text"
-                      placeholder="Link..."
-                      defaultValue={order.link_desain_selesai || ""}
-                      onBlur={(e) => {
-                        if (
-                          e.target.value !==
-                          (order.link_desain_selesai || "")
-                        ) {
-                          updateField(
-                            order.id,
-                            "link_desain_selesai",
-                            e.target.value,
-                          );
-                        }
-                      }}
-                      className="h-7 text-[10px] w-24 px-2"
-                    />
-                    {order.link_desain_selesai && (
-                      <a
-                        href={order.link_desain_selesai}
-                        target="_blank"
-                        rel="noreferrer"
-                        className="text-blue-600 hover:text-blue-800"
-                      >
-                        <ExternalLink className="w-3 h-3" />
-                      </a>
-                    )}
-                  </div>
+                  <LinkDesainCell
+                    orderId={order.id}
+                    initialValue={order.link_desain_selesai || ""}
+                    updateField={updateField}
+                  />
                 </TableCell>
                 <TableCell>
                   <div className="flex items-center gap-1">
@@ -410,5 +387,93 @@ export function DesainPublikasiTable({
         })}
       </TableBody>
     </Table>
+  );
+}
+
+interface LinkDesainCellProps {
+  orderId: string;
+  initialValue?: string;
+  updateField: (orderId: string, field: string, value: unknown) => Promise<void>;
+}
+
+function LinkDesainCell({ orderId, initialValue = "", updateField }: LinkDesainCellProps) {
+  const [value, setValue] = React.useState(initialValue || "");
+  const [status, setStatus] = React.useState<"idle" | "saving" | "saved" | "error">("idle");
+  const [isFocused, setIsFocused] = React.useState(false);
+
+  // Sync with prop when outside update happens, but only when not actively typing/saving
+  React.useEffect(() => {
+    if (!isFocused && status !== "saving") {
+      setValue(initialValue || "");
+    }
+  }, [initialValue, isFocused, status]);
+
+  const handleSave = async (val: string) => {
+    const trimmed = val.trim();
+    if (trimmed === (initialValue || "")) return;
+
+    setStatus("saving");
+    try {
+      await updateField(orderId, "link_desain_selesai", trimmed);
+      setStatus("saved");
+      setTimeout(() => {
+        setStatus("idle");
+      }, 2000);
+    } catch {
+      setStatus("error");
+    }
+  };
+
+  return (
+    <div className="flex items-center gap-1.5">
+      <div className="relative flex items-center">
+        <Input
+          type="text"
+          placeholder="Link Drive..."
+          value={value}
+          onChange={(e) => setValue(e.target.value)}
+          onFocus={() => setIsFocused(true)}
+          onBlur={() => {
+            setIsFocused(false);
+            handleSave(value);
+          }}
+          onKeyDown={(e) => {
+            if (e.key === "Enter") {
+              e.preventDefault();
+              handleSave(value);
+              (e.target as HTMLInputElement).blur();
+            }
+          }}
+          disabled={status === "saving"}
+          className={`h-7 text-[10px] w-28 px-2 pr-6 transition-all ${
+            status === "saved"
+              ? "border-emerald-500 bg-emerald-50/50 text-emerald-900 dark:border-emerald-500 dark:bg-emerald-950/40 dark:text-emerald-200"
+              : status === "error"
+              ? "border-destructive bg-destructive/10 text-destructive"
+              : ""
+          }`}
+          title="Tekan Enter atau klik di luar untuk menyimpan link"
+        />
+        <div className="absolute right-1.5 pointer-events-none flex items-center">
+          {status === "saving" && (
+            <Loader2 className="w-3 h-3 animate-spin text-muted-foreground" />
+          )}
+          {status === "saved" && (
+            <Check className="w-3 h-3 text-emerald-600 dark:text-emerald-400" />
+          )}
+        </div>
+      </div>
+      {value && (
+        <a
+          href={value.startsWith("http") ? value : `https://${value}`}
+          target="_blank"
+          rel="noreferrer"
+          className="text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 p-1 shrink-0 rounded hover:bg-blue-50 dark:hover:bg-blue-950/40 transition-colors"
+          title="Buka Link Desain"
+        >
+          <ExternalLink className="w-3 h-3" />
+        </a>
+      )}
+    </div>
   );
 }

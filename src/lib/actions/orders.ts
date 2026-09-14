@@ -258,6 +258,13 @@ export async function updateOrder(orderId: string, fields: Record<string, unknow
       updateData.tanggalPublikasi = fields.tanggal_publikasi ? new Date(String(fields.tanggal_publikasi)) : null;
     }
     if (fields.waktu_publikasi !== undefined) updateData.waktuPublikasi = fields.waktu_publikasi;
+    if (fields.deadline_survey !== undefined) {
+      updateData.deadlineSurvey = fields.deadline_survey ? new Date(String(fields.deadline_survey)) : null;
+    }
+    if (fields.tanggal_kegiatan !== undefined) {
+      updateData.tanggalKegiatan = fields.tanggal_kegiatan ? new Date(String(fields.tanggal_kegiatan)) : null;
+    }
+    if (fields.waktu_kegiatan !== undefined) updateData.waktuKegiatan = fields.waktu_kegiatan;
 
     await prisma.order.update({
       where: { id: orderId },

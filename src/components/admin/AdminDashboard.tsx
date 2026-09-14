@@ -162,18 +162,29 @@ export function AdminDashboard() {
   };
 
   const updateField = async (orderId: string, field: string, value: unknown) => {
+    let prevValue: unknown;
+    setOrders((prev) =>
+      prev.map((order) => {
+        if (order.id === orderId) {
+          prevValue = (order as unknown as Record<string, unknown>)[field];
+          return { ...order, [field]: value };
+        }
+        return order;
+      }),
+    );
+
     try {
       const res = await updateOrderAction(orderId, { [field]: value });
       if (!res.success) throw new Error(res.error);
-
-      setOrders((prev) =>
-        prev.map((order) =>
-          order.id === orderId ? { ...order, [field]: value } : order,
-        ),
-      );
     } catch (error) {
       console.error(`Error updating ${field}:`, error);
+      setOrders((prev) =>
+        prev.map((order) =>
+          order.id === orderId ? { ...order, [field]: prevValue } : order,
+        ),
+      );
       alert(`Gagal menyimpan ${field}`);
+      throw error;
     }
   };
 
