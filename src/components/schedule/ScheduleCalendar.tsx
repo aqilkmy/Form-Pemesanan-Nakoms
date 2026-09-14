@@ -8,7 +8,8 @@ import { EventClickArg } from "@fullcalendar/core";
 import { getOrders } from "@/lib/actions/orders";
 import { Order } from "@/lib/types";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Loader2, Calendar, X } from "lucide-react";
+import { CalendarSkeleton } from "@/components/shared/Skeletons";
+import { Calendar, X } from "lucide-react";
 import { STATUS_OPTIONS } from "@/lib/constants";
 
 interface CalendarEvent {
@@ -154,11 +155,7 @@ export function ScheduleCalendar() {
   };
 
   if (isLoading) {
-    return (
-      <div className="flex justify-center items-center h-64">
-        <Loader2 className="w-8 h-8 animate-spin text-primary" />
-      </div>
-    );
+    return <CalendarSkeleton />;
   }
 
   const getOrderTitle = (order: Order): string => {
