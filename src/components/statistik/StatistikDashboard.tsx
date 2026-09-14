@@ -21,8 +21,8 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { StatistikSkeleton } from "@/components/shared/Skeletons";
 import {
-  Loader2,
   BarChart3,
   Palette,
   Globe,
@@ -242,11 +242,7 @@ export function StatistikDashboard() {
   };
 
   if (isLoading) {
-    return (
-      <div className="flex justify-center items-center h-64">
-        <Loader2 className="w-8 h-8 animate-spin text-primary" />
-      </div>
-    );
+    return <StatistikSkeleton />;
   }
 
   return (

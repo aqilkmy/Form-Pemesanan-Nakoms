@@ -38,8 +38,8 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { MonitoringTableSkeleton } from "@/components/shared/Skeletons";
 import {
-  Loader2,
   ExternalLink,
   Filter,
   AlertTriangle,
@@ -391,11 +391,7 @@ export function MonitoringDashboard({ initialOrders = [] }: MonitoringDashboardP
   };
 
   if (isLoading) {
-    return (
-      <div className="flex justify-center items-center h-64">
-        <Loader2 className="w-8 h-8 animate-spin text-primary" />
-      </div>
-    );
+    return <MonitoringTableSkeleton />;
   }
 
   // Collision warning component

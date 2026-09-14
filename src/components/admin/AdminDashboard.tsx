@@ -47,8 +47,8 @@ import {
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { DatePicker03 } from "@/components/shadcn-studio/date-picker/date-picker-03";
+import { AdminDashboardSkeleton } from "@/components/shared/Skeletons";
 import {
-  Loader2,
   Filter,
   AlertTriangle,
   Palette,
@@ -368,11 +368,7 @@ export function AdminDashboard() {
   };
 
   if (isLoading) {
-    return (
-      <div className="flex justify-center items-center h-64">
-        <Loader2 className="w-8 h-8 animate-spin text-primary" />
-      </div>
-    );
+    return <AdminDashboardSkeleton />;
   }
 
   // Collision warning banner

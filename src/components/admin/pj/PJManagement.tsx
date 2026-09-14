@@ -54,8 +54,8 @@ import {
   CheckCircle2,
   CalendarDays,
   ClipboardList,
-  Loader2,
 } from "lucide-react";
+import { PJPageSkeleton } from "@/components/shared/Skeletons";
 
 export function PJManagement() {
   const [pjMappings, setPjMappings] = React.useState<PJMapping[]>([]);
@@ -199,11 +199,7 @@ export function PJManagement() {
   };
 
   if (isPjLoading) {
-    return (
-      <div className="flex justify-center items-center h-64">
-        <Loader2 className="w-8 h-8 animate-spin text-primary" />
-      </div>
-    );
+    return <PJPageSkeleton />;
   }
 
   const categories: PJCategory[] = [

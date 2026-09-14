@@ -4,7 +4,6 @@ import { useEffect, useState, useMemo } from "react";
 import Link from "next/link";
 import {
   ArrowLeft,
-  Loader2,
   MessageCircle,
   Users2,
   Palette,
@@ -17,6 +16,7 @@ import {
 } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { PJPageSkeleton } from "@/components/shared/Skeletons";
 import {
   fetchPJContacts,
   fetchAllPJMappings,
@@ -149,9 +149,9 @@ export default function LihatPJPage() {
   if (isLoading) {
     return (
       <main className="min-h-screen flex flex-col items-center">
-        <div className="flex-1 container py-8 sm:py-12">
-          <div className="flex justify-center items-center h-64">
-            <Loader2 className="w-8 h-8 animate-spin text-primary" />
+        <div className="flex-1 container py-6 sm:py-10 px-4 sm:px-6">
+          <div className="max-w-4xl mx-auto">
+            <PJPageSkeleton />
           </div>
         </div>
       </main>
