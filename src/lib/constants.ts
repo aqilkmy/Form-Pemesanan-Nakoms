@@ -254,8 +254,8 @@ export const PJ_PUBLIKASI: Record<string, { nama: string; nomor: string }> = {
 // PJ Intern Desain Grafis (per kementerian & proker)
 export const PJ_INTERN_DESAIN: Record<string, { nama: string; nomor: string; proker: string }[]> = {
     "Kementerian Media Kreatif dan Aplikatif": [
-        { nama: "Maura", nomor: "62895396055600", proker: "Nulispedia" },
-        { nama: "Racha", nomor: "6281226767725", proker: "Malaka" },
+        { nama: "Maura", nomor: "62895396055600", proker: "Malaka" },
+        { nama: "Racha", nomor: "6281226767725", proker: "Nulispedia" },
     ],
     "Kementerian Luar Negeri": [
         { nama: "Maura", nomor: "62895396055600", proker: "Media Partner" },
